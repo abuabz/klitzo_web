@@ -1,0 +1,478 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft } from "lucide-react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import PurchaseForm from "@/components/purchase-form"
+
+export default function ProductPage() {
+  const params = useParams()
+  const productId = Number.parseInt(params.id as string)
+
+  const [isVisible, setIsVisible] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+  const [selectedImage, setSelectedImage] = useState(0)
+  const [showPurchaseForm, setShowPurchaseForm] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
+
+  const products = [
+    {
+      id: 1,
+      name: "KLITZO Stain Remover Pro",
+      images: ["/modern-blue-spray-bottle.png", "/placeholder-8dagt.png", "/navy-blue-cleaning-bottle.png"],
+      price: "$24.99",
+      originalPrice: "$29.99",
+      description:
+        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
+      longDescription:
+        "KLITZO Stain Remover Pro is engineered with cutting-edge cleaning technology that penetrates deep into fabric fibers to lift and remove stains completely. Safe for all washable fabrics including delicates, this powerful formula is your go-to solution for coffee spills, grass stains, food marks, and more.",
+      category: "stain-remover",
+      features: [
+        "3X Advanced Formula - Triple-action cleaning power",
+        "Works in 30 seconds - Fast-acting stain removal",
+        "Safe for all fabrics - Including delicates and colors",
+        "Eco-friendly ingredients - Biodegradable formula",
+        "Pleasant fresh scent - Leaves clothes smelling clean",
+      ],
+      specifications: {
+        Volume: "500ml",
+        Type: "Liquid Spray",
+        "Suitable for": "All washable fabrics",
+        Fragrance: "Fresh Clean",
+        "pH Level": "7.0 (Neutral)",
+      },
+      rating: 4.8,
+      reviews: 156,
+      inStock: true,
+      freeShipping: true,
+    },
+    {
+      id: 2,
+      name: "KLITZO Multi-Surface Cleaner",
+      images: ["/placeholder-8dagt.png", "/modern-blue-spray-bottle.png", "/navy-blue-cleaning-bottle.png"],
+      price: "$19.99",
+      originalPrice: "$24.99",
+      description:
+        "Perfect for all surfaces - kitchen, bathroom, and more. Kills 99.9% of germs while leaving a streak-free finish.",
+      longDescription:
+        "Our versatile Multi-Surface Cleaner is formulated to tackle dirt, grime, and germs on virtually any surface in your home. From kitchen countertops to bathroom tiles, this powerful yet gentle formula ensures a spotless, streak-free clean every time.",
+      category: "multi-surface",
+      features: [
+        "Kills 99.9% germs - Antibacterial protection",
+        "Streak-free finish - Crystal clear results",
+        "Pleasant fragrance - Long-lasting fresh scent",
+        "Multi-surface safe - Kitchen, bathroom, glass",
+        "Quick-drying formula - No residue left behind",
+      ],
+      specifications: {
+        Volume: "750ml",
+        Type: "Spray Cleaner",
+        "Suitable for": "All hard surfaces",
+        Fragrance: "Citrus Fresh",
+        Antibacterial: "Yes",
+      },
+      rating: 4.7,
+      reviews: 203,
+      inStock: true,
+      freeShipping: true,
+    },
+    {
+      id: 3,
+      name: "KLITZO Brightening Formula",
+      images: ["/navy-blue-cleaning-bottle.png", "/modern-blue-spray-bottle.png", "/placeholder-8dagt.png"],
+      price: "$29.99",
+      originalPrice: "$34.99",
+      description: "Advanced brightening technology for whites and colors. Removes yellowing and extends fabric life.",
+      longDescription:
+        "Transform your laundry with our revolutionary Brightening Formula. This advanced solution not only removes yellowing and dullness but also protects fabric fibers to extend the life of your favorite clothes.",
+      category: "brightening",
+      features: [
+        "Color-safe formula - Protects fabric colors",
+        "Removes yellowing - Restores original brightness",
+        "Extends fabric life - Gentle on fibers",
+        "Optical brighteners - Enhanced whitening power",
+        "Concentrated formula - More washes per bottle",
+      ],
+      specifications: {
+        Volume: "1L",
+        Type: "Liquid Additive",
+        "Suitable for": "Whites and colors",
+        Concentration: "Ultra-concentrated",
+        Usage: "Add to wash cycle",
+      },
+      rating: 4.9,
+      reviews: 89,
+      inStock: true,
+      freeShipping: true,
+    },
+  ]
+
+  const product = products.find((p) => p.id === productId)
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-slate-800 mb-4">Product Not Found</h1>
+          <Link href="/products">
+            <Button className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">Back to Products</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const handlePurchase = () => {
+    setShowPurchaseForm(true)
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {showPurchaseForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99] p-4">
+          <div className="max-h-[90vh] overflow-y-auto ">
+            <PurchaseForm
+              product={{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.images[0],
+              }}
+              quantity={quantity}
+              onClose={() => setShowPurchaseForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/">
+                <img src="/klitzo-logo.png" alt="KLITZO Logo" className="h-10 w-auto cursor-pointer" />
+              </Link>
+            </div>
+
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-8">
+                <Link
+                  href="/"
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
+                >
+                  Home
+                </Link>
+                <Link href="/products" className="text-teal-600 px-3 py-2 text-sm font-medium">
+                  Products
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+
+            <div className="hidden md:block">
+              <Link href="/products">
+                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                  Shop Now
+                </Button>
+              </Link>
+            </div>
+
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-slate-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-300"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+
+          {isMobileMenuOpen && (
+            <div className="md:hidden backdrop-blur-md bg-white/20 border-t border-white/20 rounded-b-lg mt-2">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link
+                  href="/"
+                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
+                >
+                  Home
+                </Link>
+                <Link href="/products" className="text-teal-600 block px-3 py-2 text-base font-medium">
+                  Products
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      <section className="pt-20 pb-4 px-4 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center space-x-2 text-sm text-slate-600">
+            <Link href="/" className="hover:text-teal-600 transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <Link href="/products" className="hover:text-teal-600 transition-colors">
+              Products
+            </Link>
+            <span>/</span>
+            <span className="text-slate-800">{product.name}</span>
+          </div>
+          <Link
+            href="/products"
+            className="inline-flex items-center mt-4 text-teal-600 hover:text-teal-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Products
+          </Link>
+        </div>
+      </section>
+
+      <section className="py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div
+              className={`transform transition-all duration-1000 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"}`}
+            >
+              <div className="space-y-4">
+                <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden">
+                  <img
+                    src={product.images[selectedImage] || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-full object-contain p-8"
+                  />
+                </div>
+                <div className="flex space-x-4 overflow-x-auto">
+                  {product.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                        selectedImage === index
+                          ? "border-teal-500 shadow-lg"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <img
+                        src={image || "/placeholder.svg"}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-contain p-2"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`transform transition-all duration-1000 delay-300 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
+            >
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-5 w-5 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+                      />
+                    ))}
+                    <span className="text-lg font-semibold text-slate-800 ml-2">{product.rating}</span>
+                  </div>
+                  <span className="text-slate-600">({product.reviews} reviews)</span>
+                  {product.inStock && <Badge className="bg-green-100 text-green-800">In Stock</Badge>}
+                </div>
+
+                <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-3xl font-bold text-teal-600">{product.price}</span>
+                  {product.originalPrice && (
+                    <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
+                  )}
+                  {product.originalPrice && (
+                    <Badge className="bg-red-100 text-red-800">
+                      Save $
+                      {(
+                        Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
+                      ).toFixed(2)}
+                    </Badge>
+                  )}
+                </div>
+
+                <p className="text-lg text-slate-600 leading-relaxed">{product.description}</p>
+
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-slate-800">Key Features:</h3>
+                  <div className="space-y-2">
+                    {product.features.slice(0, 3).map((feature, index) => (
+                      <div key={index} className="flex items-center">
+                        <Sparkles className="h-5 w-5 text-teal-500 mr-3 flex-shrink-0" />
+                        <span className="text-slate-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center gap-4">
+                    <span className="text-lg font-semibold text-slate-800">Quantity:</span>
+                    <div className="flex items-center border border-slate-300 rounded-lg">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="p-2 hover:bg-slate-100 transition-colors"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="px-4 py-2 text-lg font-semibold">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="p-2 hover:bg-slate-100 transition-colors"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button
+                      onClick={handlePurchase}
+                      size="lg"
+                      className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                    >
+                      <ShoppingCart className="mr-2 h-5 w-5" />
+                      Buy Now - ${(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
+                    >
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-2 border-slate-300 text-slate-600 hover:bg-slate-100 px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
+                    >
+                      <Share2 className="h-5 w-5" />
+                    </Button>
+                  </div>
+
+                  {product.freeShipping && (
+                    <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
+                      <Sparkles className="h-5 w-5 mr-2" />
+                      <span className="font-medium">Free shipping on this item!</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 px-4 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
+              <p className="text-slate-600 leading-relaxed mb-6">{product.longDescription}</p>
+              <div className="space-y-3">
+                <h4 className="text-lg font-semibold text-slate-800">All Features:</h4>
+                {product.features.map((feature, index) => (
+                  <div key={index} className="flex items-start">
+                    <Sparkles className="h-5 w-5 text-teal-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Specifications</h3>
+              <div className="space-y-4">
+                {Object.entries(product.specifications).map(([key, value]) => (
+                  <div key={key} className="flex justify-between py-2 border-b border-slate-200 last:border-b-0">
+                    <span className="font-medium text-slate-700">{key}:</span>
+                    <span className="text-slate-600">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">You Might Also Like</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {products
+              .filter((p) => p.id !== productId)
+              .slice(0, 3)
+              .map((relatedProduct) => (
+                <Card
+                  key={relatedProduct.id}
+                  className="group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden"
+                >
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={relatedProduct.images[0] || "/placeholder.svg"}
+                      alt={relatedProduct.name}
+                      className="w-full h-48 object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <Link href={`/product/${relatedProduct.id}`}>
+                      <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
+                        View Product
+                      </Button>
+                    </Link>
+                  </div>
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2">{relatedProduct.name}</h3>
+                    <p className="text-slate-600 text-sm mb-4">{relatedProduct.description}</p>
+                    <div className="flex items-center justify-between">
+                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">
+                        {relatedProduct.price}
+                      </Badge>
+                      <div className="flex text-yellow-400 text-sm">★ {relatedProduct.rating}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
