@@ -44,7 +44,7 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 • Product: ${product.name}
 • Price: ${product.price} each
 • Quantity: ${quantity}
-• Total Amount: $${totalPrice}
+• Total Amount: ₹${totalPrice}
 
 👤 *Customer Details:*
 • Name: ${formData.name}
@@ -96,7 +96,7 @@ Thank you!`
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
               <p className="text-lg font-bold text-teal-600">
-                Total: ${(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
               </p>
             </div>
           </div>

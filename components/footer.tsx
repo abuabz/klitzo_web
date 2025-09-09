@@ -38,7 +38,7 @@ export default function Footer() {
                 </p>
               </div>
               <div className="flex space-x-4">
-                <a href="#" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
+                <a href="https://maps.app.goo.gl/VYZmvZxfDiLiESZJ7" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -54,7 +54,7 @@ export default function Footer() {
                     />
                   </svg>
                 </a>
-                <a href="#" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
+                <a href="tel:+918111813853" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -64,7 +64,7 @@ export default function Footer() {
                     />
                   </svg>
                 </a>
-                <a href="#" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
+                <a href="mailto: klitzo.info@gmail.com" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -74,14 +74,11 @@ export default function Footer() {
                     />
                   </svg>
                 </a>
-                <a href="#" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
+                  <rect width="20" height="20" x="2" y="2" rx="5" strokeWidth={2} stroke="currentColor" fill="none"/>
+                  <circle cx="12" cy="12" r="5" strokeWidth={2} stroke="currentColor" fill="none"/>
+                  <circle cx="17" cy="7" r="1.5" fill="currentColor"/>
                   </svg>
                 </a>
               </div>
@@ -181,9 +178,9 @@ export default function Footer() {
                     />
                   </svg>
                   <p className="text-slate-300 text-sm">
-                    123 Cleaning Street
+                    Inkel City, Malappuram 
                     <br />
-                    Clean City, CC 12345
+                    676519, Kerala, India
                   </p>
                 </div>
                 <div className="flex items-center space-x-3">

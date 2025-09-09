@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
@@ -16,35 +16,34 @@ export default function KlitzoLanding() {
   }, [])
 
   const features = [
-    { icon: Zap, text: "3X Advanced Cleaning Power", delay: "0ms" },
-    { icon: Sparkles, text: "Instant Stain Action", delay: "200ms" },
-    { icon: Shield, text: "Extra Brightening", delay: "400ms" },
-    { icon: Shirt, text: "Effective on Clothes, Vehicles", delay: "600ms" },
-    { icon: Home, text: "Toilets, Tiles, Plastics & More", delay: "800ms" },
+    { icon: Zap, text: "Works on Multiple Surfaces", delay: "0ms" },
+    { icon: Sparkles, text: "Instant Stain Removal", delay: "200ms" },
+    { icon: Shield, text: "Brightening Formula", delay: "400ms" },
+    { icon: Shirt, text: "Safe to Use", delay: "600ms" },
+    { icon: Home, text: "Export Quality", delay: "800ms" },
+    { icon: Timer, text: "Long Shelf Life", delay: "800ms" },
   ]
 
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover Pro",
+      name: "KLITZO Stain Remover",
       image: "/modern-blue-spray-bottle.png",
-      price: "$24.99",
-      description: "Ultimate stain fighting power",
+      price: "₹599.00",
+      originalPrice: "₹1199.00",
+      description: "Ultimate stain fighting power for the toughest stains",
+      category: "stain-remover",
+           features: [
+        "Instant removal of old & new stains",
+        "Fresh orange fragrance",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+        
+      ]      ,
+      reviews: 156,
     },
-    {
-      id: 2,
-      name: "KLITZO Multi-Surface Cleaner",
-      image: "/placeholder-8dagt.png",
-      price: "$19.99",
-      description: "Perfect for all surfaces",
-    },
-    {
-      id: 3,
-      name: "KLITZO Brightening Formula",
-      image: "/navy-blue-cleaning-bottle.png",
-      price: "$29.99",
-      description: "Advanced brightening technology",
-    },
+
   ]
 
   return (
@@ -362,22 +361,34 @@ export default function KlitzoLanding() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
           </h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> */}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8">
             {products.map((product, index) => (
               <Card
-                key={index}
-                className="group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden"
+                key={product.id}
+                className={`group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                  }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="relative overflow-hidden">
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-96 object-fit group-hover:scale-110 transition-transform duration-500"
                   />
+                  {product.originalPrice && (
+                    <Badge className="absolute top-4 left-4 bg-red-500 text-white">
+                      {/* Save ₹
+                      {(
+                        Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
+                      ).toFixed(2)} */}
+                      50% OFF
+                    </Badge>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <Link href={`/product/${product.id}`}>
                     <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                      Quick View
+                      View Details
                     </Button>
                   </Link>
                 </div>
@@ -387,10 +398,25 @@ export default function KlitzoLanding() {
                     {product.name}
                   </h3>
                   <p className="text-slate-600 mb-4">{product.description}</p>
+
+                  <div className="space-y-2 mb-4">
+                    {product.features.slice(0, 2).map((feature, idx) => (
+                      <div key={idx} className="flex items-center text-sm text-slate-600">
+                        <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="flex items-center justify-between">
-                    <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1 text-lg">
-                      {product.price}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1 text-lg">
+                        {product.price}
+                      </Badge>
+                      {product.originalPrice && (
+                        <span className="text-slate-400 line-through text-sm">{product.originalPrice}</span>
+                      )}
+                    </div>
                     <Link href={`/product/${product.id}`}>
                       <Button
                         variant="outline"
@@ -449,7 +475,7 @@ export default function KlitzoLanding() {
                     </div>
                     <div>
                       <p className="font-semibold text-slate-800">Address</p>
-                      <p className="text-slate-600">123 Cleaning Street, Clean City, CC 12345</p>
+                      <p className="text-slate-600">Inkel City, Malappuram – 676519, Kerala, India</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -536,7 +562,7 @@ export default function KlitzoLanding() {
         </div>
       </section>
 
-   
+
     </div>
   )
 }

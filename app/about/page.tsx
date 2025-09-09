@@ -40,8 +40,8 @@ export default function AboutPage() {
   ]
 
   const stats = [
-    { number: "50,000+", label: "Happy Customers" },
-    { number: "15+", label: "Years Experience" },
+    { number: "100+", label: "Happy Customers" },
+    { number: "2+", label: "Years Experience" },
     { number: "25+", label: "Products" },
     { number: "99.9%", label: "Customer Satisfaction" },
   ]
@@ -158,17 +158,7 @@ export default function AboutPage() {
             >
               <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">Our Story</h2>
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Founded in 2008, KLITZO began with a simple mission: to create cleaning products that are both powerful
-                and safe for families and the environment. What started as a small family business has grown into a
-                trusted brand serving thousands of customers worldwide.
-              </p>
-              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                Our journey has been driven by continuous innovation and an unwavering commitment to quality. We believe
-                that effective cleaning shouldn't come at the cost of your health or the planet's wellbeing.
-              </p>
-              <p className="text-lg text-slate-600 leading-relaxed">
-                Today, KLITZO stands as a symbol of trust, quality, and environmental responsibility in the cleaning
-                industry.
+              KLITZO was created with one vision: to make cleaning simple, powerful, and universal. Combining advanced US technology with Indian manufacturing excellence, KLITZO delivers world-class cleaning performance in every spray
               </p>
             </div>
             <div
@@ -301,34 +291,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Experience KLITZO?</h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of satisfied customers who trust KLITZO for their cleaning needs.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/products">
-              <Button
-                size="lg"
-                className="bg-white text-teal-600 hover:bg-slate-100 px-12 py-6 text-xl rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 hover:-translate-y-1 font-semibold"
-              >
-                Shop Products
-                <Sparkles className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-teal-600 px-12 py-6 text-xl rounded-full transition-all duration-300 bg-transparent"
-              >
-                Contact Us
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+
     </div>
   )
 }

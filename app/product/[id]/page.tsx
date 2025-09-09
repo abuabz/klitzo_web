@@ -26,21 +26,21 @@ export default function ProductPage() {
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover Pro",
+      name: "KLITZO Stain Remover",
       images: ["/modern-blue-spray-bottle.png", "/placeholder-8dagt.png", "/navy-blue-cleaning-bottle.png"],
-      price: "$24.99",
-      originalPrice: "$29.99",
+      price: "₹599.00",
+      originalPrice: "₹1199.00",
       description:
         "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
       longDescription:
-        "KLITZO Stain Remover Pro is engineered with cutting-edge cleaning technology that penetrates deep into fabric fibers to lift and remove stains completely. Safe for all washable fabrics including delicates, this powerful formula is your go-to solution for coffee spills, grass stains, food marks, and more.",
+        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
       category: "stain-remover",
       features: [
-        "3X Advanced Formula - Triple-action cleaning power",
-        "Works in 30 seconds - Fast-acting stain removal",
-        "Safe for all fabrics - Including delicates and colors",
-        "Eco-friendly ingredients - Biodegradable formula",
-        "Pleasant fresh scent - Leaves clothes smelling clean",
+        "Instant removal of old & new stains",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+        "Fresh orange fragrance"
       ],
       specifications: {
         Volume: "500ml",
@@ -49,67 +49,35 @@ export default function ProductPage() {
         Fragrance: "Fresh Clean",
         "pH Level": "7.0 (Neutral)",
       },
+      safetyAndUsageNotes: [
+        "Store in a cool, dry place, away from sunlight.",
+        "Keep out of reach of children and pets.",
+        "Avoid contact with eyes; rinse with water if exposed.",
+        "Wear gloves if you have sensitive skin.",
+        "Not for silk, wool, or delicate fabrics.",
+        "Do not use on ceramic-coated, waxed, or polished vehicles.",
+        "Do not use on polished/varnished wood.",
+        "Test on a hidden area first.",
+        "Use only as directed; misuse may damage surfaces.",
+        "Do not ingest; seek medical help if swallowed.",
+        "Use in a well-ventilated area."
+      ],
+      applicationGuide: [
+        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
+        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
+        "Vehicle: Body stains, watermarks, shine restoration",
+        "Household: Plastics, buckets, glass surfaces, steel pipes",
+        "Industrial/Commercial: Oil, grease, ink stains"
+      ],
+      howToUse: [
+        "Shake well before use.",
+        "Spray directly onto the stained area.",
+        "Leave for 30–60 seconds.",
+        "Wipe with a microfiber cloth or scrubber (for tough stains).",
+        "Rinse if required."
+      ],
       rating: 4.8,
       reviews: 156,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 2,
-      name: "KLITZO Multi-Surface Cleaner",
-      images: ["/placeholder-8dagt.png", "/modern-blue-spray-bottle.png", "/navy-blue-cleaning-bottle.png"],
-      price: "$19.99",
-      originalPrice: "$24.99",
-      description:
-        "Perfect for all surfaces - kitchen, bathroom, and more. Kills 99.9% of germs while leaving a streak-free finish.",
-      longDescription:
-        "Our versatile Multi-Surface Cleaner is formulated to tackle dirt, grime, and germs on virtually any surface in your home. From kitchen countertops to bathroom tiles, this powerful yet gentle formula ensures a spotless, streak-free clean every time.",
-      category: "multi-surface",
-      features: [
-        "Kills 99.9% germs - Antibacterial protection",
-        "Streak-free finish - Crystal clear results",
-        "Pleasant fragrance - Long-lasting fresh scent",
-        "Multi-surface safe - Kitchen, bathroom, glass",
-        "Quick-drying formula - No residue left behind",
-      ],
-      specifications: {
-        Volume: "750ml",
-        Type: "Spray Cleaner",
-        "Suitable for": "All hard surfaces",
-        Fragrance: "Citrus Fresh",
-        Antibacterial: "Yes",
-      },
-      rating: 4.7,
-      reviews: 203,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 3,
-      name: "KLITZO Brightening Formula",
-      images: ["/navy-blue-cleaning-bottle.png", "/modern-blue-spray-bottle.png", "/placeholder-8dagt.png"],
-      price: "$29.99",
-      originalPrice: "$34.99",
-      description: "Advanced brightening technology for whites and colors. Removes yellowing and extends fabric life.",
-      longDescription:
-        "Transform your laundry with our revolutionary Brightening Formula. This advanced solution not only removes yellowing and dullness but also protects fabric fibers to extend the life of your favorite clothes.",
-      category: "brightening",
-      features: [
-        "Color-safe formula - Protects fabric colors",
-        "Removes yellowing - Restores original brightness",
-        "Extends fabric life - Gentle on fibers",
-        "Optical brighteners - Enhanced whitening power",
-        "Concentrated formula - More washes per bottle",
-      ],
-      specifications: {
-        Volume: "1L",
-        Type: "Liquid Additive",
-        "Suitable for": "Whites and colors",
-        Concentration: "Ultra-concentrated",
-        Usage: "Add to wash cycle",
-      },
-      rating: 4.9,
-      reviews: 89,
       inStock: true,
       freeShipping: true,
     },
@@ -278,11 +246,10 @@ export default function ProductPage() {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                        selectedImage === index
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedImage === index
                           ? "border-teal-500 shadow-lg"
                           : "border-slate-200 hover:border-slate-300"
-                      }`}
+                        }`}
                     >
                       <img
                         src={image || "/placeholder.svg"}
@@ -300,16 +267,6 @@ export default function ProductPage() {
             >
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-5 w-5 ${i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
-                      />
-                    ))}
-                    <span className="text-lg font-semibold text-slate-800 ml-2">{product.rating}</span>
-                  </div>
-                  <span className="text-slate-600">({product.reviews} reviews)</span>
                   {product.inStock && <Badge className="bg-green-100 text-green-800">In Stock</Badge>}
                 </div>
 
@@ -322,7 +279,7 @@ export default function ProductPage() {
                   )}
                   {product.originalPrice && (
                     <Badge className="bg-red-100 text-red-800">
-                      Save $
+                      Save ₹
                       {(
                         Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
                       ).toFixed(2)}
@@ -371,7 +328,7 @@ export default function ProductPage() {
                       className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" />
-                      Buy Now - ${(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                      Buy Now - ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
                     </Button>
                     <Button
                       variant="outline"
@@ -404,7 +361,7 @@ export default function ProductPage() {
 
       <section className="py-12 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cfols-2 gap-8">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
               <p className="text-slate-600 leading-relaxed mb-6">{product.longDescription}</p>
@@ -430,46 +387,45 @@ export default function ProductPage() {
                 ))}
               </div>
             </Card>
+             <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">How to Use</h3>
+              <div className="space-y-2 text-slate-600">
+                <ol className="list-decimal pl-5 space-y-1">
+                  {product.howToUse.map((step, index) => (
+                    <li key={index}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            </Card>
           </div>
-        </div>
-      </section>
 
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">You Might Also Like</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {products
-              .filter((p) => p.id !== productId)
-              .slice(0, 3)
-              .map((relatedProduct) => (
-                <Card
-                  key={relatedProduct.id}
-                  className="group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden"
-                >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={relatedProduct.images[0] || "/placeholder.svg"}
-                      alt={relatedProduct.name}
-                      className="w-full h-48 object-contain p-4 group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <Link href={`/product/${relatedProduct.id}`}>
-                      <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                        View Product
-                      </Button>
-                    </Link>
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-bold text-slate-800 mb-2">{relatedProduct.name}</h3>
-                    <p className="text-slate-600 text-sm mb-4">{relatedProduct.description}</p>
-                    <div className="flex items-center justify-between">
-                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white">
-                        {relatedProduct.price}
-                      </Badge>
-                      <div className="flex text-yellow-400 text-sm">★ {relatedProduct.rating}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="grid md:grid-cols-2 gap-8 mt-8">
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Safety & Usage Notes</h3>
+              <div className="space-y-2 text-slate-600">
+                <ul className="list-disc pl-5 space-y-1">
+                  {product.safetyAndUsageNotes.map((note, index) => (
+                    <li key={index}>{note}</li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Application Guide</h3>
+              <div className="space-y-2 text-slate-600">
+                <ul className="list-none space-y-1">
+                  {product.applicationGuide.map((app, index) => (
+                    <li key={index}>
+                      <span className="text-teal-500 mr-2">✅</span>
+                      {app}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Card>
+
+           
           </div>
         </div>
       </section>

@@ -72,13 +72,13 @@ Thank you!`
     {
       icon: Mail,
       title: "Email",
-      details: [" klitzo.info@gmail.com", "support@klitzo.com"],
+      details: [" klitzo.info@gmail.com"],
       action: "mailto: klitzo.info@gmail.com",
     },
     {
       icon: MapPin,
       title: "Address",
-      details: ["123 Clean Street", "Mumbai, Maharashtra 400001"],
+      details: ["Inkel City, Malappuram – 676519, Kerala, India"],
       action: null,
     },
     {

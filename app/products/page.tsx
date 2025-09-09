@@ -20,76 +20,23 @@ export default function ProductsPage() {
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover Pro",
+      name: "KLITZO Stain Remover",
       image: "/modern-blue-spray-bottle.png",
-      price: "$24.99",
-      originalPrice: "$29.99",
+      price: "₹599.00",
+      originalPrice: "₹1199.00",
       description: "Ultimate stain fighting power for the toughest stains",
       category: "stain-remover",
-      features: ["3X Advanced Formula", "Works in 30 seconds", "Safe for all fabrics"],
+      features: [
+        "Instant removal of old & new stains",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+        "Fresh orange fragrance"
+      ]      ,
       rating: 4.8,
       reviews: 156,
     },
-    {
-      id: 2,
-      name: "KLITZO Multi-Surface Cleaner",
-      image: "/placeholder-8dagt.png",
-      price: "$19.99",
-      originalPrice: "$24.99",
-      description: "Perfect for all surfaces - kitchen, bathroom, and more",
-      category: "multi-surface",
-      features: ["Kills 99.9% germs", "Streak-free finish", "Pleasant fragrance"],
-      rating: 4.7,
-      reviews: 203,
-    },
-    {
-      id: 3,
-      name: "KLITZO Brightening Formula",
-      image: "/navy-blue-cleaning-bottle.png",
-      price: "$29.99",
-      originalPrice: "$34.99",
-      description: "Advanced brightening technology for whites and colors",
-      category: "brightening",
-      features: ["Color-safe formula", "Removes yellowing", "Extends fabric life"],
-      rating: 4.9,
-      reviews: 89,
-    },
-    {
-      id: 4,
-      name: "KLITZO Car Care Kit",
-      image: "/placeholder-6yvs3.png",
-      price: "$39.99",
-      originalPrice: "$49.99",
-      description: "Complete car cleaning solution for interior and exterior",
-      category: "automotive",
-      features: ["Interior & exterior", "Scratch-free formula", "UV protection"],
-      rating: 4.6,
-      reviews: 124,
-    },
-    {
-      id: 5,
-      name: "KLITZO Bathroom Deep Clean",
-      image: "/placeholder-34ds0.png",
-      price: "$22.99",
-      originalPrice: "$27.99",
-      description: "Powerful bathroom cleaner for tiles, toilets, and fixtures",
-      category: "bathroom",
-      features: ["Anti-bacterial", "Removes soap scum", "Fresh mint scent"],
-      rating: 4.8,
-      reviews: 178,
-    },
-    {
-      id: 6,
-      name: "KLITZO Kitchen Degreaser",
-      image: "/placeholder-g7yzb.png",
-      price: "$21.99",
-      originalPrice: "$26.99",
-      description: "Heavy-duty degreaser for kitchen surfaces and appliances",
-      category: "kitchen",
-      features: ["Cuts through grease", "Food-safe formula", "No harsh chemicals"],
-      rating: 4.7,
-      reviews: 145,
-    },
+
   ]
 
   const categories = [
@@ -233,11 +180,10 @@ export default function ProductsPage() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    selectedCategory === category.id
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category.id
                       ? "bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
                   {category.name}
                 </button>
@@ -254,9 +200,8 @@ export default function ProductsPage() {
             {filteredProducts.map((product, index) => (
               <Card
                 key={product.id}
-                className={`group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${
-                  isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                }`}
+                className={`group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                  }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="relative overflow-hidden">
@@ -280,19 +225,7 @@ export default function ProductsPage() {
                     </Button>
                   </Link>
                 </div>
-
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < Math.floor(product.rating) ? "text-yellow-400" : "text-gray-300"}>
-                          ★
-                        </span>
-                      ))}
-                    </div>
-                    <span className="text-sm text-slate-500">({product.reviews} reviews)</span>
-                  </div>
-
                   <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">
                     {product.name}
                   </h3>
