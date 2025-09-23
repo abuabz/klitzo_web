@@ -21,7 +21,7 @@ export default function ProductsPage() {
     {
       id: 1,
       name: "KLITZO Stain Remover",
-      image: "/modern-blue-spray-bottle.png",
+      image: "/assets/productmainimg.jpeg",
       price: "₹599.00",
       originalPrice: "₹1199.00",
       description: "Ultimate stain fighting power for the toughest stains",
@@ -42,11 +42,11 @@ export default function ProductsPage() {
   const categories = [
     { id: "all", name: "All Products" },
     { id: "stain-remover", name: "Stain Removers" },
-    { id: "multi-surface", name: "Multi-Surface" },
-    { id: "brightening", name: "Brightening" },
-    { id: "automotive", name: "Car Care" },
-    { id: "bathroom", name: "Bathroom" },
-    { id: "kitchen", name: "Kitchen" },
+    // { id: "multi-surface", name: "Multi-Surface" },
+    // { id: "brightening", name: "Brightening" },
+    // { id: "automotive", name: "Car Care" },
+    // { id: "bathroom", name: "Bathroom" },
+    // { id: "kitchen", name: "Kitchen" },
   ]
 
   const filteredProducts = products.filter((product) => {
@@ -208,7 +208,7 @@ export default function ProductsPage() {
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-64 object-contain group-hover:scale-110 transition-transform duration-500"
                   />
                   {product.originalPrice && (
                     <Badge className="absolute top-4 left-4 bg-red-500 text-white">

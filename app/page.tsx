@@ -10,37 +10,38 @@ import Link from "next/link"
 export default function KlitzoLanding() {
   const [isVisible, setIsVisible] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [openFeature, setOpenFeature] = useState<number | null>(null)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
   const features = [
-    { icon: Zap, text: "Works on Multiple Surfaces", delay: "0ms" },
-    { icon: Sparkles, text: "Instant Stain Removal", delay: "200ms" },
-    { icon: Shield, text: "Brightening Formula", delay: "400ms" },
-    { icon: Shirt, text: "Safe to Use", delay: "600ms" },
-    { icon: Home, text: "Export Quality", delay: "800ms" },
-    { icon: Timer, text: "Long Shelf Life", delay: "800ms" },
+    { icon: Zap, text: "Works on Multiple Surfaces", content: "Cleans steel, plastic, ceramics, glass, vehicle bodies, tiles, and more.", delay: "0ms" },
+    { icon: Sparkles, text: "Instant Stain Removal", content: "Removes old & new stains instantly, including oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots.", delay: "200ms" },
+    { icon: Shield, text: "Brightening Formula", content: "Leaves surfaces looking brighter and refreshed after cleaning.", delay: "400ms" },
+    { icon: Shirt, text: "Safe to Use", content: "Formulated to be safe for a wide range of surfaces and materials.", delay: "600ms" },
+    { icon: Home, text: "Export Quality", content: "Manufactured to meet international quality standards.", delay: "800ms" },
+    { icon: Timer, text: "Long Shelf Life", content: "Stays effective for a long time, ensuring lasting performance.", delay: "800ms" },
   ]
 
   const products = [
     {
       id: 1,
       name: "KLITZO Stain Remover",
-      image: "/modern-blue-spray-bottle.png",
+      image: "/assets/productmainimg.jpeg",
       price: "₹599.00",
       originalPrice: "₹1199.00",
       description: "Ultimate stain fighting power for the toughest stains",
       category: "stain-remover",
-           features: [
+      features: [
         "Instant removal of old & new stains",
         "Fresh orange fragrance",
         "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
         "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
         "Streak-free finish for glass and shiny surfaces",
-        
-      ]      ,
+
+      ],
       reviews: 156,
     },
 
@@ -233,7 +234,7 @@ export default function KlitzoLanding() {
               <div
                 className={`transform transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
               >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-800 mb-4 lg:mb-6 tracking-tight leading-tight drop-shadow-lg">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-800 mb-4 lg:mb-6 tracking-tight leading-tight drop-shadow-lg">
                   Cleaning Made Simple
                 </h1>
               </div>
@@ -259,13 +260,16 @@ export default function KlitzoLanding() {
                       <Sparkles className="ml-2 h-4 w-4 lg:h-5 lg:w-5" />
                     </Button>
                   </Link>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl rounded-full transition-all duration-300 bg-white/20 backdrop-blur-sm"
-                  >
-                    Learn More
-                  </Button>
+                  <Link href="/about">
+                    <Button
+
+                      variant="outline"
+                      size="lg"
+                      className="w-full sm:w-auto border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl rounded-full transition-all duration-300 bg-white/20 backdrop-blur-sm"
+                    >
+                      Learn More
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -279,7 +283,7 @@ export default function KlitzoLanding() {
                 <div className="block lg:hidden">
                   <div className="bg-white/30 backdrop-blur-md rounded-xl shadow-xl p-4 transform hover:scale-105 transition-all duration-300 border border-white/20 max-w-xs mx-auto">
                     <img
-                      src="/modern-blue-spray-bottle.png"
+                      src="/assets/imgproduct01.jpeg"
                       alt="KLITZO Stain Remover"
                       className="w-full h-48 object-contain"
                     />
@@ -292,23 +296,23 @@ export default function KlitzoLanding() {
                     <div className="space-y-6">
                       <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
                         <img
-                          src="/modern-blue-spray-bottle.png"
+                          src="/assets/imgproduct02.jpeg"
                           alt="KLITZO Stain Remover"
                           className="w-full h-48 object-contain"
                         />
                       </div>
                       <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 mt-8 border border-white/20">
                         <img
-                          src="/navy-blue-cleaning-bottle.png"
+                          src="/assets/productmainimg.jpeg"
                           alt="KLITZO Brightening Formula"
                           className="w-full h-48 object-contain"
                         />
                       </div>
                     </div>
-                    <div className="mt-12">
+                    <div className="mt-24">
                       <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
                         <img
-                          src="/placeholder-8dagt.png"
+                          src="/assets/imgproduct04.jpeg"
                           alt="KLITZO Multi-Surface Cleaner"
                           className="w-full h-48 object-contain"
                         />
@@ -337,7 +341,7 @@ export default function KlitzoLanding() {
                 className={`transform transition-all duration-700 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
                 style={{ transitionDelay: feature.delay }}
               >
-                <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-slate-50 to-blue-50 group">
+                <Card onClick={() => setOpenFeature(openFeature === index ? null : index)} className=" p-6 pb-0  cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-slate-50 to-blue-50 group ">
                   <CardContent className="flex items-center space-x-4 p-0">
                     <div className="p-3 rounded-full bg-gradient-to-r from-teal-500 to-blue-600 group-hover:scale-110 transition-transform duration-300">
                       <feature.icon className="h-6 w-6 text-white" />
@@ -346,6 +350,14 @@ export default function KlitzoLanding() {
                       {feature.text}
                     </p>
                   </CardContent>
+                  {/* Feature content collapsible with smooth transition */}
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ${openFeature === index ? "max-h-40 opacity-100 " : "max-h-0 opacity-0 mt-0 "}`}
+                  >
+                    <p className="text-xs pb-6 font-semibold text-slate-700 group-hover:text-slate-900 transition-colors duration-300">
+                      {feature.content}
+                    </p>
+                  </div>
                 </Card>
               </div>
             ))}

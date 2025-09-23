@@ -27,7 +27,7 @@ export default function ProductPage() {
     {
       id: 1,
       name: "KLITZO Stain Remover",
-      images: ["/modern-blue-spray-bottle.png", "/placeholder-8dagt.png", "/navy-blue-cleaning-bottle.png"],
+      images: ["/assets/productmainimg.jpeg", "/assets/imgproduct03.jpeg ", "/assets/imgproduct04.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
       price: "₹599.00",
       originalPrice: "₹1199.00",
       description:
@@ -241,7 +241,7 @@ export default function ProductPage() {
                     className="w-full h-full object-contain p-8"
                   />
                 </div>
-                <div className="flex space-x-4 overflow-x-auto">
+                <div className="flex space-x-4 overflow-scroll overflow-y-hidden   md:overflow-x-auto max-w-[90vw] py-2">
                   {product.images.map((image, index) => (
                     <button
                       key={index}
@@ -330,14 +330,25 @@ export default function ProductPage() {
                       <ShoppingCart className="mr-2 h-5 w-5" />
                       Buy Now - ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
                     </Button>
-                    <Button
+                    {/* <Button
                       variant="outline"
                       size="lg"
                       className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
                     >
                       <Heart className="h-5 w-5" />
-                    </Button>
+                    </Button> */}
                     <Button
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator
+                            .share({
+                              title: product.name,
+                              text: product.description,
+                              url: window.location.href,
+                            })
+                            .catch((error) => console.log("Error sharing", error))
+                          }
+                      }}
                       variant="outline"
                       size="lg"
                       className="border-2 border-slate-300 text-slate-600 hover:bg-slate-100 px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
@@ -382,7 +393,7 @@ export default function ProductPage() {
                 {Object.entries(product.specifications).map(([key, value]) => (
                   <div key={key} className="flex justify-between py-2 border-b border-slate-200 last:border-b-0">
                     <span className="font-medium text-slate-700">{key}:</span>
-                    <span className="text-slate-600">{value}</span>
+                    <span className="text-teal-600">{value}</span>
                   </div>
                 ))}
               </div>
@@ -392,7 +403,7 @@ export default function ProductPage() {
               <div className="space-y-2 text-slate-600">
                 <ol className="list-decimal pl-5 space-y-1">
                   {product.howToUse.map((step, index) => (
-                    <li key={index}>{step}</li>
+                    <li key={index}>  {step}</li>
                   ))}
                 </ol>
               </div>
@@ -417,7 +428,7 @@ export default function ProductPage() {
                 <ul className="list-none space-y-1">
                   {product.applicationGuide.map((app, index) => (
                     <li key={index}>
-                      <span className="text-teal-500 mr-2">✅</span>
+                      <span className="text-teal-500 mr-2">•</span>
                       {app}
                     </li>
                   ))}
