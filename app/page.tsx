@@ -283,7 +283,7 @@ export default function KlitzoLanding() {
                 <div className="block lg:hidden">
                   <div className="bg-white/30 backdrop-blur-md rounded-xl shadow-xl p-4 transform hover:scale-105 transition-all duration-300 border border-white/20 max-w-xs mx-auto">
                     <img
-                      src="/assets/imgproduct01.jpeg"
+                      src="/assets/productmainimg.jpeg"
                       alt="KLITZO Stain Remover"
                       className="w-full h-48 object-contain"
                     />
