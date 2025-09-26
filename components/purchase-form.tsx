@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ShoppingCart, User, MapPin, MessageCircle } from "lucide-react"
 import { useState } from "react"
 
@@ -24,19 +24,24 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
     name: "",
     phone: "",
     email: "",
-    address: "",
-    city: "",
-    state: "",
+    houseDetails: "",
+    street: "",
+    place: "",
     pincode: "",
+    postOffice: "",
+    district: "",
+    state: "",
     notes: "",
+    cashOnDelivery: false,
   })
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handlePurchase = () => {
-    const totalPrice = (Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)
+    const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+    const totalPrice = (basePrice + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)
 
     const message = `🛒 *KLITZO Product Order*
 
@@ -44,6 +49,7 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 • Product: ${product.name}
 • Price: ${product.price} each
 • Quantity: ${quantity}
+• Cash on Delivery: ${formData.cashOnDelivery ? "Yes (+₹50)" : "No"}
 • Total Amount: ₹${totalPrice}
 
 👤 *Customer Details:*
@@ -52,8 +58,11 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 • Email: ${formData.email}
 
 📍 *Delivery Address:*
-• Address: ${formData.address}
-• City: ${formData.city}
+• House No./Name/Code: ${formData.houseDetails}
+• Street Name/Landmark: ${formData.street}
+• Place: ${formData.place}
+• Post Office: ${formData.postOffice}
+• District: ${formData.district}
 • State: ${formData.state}
 • PIN Code: ${formData.pincode}
 
@@ -70,7 +79,15 @@ Thank you!`
   }
 
   const isFormValid =
-    formData.name && formData.phone && formData.address && formData.city && formData.state && formData.pincode
+    formData.name &&
+    formData.phone &&
+    formData.houseDetails &&
+    formData.street &&
+    formData.place &&
+    formData.pincode &&
+    formData.postOffice &&
+    formData.district &&
+    formData.state
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -96,7 +113,7 @@ Thank you!`
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
               <p className="text-lg font-bold text-teal-600">
-                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)}
               </p>
             </div>
           </div>
@@ -111,7 +128,7 @@ Thank you!`
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">1. Full Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -121,7 +138,7 @@ Thank you!`
               />
             </div>
             <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone">2. Mobile Number *</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -133,7 +150,7 @@ Thank you!`
           </div>
 
           <div>
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">3. Email Address</Label>
             <Input
               id="email"
               type="email"
@@ -153,40 +170,41 @@ Thank you!`
           </div>
 
           <div>
-            <Label htmlFor="address">Street Address *</Label>
-            <Textarea
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleInputChange("address", e.target.value)}
-              placeholder="Enter your complete address"
+            <Label htmlFor="houseDetails">4. House Number, Name, Code *</Label>
+            <Input
+              id="houseDetails"
+              value={formData.houseDetails}
+              onChange={(e) => handleInputChange("houseDetails", e.target.value)}
+              placeholder="Enter house number, name, or code"
               className="mt-1"
-              rows={3}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="street">5. Street Name or Landmark *</Label>
+            <Input
+              id="street"
+              value={formData.street}
+              onChange={(e) => handleInputChange("street", e.target.value)}
+              placeholder="Enter street name or landmark"
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="place">6. Place *</Label>
+            <Input
+              id="place"
+              value={formData.place}
+              onChange={(e) => handleInputChange("place", e.target.value)}
+              placeholder="Enter place"
+              className="mt-1"
             />
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="city">City *</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => handleInputChange("city", e.target.value)}
-                placeholder="City"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="state">State *</Label>
-              <Input
-                id="state"
-                value={formData.state}
-                onChange={(e) => handleInputChange("state", e.target.value)}
-                placeholder="State"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="pincode">PIN Code *</Label>
+              <Label htmlFor="pincode">7. PIN Code *</Label>
               <Input
                 id="pincode"
                 value={formData.pincode}
@@ -195,19 +213,61 @@ Thank you!`
                 className="mt-1"
               />
             </div>
+            <div>
+              <Label htmlFor="postOffice">8. Post Office Name *</Label>
+              <Input
+                id="postOffice"
+                value={formData.postOffice}
+                onChange={(e) => handleInputChange("postOffice", e.target.value)}
+                placeholder="Post Office Name"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="district">9. District *</Label>
+              <Input
+                id="district"
+                value={formData.district}
+                onChange={(e) => handleInputChange("district", e.target.value)}
+                placeholder="District"
+                className="mt-1"
+              />
+            </div>
           </div>
+
+          <div>
+            <Label htmlFor="state">10. State *</Label>
+            <Input
+              id="state"
+              value={formData.state}
+              onChange={(e) => handleInputChange("state", e.target.value)}
+              placeholder="State"
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        {/* Cash on Delivery */}
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="cashOnDelivery"
+            checked={formData.cashOnDelivery}
+            onCheckedChange={(checked) => handleInputChange("cashOnDelivery", checked)}
+          />
+          <Label htmlFor="cashOnDelivery" className="text-sm">
+            Cash on Delivery (+₹50)
+          </Label>
         </div>
 
         {/* Additional Notes */}
         <div>
           <Label htmlFor="notes">Additional Notes (Optional)</Label>
-          <Textarea
+          <Input
             id="notes"
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
             placeholder="Any special instructions or preferences..."
             className="mt-1"
-            rows={3}
           />
         </div>
 

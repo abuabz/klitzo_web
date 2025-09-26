@@ -212,7 +212,7 @@ export default function ProductsPage() {
                   />
                   {product.originalPrice && (
                     <Badge className="absolute top-4 left-4 bg-red-500 text-white">
-                      Save $
+                      Save ₹
                       {(
                         Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
                       ).toFixed(2)}

@@ -177,7 +177,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700">
+      {/* <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             {stats.map((stat, index) => (
@@ -192,7 +192,7 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Our Values */}
       <section className="py-16 px-4">

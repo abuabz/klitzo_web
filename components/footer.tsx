@@ -130,7 +130,7 @@ export default function Footer() {
                     Stain Remover Pro
                   </a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
                     Multi-Surface Cleaner
                   </a>
@@ -154,7 +154,7 @@ export default function Footer() {
                   <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
                     Bulk Orders
                   </a>
-                </li>
+                </li> */}
               </ul>
             </div>
 

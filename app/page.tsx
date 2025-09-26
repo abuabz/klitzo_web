@@ -91,7 +91,7 @@ export default function KlitzoLanding() {
 
             {/* Desktop CTA Button */}
             <div className="hidden md:block">
-              <Link href="/products">
+              <Link href="/product/1">
                 <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                   Shop Now
                 </Button>
@@ -251,7 +251,7 @@ export default function KlitzoLanding() {
                 className={`transform transition-all duration-1000 delay-500 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
               >
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/products">
+                  <Link href="/product/1" >
                     <Button
                       size="lg"
                       className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm"
@@ -285,7 +285,7 @@ export default function KlitzoLanding() {
                     <img
                       src="/assets/productmainimg.jpeg"
                       alt="KLITZO Stain Remover"
-                      className="w-full h-48 object-contain"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 </div>

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft } from "lucide-react"
+import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -26,7 +26,7 @@ export default function ProductPage() {
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover",
+      name: "KLITZO Stain Remover 300L",
       images: ["/assets/productmainimg.jpeg", "/assets/imgproduct03.jpeg ", "/assets/imgproduct04.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
       price: "₹599.00",
       originalPrice: "₹1199.00",
@@ -43,11 +43,11 @@ export default function ProductPage() {
         "Fresh orange fragrance"
       ],
       specifications: {
-        Volume: "500ml",
+        Volume: "300ml",
         Type: "Liquid Spray",
-        "Suitable for": "All washable fabrics",
+        // "Suitable for": "All washable fabrics",
         Fragrance: "Fresh Clean",
-        "pH Level": "7.0 (Neutral)",
+        // "pH Level": "7.0 (Neutral)",
       },
       safetyAndUsageNotes: [
         "Store in a cool, dry place, away from sunlight.",
@@ -358,9 +358,19 @@ export default function ProductPage() {
                   </div>
 
                   {product.freeShipping && (
-                    <div className="flex items-center text-green-600 bg-green-50 p-3 rounded-lg">
-                      <Sparkles className="h-5 w-5 mr-2" />
-                      <span className="font-medium">Free shipping on this item!</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center text-teal-800 bg-green-50 p-3 rounded-lg">
+                        <LucideFolderSync className="h-5 w-5 mr-2" />
+                        <span className="font-medium  text-sm ">100% Money-Back Guarantee within 5-Days</span>
+                      </div>
+                      <div className="flex items-center text-teal-800 bg-blue-50 p-3 rounded-lg">
+                        <Clock className="h-5 w-5 mr-2" />
+                        <span className="font-medium text-sm ">Free Shipping on prepaid orders</span>
+                      </div>
+                      <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        <span className="font-medium text-sm ">₹50 COD Fee for Cash on Delivery</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -375,7 +385,7 @@ export default function ProductPage() {
           <div className="grid md:grid-cfols-2 gap-8">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
-              <p className="text-slate-600 leading-relaxed mb-6">{product.longDescription}</p>
+              <p className="text-slate-600 leading-relaxed mb-6 text-justify">{product.longDescription}</p>
               <div className="space-y-3">
                 <h4 className="text-lg font-semibold text-slate-800">All Features:</h4>
                 {product.features.map((feature, index) => (
