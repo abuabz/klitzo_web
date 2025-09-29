@@ -26,7 +26,7 @@ export default function ProductPage() {
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover 300L",
+      name: "Klitzo Multi Surface (All In One) Stain Remover 300ml",
       images: ["/assets/productmainimg.jpeg", "/assets/imgproduct03.jpeg ", "/assets/imgproduct04.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
       price: "₹599.00",
       originalPrice: "₹1199.00",

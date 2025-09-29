@@ -125,11 +125,13 @@ export default function Footer() {
             <div>
               <h3 className="text-lg font-semibold mb-6 text-teal-400">Products</h3>
               <ul className="space-y-3">
+                <Link href="/product/1">
                 <li>
                   <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
-                    Stain Remover Pro
+                    Multi Surface Stain Remover
                   </a>
                 </li>
+                </Link>
                 {/* <li>
                   <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
                     Multi-Surface Cleaner

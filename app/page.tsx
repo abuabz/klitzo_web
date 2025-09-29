@@ -28,7 +28,7 @@ export default function KlitzoLanding() {
   const products = [
     {
       id: 1,
-      name: "KLITZO Stain Remover",
+      name: "KLITZO Stain Remover 300ml",
       image: "/assets/productmainimg.jpeg",
       price: "₹599.00",
       originalPrice: "₹1199.00",
