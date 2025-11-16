@@ -510,11 +510,40 @@ export default function KlitzoLanding() {
             {/* Contact Form */}
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-xl">
               <h3 className="text-2xl font-bold text-slate-800 mb-6">Send us a Message</h3>
-              <form className="space-y-6">
+              <form
+                className="space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  const form = new FormData(e.currentTarget as HTMLFormElement)
+                  const first = (form.get("first") || "").toString().trim()
+                  const last = (form.get("last") || "").toString().trim()
+                  const email = (form.get("email") || "").toString().trim()
+                  const phone = (form.get("phone") || "").toString().trim()
+                  const subject = (form.get("subject") || "").toString().trim()
+                  const message = (form.get("message") || "").toString().trim()
+
+                  const text = [
+                    "New message from KLITZO website:",
+                    `First Name: ${first}`,
+                    `Last Name: ${last}`,
+                    `Email: ${email}`,
+                    `Phone: ${phone}`,
+                    `Subject: ${subject}`,
+                    `Message: ${message}`,
+                  ].join("\n")
+
+                  // WhatsApp number in international format without plus: 918111813853
+                  const waNumber = "918111813853"
+                  const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`
+
+                  window.open(waUrl, "_blank")
+                }}
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
                     <input
+                      name="first"
                       type="text"
                       className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                       placeholder="John"
@@ -523,44 +552,54 @@ export default function KlitzoLanding() {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
                     <input
+                      name="last"
                       type="text"
                       className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                       placeholder="Doe"
                     />
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                   <input
+                    name="email"
                     type="email"
                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                     placeholder="john@example.com"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
                   <input
+                    name="phone"
                     type="tel"
                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                     placeholder="+91 9876543210"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Subject</label>
                   <input
+                    name="subject"
                     type="text"
                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                     placeholder="Product Inquiry"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
                   <textarea
+                    name="message"
                     rows={4}
                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-300"
                     placeholder="Tell us about your cleaning needs..."
-                  ></textarea>
+                  />
                 </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-teal-600 to-blue-700 hover:from-teal-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
