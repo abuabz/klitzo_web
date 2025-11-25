@@ -48,7 +48,7 @@ export default function KlitzoLanding() {
       id: 2,
       name: "KLITZO Stain Remover 130ml",
       image: "/assets/product_130ml.jpeg",
-      price: "299.00",
+      price: "₹299.00",
       originalPrice: "₹599.00",
       description: "Ultimate stain fighting power for the toughest stains",
       category: "stain-remover",
