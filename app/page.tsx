@@ -44,6 +44,24 @@ export default function KlitzoLanding() {
       ],
       reviews: 156,
     },
+    {
+      id: 2,
+      name: "KLITZO Stain Remover 130ml",
+      image: "/assets/product_130ml.jpeg",
+      price: "299.00",
+      originalPrice: "₹599.00",
+      description: "Ultimate stain fighting power for the toughest stains",
+      category: "stain-remover",
+      features: [
+        "Instant removal of old & new stains",
+        "Fresh orange fragrance",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+
+      ],
+      reviews: 156,
+    },
 
   ]
 

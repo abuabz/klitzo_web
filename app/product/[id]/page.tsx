@@ -81,6 +81,63 @@ export default function ProductPage() {
       inStock: true,
       freeShipping: true,
     },
+    {
+      id: 2,
+      name: "Klitzo Multi Surface (All In One) Stain Remover 130ml",
+      images: ["/assets/product_130ml.jpeg", "/assets/imgproduct03.jpeg ", "/assets/productdetailed_130ml.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
+      price: "₹299.00",
+      originalPrice: "₹599.00",
+      description:
+        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
+      longDescription:
+        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
+      category: "stain-remover",
+      features: [
+        "Instant removal of old & new stains",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+        "Fresh orange fragrance"
+      ],
+      specifications: {
+        Volume: "130ml",
+        Type: "Liquid Spray",
+        // "Suitable for": "All washable fabrics",
+        Fragrance: "Fresh Clean",
+        // "pH Level": "7.0 (Neutral)",
+      },
+      safetyAndUsageNotes: [
+        "Store in a cool, dry place, away from sunlight.",
+        "Keep out of reach of children and pets.",
+        "Avoid contact with eyes; rinse with water if exposed.",
+        "Wear gloves if you have sensitive skin.",
+        "Not for silk, wool, or delicate fabrics.",
+        "Do not use on ceramic-coated, waxed, or polished vehicles.",
+        "Do not use on polished/varnished wood.",
+        "Test on a hidden area first.",
+        "Use only as directed; misuse may damage surfaces.",
+        "Do not ingest; seek medical help if swallowed.",
+        "Use in a well-ventilated area."
+      ],
+      applicationGuide: [
+        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
+        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
+        "Vehicle: Body stains, watermarks, shine restoration",
+        "Household: Plastics, buckets, glass surfaces, steel pipes",
+        "Industrial/Commercial: Oil, grease, ink stains"
+      ],
+      howToUse: [
+        "Shake well before use.",
+        "Spray directly onto the stained area.",
+        "Leave for 30–60 seconds.",
+        "Wipe with a microfiber cloth or scrubber (for tough stains).",
+        "Rinse if required."
+      ],
+      rating: 4.7,
+      reviews: 156,
+      inStock: true,
+      freeShipping: true,
+    },
   ]
 
   const product = products.find((p) => p.id === productId)
