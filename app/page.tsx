@@ -392,27 +392,27 @@ export default function KlitzoLanding() {
           </h2>
 
           {/* <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> */}
-          <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8">
+          <div className="flex flex-row sm:flex-wrap justify-center gap-2 sm:gap-8 ">
             {products.map((product, index) => (
               <Card
                 key={product.id}
-                className={`group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                className={`group gap-0 cursor-pointer py-0 sm:py-7 border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
                   }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden ">
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-96 object-fit group-hover:scale-110 transition-transform duration-500"
+                    className="w-60  place-self-center    object-fit group-hover:scale-110 transition-transform duration-500"
                   />
                   {product.originalPrice && (
-                    <Badge className="absolute top-4 left-4 bg-red-500 text-white">
+                    <Badge className="absolute    top-4 left-4 bg-red-500 text-white">
                       {/* Save ₹
                       {(
                         Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
                       ).toFixed(2)} */}
-                      50% OFF
+                      <span className="text-[8px] sm:text-xs">50% OFF</span>
                     </Badge>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -423,13 +423,15 @@ export default function KlitzoLanding() {
                   </Link>
                 </div>
 
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">
+                <CardContent className="p-2 pt-0 sm:p-3">
+                  <h3 className="text-md sm:text-xl leading-4 font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-slate-600 mb-4">{product.description}</p>
+                  <p title={product.description} className="text-slate-600 mb-4 truncate md:whitespace-normal md:overflow-visible">
+                    {product.description}
+                  </p>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-4 hidden sm:block">
                     {product.features.slice(0, 2).map((feature, idx) => (
                       <div key={idx} className="flex items-center text-sm text-slate-600">
                         <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
@@ -438,20 +440,20 @@ export default function KlitzoLanding() {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row gap-2  items-start justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1 text-lg">
+                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-1 sm:px-3 text-xs sm:text-md py-1 ">
                         {product.price}
                       </Badge>
                       {product.originalPrice && (
-                        <span className="text-slate-400 line-through text-sm">{product.originalPrice}</span>
+                        <span className="text-slate-400 line-through text-[10px] sm:text-sm">{product.originalPrice}</span>
                       )}
                     </div>
                     <Link href={`/product/${product.id}`}>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent"
+                        className="border-teal-500 sm:block hidden text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent"
                       >
                         View Product
                       </Button>
