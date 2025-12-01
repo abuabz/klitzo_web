@@ -263,7 +263,7 @@ export default function KlitzoLanding() {
 
                       {/* Product Info */}
                       <CardContent className="p-1 sm:p-2 text-center space-y-3">
-                        <h3 className="text-sm sm:text-md font-bold text-slate-800 line-clamp-2">
+                        <h3 className="text-[10px]  sm:text-[20px] font-bold text-slate-800 line-clamp-2">
                           {product.name}
                         </h3>
 
