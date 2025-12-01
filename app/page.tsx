@@ -204,87 +204,37 @@ export default function KlitzoLanding() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center px-4 pt-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-100/80 via-blue-50/60 to-teal-50/80 backdrop-blur-sm">
-          {/* Animated diagonal lines */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -left-40 w-80 h-1 bg-gradient-to-r from-transparent via-teal-400/30 to-transparent rotate-45 animate-pulse"></div>
-            <div
-              className="absolute top-20 -right-40 w-96 h-1 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent rotate-45 animate-pulse"
-              style={{ animationDelay: "1s" }}
-            ></div>
-            <div
-              className="absolute top-60 -left-20 w-72 h-1 bg-gradient-to-r from-transparent via-teal-300/40 to-transparent rotate-45 animate-pulse"
-              style={{ animationDelay: "2s" }}
-            ></div>
-            <div
-              className="absolute bottom-40 -right-20 w-88 h-1 bg-gradient-to-r from-transparent via-blue-300/40 to-transparent rotate-45 animate-pulse"
-              style={{ animationDelay: "0.5s" }}
-            ></div>
-            <div
-              className="absolute bottom-20 left-1/4 w-64 h-1 bg-gradient-to-r from-transparent via-teal-500/30 to-transparent rotate-45 animate-pulse"
-              style={{ animationDelay: "1.5s" }}
-            ></div>
-
-            {/* Vertical animated lines */}
-            <div
-              className="absolute top-0 left-1/4 w-1 h-full bg-gradient-to-b from-transparent via-teal-400/20 to-transparent animate-pulse"
-              style={{ animationDelay: "3s" }}
-            ></div>
-            <div
-              className="absolute top-0 right-1/3 w-1 h-full bg-gradient-to-b from-transparent via-blue-400/20 to-transparent animate-pulse"
-              style={{ animationDelay: "2.5s" }}
-            ></div>
-
-            {/* Moving lines animation */}
-            <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent animate-slide-right"></div>
-            <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent animate-slide-left"></div>
-          </div>
-
-          {/* Glassmorphism overlay */}
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-md border border-white/20"></div>
-        </div>
+      {/* Hero Section - 2 Products Side-by-Side on ALL Devices (including Mobile) */}
+      <section className="relative min-h-screen flex items-center px-4 pt-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-100/80 via-blue-50/60 to-teal-50/80 backdrop-blur-sm"></div>
 
         <div className="max-w-7xl mx-auto w-full relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="space-y-6 lg:space-y-8 text-center lg:text-left">
-              <div
-                className={`transform transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-              >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-800 mb-4 lg:mb-6 tracking-tight leading-tight drop-shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+
+            {/* Left: Hero Text */}
+            <div className="space-y-8 text-center lg:text-left order-2 lg:order-1">
+              <div className={`transform transition-all duration-1000 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-800 leading-tight">
                   Cleaning Made Simple
                 </h1>
               </div>
 
-              <div
-                className={`transform transition-all duration-1000 delay-300 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-              >
-                <p className="text-lg sm:text-xl lg:text-2xl text-slate-700 mb-6 lg:mb-8 font-light px-2 lg:px-0 drop-shadow-sm">
-                  Cleaning Made Simple - Experience the power of advanced cleaning technology
+              <div className={`transform transition-all duration-1000 delay-200 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+                <p className="text-lg sm:text-xl lg:text-2xl text-slate-700 font-light max-w-2xl mx-auto lg:mx-0">
+                  Remove toughest stains instantly — oil, grease, rust, ink, toilet stains & more.
+                  Just spray, wipe, and watch the magic!
                 </p>
               </div>
 
-              <div
-                className={`transform transition-all duration-1000 delay-500 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-              >
+              <div className={`transform transition-all duration-1000 delay-500 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/product/1" >
-                    <Button
-                      size="lg"
-                      className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm"
-                    >
-                      Shop Now
-                      <Sparkles className="ml-2 h-4 w-4 lg:h-5 lg:w-5" />
+                  <Link href="/product/1">
+                    <Button size="lg" className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-10 py-6 text-lg rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+                      Shop Now <Sparkles className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
                   <Link href="/about">
-                    <Button
-
-                      variant="outline"
-                      size="lg"
-                      className="w-full sm:w-auto border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-8 lg:px-12 py-4 lg:py-6 text-lg lg:text-xl rounded-full transition-all duration-300 bg-white/20 backdrop-blur-sm"
-                    >
+                    <Button variant="outline" size="lg" className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-10 py-6 text-lg rounded-full backdrop-blur-sm">
                       Learn More
                     </Button>
                   </Link>
@@ -292,52 +242,45 @@ export default function KlitzoLanding() {
               </div>
             </div>
 
-            {/* Right Images */}
-            <div className="relative mt-8 lg:mt-0 order-first lg:order-last">
-              <div
-                className={`transform transition-all duration-1000 delay-700 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
-              >
-                {/* Mobile: Single centered image */}
-                <div className="block lg:hidden">
-                  <div className="bg-white/30 backdrop-blur-md rounded-xl shadow-xl p-4 transform hover:scale-105 transition-all duration-300 border border-white/20 max-w-xs mx-auto">
-                    <img
-                      src="/assets/productmainimg.jpeg"
-                      alt="KLITZO Stain Remover"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
+            {/* Right: Two Product Cards - Always Side by Side (Even on Mobile) */}
+            <div className="order-1 lg:order-2">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+                {products.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
+                      }`}
+                  >
+                    <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 rounded-3xl overflow-hidden">
+                      {/* Product Image */}
+                      <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full  object-contain  group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
 
-                {/* Desktop: Grid layout with multiple images */}
-                <div className="hidden lg:block">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-6">
-                      <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                        <img
-                          src="/assets/imgproduct02.jpeg"
-                          alt="KLITZO Stain Remover"
-                          className="w-full h-48 object-contain"
-                        />
-                      </div>
-                      <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 mt-8 border border-white/20">
-                        <img
-                          src="/assets/productmainimg.jpeg"
-                          alt="KLITZO Brightening Formula"
-                          className="w-full h-48 object-contain"
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-24">
-                      <div className="bg-white/30 backdrop-blur-md rounded-2xl shadow-2xl p-6 transform hover:scale-105 transition-all duration-300 border border-white/20">
-                        <img
-                          src="/assets/imgproduct04.jpeg"
-                          alt="KLITZO Multi-Surface Cleaner"
-                          className="w-full h-48 object-contain"
-                        />
-                      </div>
-                    </div>
+                      {/* Product Info */}
+                      <CardContent className="p-1 sm:p-2 text-center space-y-3">
+                        <h3 className="text-sm sm:text-md font-bold text-slate-800 line-clamp-2">
+                          {product.name}
+                        </h3>
+
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="text-xl sm:text-xl font-bold text-teal-600">{product.price}</span>
+                          <span className="text-xs sm:text-md text-slate-400 line-through">{product.originalPrice}</span>
+                        </div>
+
+                        <Link href={`/product/${product.id}`}>
+                          <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-sm sm:text-base py-1 sm:py-4 font-medium transform hover:scale-105 transition-all duration-300">
+                            Buy Now
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
