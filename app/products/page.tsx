@@ -62,7 +62,7 @@ export default function ProductsPage() {
       price: "₹499.00",
       originalPrice: "₹999.00",
       description: "Professional-grade cleaner for aluminium and stainless-steel surfaces",
-      category: "aluminium-ss-cleaner",
+      category: "hard-cleaner",
       features: [
         "Removes stains, oxidation, grease, and rust",
         "Restores natural metallic shine",
