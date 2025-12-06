@@ -138,6 +138,74 @@ export default function ProductPage() {
       inStock: true,
       freeShipping: true,
     },
+    {
+  id: 3,
+  name: "Klitzo Aluminium & SS Cleaner 300ml",
+  images: [
+    "/assets/hardcleaner01.jpeg",
+    "/assets/hardcleaner02.jpeg",
+    "/assets/hardcleaner03.jpeg",
+    "/assets/hardcleaner04.jpeg"
+  ],
+  price: "₹499.00",
+  originalPrice: "₹999.00",
+
+  description:
+    "Professional-grade aluminium and stainless-steel cleaner designed to remove stains, oxidation, grease, and rust while restoring the natural metallic shine.",
+
+  longDescription:
+    "Klitzo Aluminium & SS Cleaner is a powerful, non-corrosive cleaning solution specially formulated to remove tough stains, oxidation, rust, grease, and dirt from aluminium and stainless-steel surfaces. Its advanced formula restores the natural metallic shine, leaving surfaces clean, polished, and streak-free. Ideal for alloy wheels, kitchen appliances, industrial tools, machinery, and steel fixtures. Ready-to-use formulation—no dilution required.",
+
+  category: "aluminium-ss-cleaner",
+
+  features: [
+    "Removes stains, oxidation, grease, and rust",
+    "Restores natural metallic shine",
+    "Non-corrosive and safe for aluminium & stainless steel",
+    "Ready-to-use formulation (no dilution required)",
+    "Ideal for vehicles, kitchen appliances, tools, and machinery",
+    "Leaves a clean, polished, streak-free finish"
+  ],
+
+  specifications: {
+    Volume: "300ml",
+    Type: "Ready-to-Use Liquid",
+    Appearance: "Clear / Light Purple Liquid",
+    Fragrance: "Mild Industrial / Neutral",
+    pH_Level: "Balanced for aluminium & stainless-steel safety"
+  },
+
+  safetyAndUsageNotes: [
+    "Store in a cool, dry place away from direct sunlight.",
+    "Keep out of reach of children and pets.",
+    "Use protective gloves if you have sensitive skin.",
+    "Avoid contact with eyes, mouth, and open wounds.",
+    "For external use only.",
+    "Do not mix with other chemical cleaners."
+  ],
+
+  applicationGuide: [
+    "Vehicles: Alloy wheels, bike & car metal parts",
+    "Kitchen: Stainless steel sinks, appliances, utensils",
+    "Industrial: Tools, machinery, steel fixtures",
+    "Household: Metal frames, steel furniture, pipes"
+  ],
+
+  howToUse: [
+    "Shake the bottle well before use.",
+    "Spray directly onto the aluminium or stainless-steel surface.",
+    "Let it react for 30 seconds to 2 minutes depending on dirt/rust.",
+    "Scrub gently using a soft or hard brush.",
+    "Rinse thoroughly with clean water.",
+    "Repeat for heavily soiled or oxidized areas."
+  ],
+
+  rating: 4.8,
+  reviews: 89,
+  inStock: true,
+  freeShipping: true
+}
+
   ]
 
   const product = products.find((p) => p.id === productId)

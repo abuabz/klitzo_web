@@ -28,17 +28,18 @@ export default function ProductsPage() {
       category: "stain-remover",
       features: [
         "Instant removal of old & new stains",
+        "Streak-free finish for glass and shiny surfaces",
         "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
         "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
+
         "Fresh orange fragrance"
-      ]      ,
+      ],
       rating: 4.8,
       reviews: 156,
     },
-      {
+    {
       id: 2,
-      name: "KLITZO Stain Remover 130ml",
+      name: "KLITZO Stain Multi Surface (All In One) Remover 130ml",
       image: "/assets/product_130ml.jpeg",
       price: "₹299.00",
       originalPrice: "₹599.00",
@@ -54,12 +55,31 @@ export default function ProductsPage() {
       ],
       reviews: 156,
     },
+    {
+      id: 3,
+      name: "KLITZO Aluminium & Stainless-Steel Cleaner 300ml",
+      image: "/assets/hardcleaner01.jpeg",
+      price: "₹499.00",
+      originalPrice: "₹999.00",
+      description: "Professional-grade cleaner for aluminium and stainless-steel surfaces",
+      category: "aluminium-ss-cleaner",
+      features: [
+        "Removes stains, oxidation, grease, and rust",
+        "Restores natural metallic shine",
+        "Non-corrosive and safe for aluminium & stainless steel",
+        "Ready-to-use, no dilution required",
+        "Ideal for vehicles, kitchen appliances, tools, and machinery"
+      ],
+      reviews: 89
+    }
+
 
   ]
 
   const categories = [
     { id: "all", name: "All Products" },
     { id: "stain-remover", name: "Stain Removers" },
+    { id: "hard-cleaner", name: "Hard Cleaners" },
     // { id: "multi-surface", name: "Multi-Surface" },
     // { id: "brightening", name: "Brightening" },
     // { id: "automotive", name: "Car Care" },
@@ -199,8 +219,8 @@ export default function ProductsPage() {
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category.id
-                      ? "bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    ? "bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                 >
                   {category.name}

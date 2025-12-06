@@ -62,6 +62,23 @@ export default function KlitzoLanding() {
       ],
       reviews: 156,
     },
+    {
+      id: 3,
+      name: "KLITZO Hard Cleaner 300ml",
+      image: "/assets/hardcleaner01.jpeg",
+      price: "₹499.00",
+      originalPrice: "₹999.00",
+      description: "Powerful cleaner for tough grime and dirt",
+      category: "hard-cleaner",
+      features: [
+        "Removes tough grime and dirt",
+        "Fresh fragrance",
+        "Safe for various surfaces",
+        "Leaves surfaces clean and refreshed",
+
+      ],
+      reviews: 89,
+    }
 
   ]
 
@@ -245,7 +262,7 @@ export default function KlitzoLanding() {
             {/* Right: Two Product Cards - Always Side by Side (Even on Mobile) */}
             <div className="order-1 lg:order-2">
               <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-                {products.map((product, index) => (
+                {products.slice(0, 2).map((product, index) => (
                   <div
                     key={product.id}
                     className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
@@ -257,13 +274,13 @@ export default function KlitzoLanding() {
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full  object-contain  group-hover:scale-110 transition-transform duration-500"
+                          className="w-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
 
                       {/* Product Info */}
                       <CardContent className="p-1 sm:p-2 text-center space-y-3">
-                        <h3 className="text-[10px]  sm:text-[20px] font-bold text-slate-800 line-clamp-2">
+                        <h3 className="text-[10px] sm:text-[20px] font-bold text-slate-800 line-clamp-2">
                           {product.name}
                         </h3>
 
@@ -335,76 +352,93 @@ export default function KlitzoLanding() {
           </h2>
 
           {/* <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> */}
-          <div className="flex flex-row sm:flex-wrap justify-center gap-2 sm:gap-8 ">
-            {products.map((product, index) => (
-              <Card
-                key={product.id}
-                className={`group gap-0 cursor-pointer py-0 sm:py-7 border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                  }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <div className="relative overflow-hidden ">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    className="w-60  place-self-center    object-fit group-hover:scale-110 transition-transform duration-500"
-                  />
-                  {product.originalPrice && (
-                    <Badge className="absolute    top-4 left-4 bg-red-500 text-white">
-                      {/* Save ₹
-                      {(
-                        Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
-                      ).toFixed(2)} */}
-                      <span className="text-[8px] sm:text-xs">50% OFF</span>
-                    </Badge>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <Link href={`/product/${product.id}`}>
-                    <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                      View Details
-                    </Button>
-                  </Link>
-                </div>
+          <div className="w-full overflow-x-auto scrollbar-hide">
+            {/* Hide scrollbar but keep functionality */}
+            <style jsx>{`
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  `}</style>
 
-                <CardContent className="p-2 pt-0 sm:p-3">
-                  <h3 className="text-md sm:text-xl leading-4 font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">
-                    {product.name}
-                  </h3>
-                  <p title={product.description} className="text-slate-600 mb-4 truncate md:whitespace-normal md:overflow-visible">
-                    {product.description}
-                  </p>
-
-                  <div className="space-y-2 mb-4 hidden sm:block">
-                    {product.features.slice(0, 2).map((feature, idx) => (
-                      <div key={idx} className="flex items-center text-sm text-slate-600">
-                        <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-2  items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-1 sm:px-3 text-xs sm:text-md py-1 ">
-                        {product.price}
-                      </Badge>
+            <div className="flex gap-4 sm:gap-6 lg:gap-8 px-4 py-6 min-w-max">
+              {/* min-w-max prevents compression */}
+              {products.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="flex-none w-[280px] sm:w-[330px] lg:w-[360px]"
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <Card
+                    className={` group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                      }`}
+                  >
+                    {/* Your existing card content (image, badge, button, etc.) */}
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
+                      />
                       {product.originalPrice && (
-                        <span className="text-slate-400 line-through text-[10px] sm:text-sm">{product.originalPrice}</span>
+                        <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
+                          50% OFF
+                        </Badge>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <Link href={`/product/${product.id}`}>
+                        <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
-                    <Link href={`/product/${product.id}`}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-teal-500 sm:block hidden text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent"
-                      >
-                        View Product
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+
+                    <CardContent className="p-4">
+                      <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-slate-600 text-sm mb-3 line-clamp-2">
+                        {product.description}
+                      </p>
+
+                      <div className="hidden sm:flex flex-col gap-2 mb-4">
+                        {product.features.slice(0, 2).map((feature, idx) => (
+                          <div key={idx} className="flex items-center text-sm text-slate-600">
+                            <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
+                            {product.price}
+                          </Badge>
+                          {product.originalPrice && (
+                            <span className="text-slate-400 line-through text-sm">
+                              {product.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                        <Link href={`/product/${product.id}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
+                          >
+                            View Product
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
