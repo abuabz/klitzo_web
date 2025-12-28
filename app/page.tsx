@@ -405,6 +405,7 @@ export default function KlitzoLanding() {
             <div className="flex gap-4 sm:gap-6 lg:gap-8 px-4 py-6 min-w-max">
               {/* min-w-max prevents compression */}
               {products.map((product, index) => (
+                <Link href={`/product/${product.id}`}>
                 <div
                   key={product.id}
                   className="flex-none w-[280px] sm:w-[330px] lg:w-[360px]"
@@ -414,6 +415,7 @@ export default function KlitzoLanding() {
                     className={` group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
                       }`}
                   >
+                    
                     {/* Your existing card content (image, badge, button, etc.) */}
                     <div className="relative overflow-hidden">
                       <img
@@ -433,6 +435,7 @@ export default function KlitzoLanding() {
                         </Button>
                       </Link>
                     </div>
+                
 
                     <CardContent className="p-4">
                       <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2">
@@ -475,6 +478,7 @@ export default function KlitzoLanding() {
                     </CardContent>
                   </Card>
                 </div>
+                </Link>
               ))}
             </div>
           </div>
