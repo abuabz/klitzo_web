@@ -81,6 +81,44 @@ export default function KlitzoLanding() {
     }
 
   ]
+    const mainproducts = [
+    {
+      id: 1,
+      name: "KLITZO Stain Remover 300ml",
+      image: "/assets/productmainimg.jpeg",
+      price: "₹599.00",
+      originalPrice: "₹1199.00",
+      description: "Ultimate stain fighting power for the toughest stains",
+      category: "stain-remover",
+      features: [
+        "Instant removal of old & new stains",
+        "Fresh orange fragrance",
+        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
+        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
+        "Streak-free finish for glass and shiny surfaces",
+
+      ],
+      reviews: 156,
+    },
+    {
+      id: 3,
+      name: "KLITZO Hard Cleaner 300ml",
+      image: "/assets/hardcleaner01.jpeg",
+      price: "₹499.00",
+      originalPrice: "₹999.00",
+      description: "Powerful cleaner for tough grime and dirt",
+      category: "hard-cleaner",
+      features: [
+        "Removes tough grime and dirt",
+        "Fresh fragrance",
+        "Safe for various surfaces",
+        "Leaves surfaces clean and refreshed",
+
+      ],
+      reviews: 89,
+    }
+
+  ]
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -262,7 +300,7 @@ export default function KlitzoLanding() {
             {/* Right: Two Product Cards - Always Side by Side (Even on Mobile) */}
             <div className="order-1 lg:order-2">
               <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-                {products.slice(0, 2).map((product, index) => (
+                {mainproducts.map((product, index) => (
                   <div
                     key={product.id}
                     className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
@@ -280,7 +318,7 @@ export default function KlitzoLanding() {
 
                       {/* Product Info */}
                       <CardContent className="p-1 sm:p-2 text-center space-y-3">
-                        <h3 className="text-[10px] sm:text-[20px] font-bold text-slate-800 line-clamp-2">
+                        <h3 className="text-[10px] sm:text-[15px] font-bold text-slate-800 line-clamp-2">
                           {product.name}
                         </h3>
 

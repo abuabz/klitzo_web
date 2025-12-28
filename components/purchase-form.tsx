@@ -23,19 +23,13 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
     houseDetails: "",
-    street: "",
-    place: "",
     pincode: "",
-    postOffice: "",
-    district: "",
-    state: "",
     notes: "",
     cashOnDelivery: false,
   })
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -55,20 +49,14 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 👤 *Customer Details:*
 • Name: ${formData.name}
 • Phone: ${formData.phone}
-• Email: ${formData.email}
 
 📍 *Delivery Address:*
-• House No./Name/Code: ${formData.houseDetails}
-• Street Name/Landmark: ${formData.street}
-• Place: ${formData.place}
-• Post Office: ${formData.postOffice}
-• District: ${formData.district}
-• State: ${formData.state}
+• Address: ${formData.houseDetails}
 • PIN Code: ${formData.pincode}
 
 ${formData.notes ? `📝 *Additional Notes:*\n${formData.notes}\n\n` : ""}Please confirm this order and let me know the payment details and delivery timeline.
 
-Thank you!`
+Thank you! 🙏`
 
     const whatsappUrl = `https://wa.me/918111813853?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
@@ -78,16 +66,12 @@ Thank you!`
     }
   }
 
+  // Required fields for validation
   const isFormValid =
-    formData.name &&
-    formData.phone &&
-    formData.houseDetails &&
-    formData.street &&
-    formData.place &&
-    formData.pincode &&
-    formData.postOffice &&
-    formData.district &&
-    formData.state
+    formData.name.trim() !== "" &&
+    formData.phone.trim() !== "" &&
+    formData.houseDetails.trim() !== "" &&
+    formData.pincode.trim() !== ""
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -107,7 +91,7 @@ Thank you!`
             <img
               src={product.image || "/placeholder.svg"}
               alt={product.name}
-              className="w-16 h-16 object-contain rounded-lg bg-white p-2"
+              className="w-16 h-16 object-contain rounded-lg bg-white p-2 shadow-sm"
             />
             <div className="flex-1">
               <h4 className="font-medium text-slate-800">{product.name}</h4>
@@ -128,7 +112,7 @@ Thank you!`
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">1. Full Name *</Label>
+              <Label htmlFor="name">Full Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -138,7 +122,7 @@ Thank you!`
               />
             </div>
             <div>
-              <Label htmlFor="phone">2. Mobile Number *</Label>
+              <Label htmlFor="phone">Mobile Number *</Label>
               <Input
                 id="phone"
                 value={formData.phone}
@@ -147,18 +131,6 @@ Thank you!`
                 className="mt-1"
               />
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="email">3. Email Address</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="your.email@example.com"
-              className="mt-1"
-            />
           </div>
         </div>
 
@@ -170,78 +142,34 @@ Thank you!`
           </div>
 
           <div>
-            <Label htmlFor="houseDetails">4. House Number, Name, Code *</Label>
+            <Label htmlFor="houseDetails">House/Flat No., Building Name, Landmark *</Label>
             <Input
               id="houseDetails"
               value={formData.houseDetails}
               onChange={(e) => handleInputChange("houseDetails", e.target.value)}
-              placeholder="Enter house number, name, or code"
+              placeholder="e.g., Flat 101, Sunrise Apartments, near ABC School"
               className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="street">5. Street Name or Landmark *</Label>
+            <Label htmlFor="pincode">PIN Code *</Label>
             <Input
-              id="street"
-              value={formData.street}
-              onChange={(e) => handleInputChange("street", e.target.value)}
-              placeholder="Enter street name or landmark"
+              id="pincode"
+              value={formData.pincode}
+              onChange={(e) => handleInputChange("pincode", e.target.value)}
+              placeholder="e.g., 680001"
               className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="place">6. Place *</Label>
+            <Label htmlFor="notes">Additional Notes (Optional)</Label>
             <Input
-              id="place"
-              value={formData.place}
-              onChange={(e) => handleInputChange("place", e.target.value)}
-              placeholder="Enter place"
-              className="mt-1"
-            />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="pincode">7. PIN Code *</Label>
-              <Input
-                id="pincode"
-                value={formData.pincode}
-                onChange={(e) => handleInputChange("pincode", e.target.value)}
-                placeholder="PIN Code"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="postOffice">8. Post Office Name *</Label>
-              <Input
-                id="postOffice"
-                value={formData.postOffice}
-                onChange={(e) => handleInputChange("postOffice", e.target.value)}
-                placeholder="Post Office Name"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="district">9. District *</Label>
-              <Input
-                id="district"
-                value={formData.district}
-                onChange={(e) => handleInputChange("district", e.target.value)}
-                placeholder="District"
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="state">10. State *</Label>
-            <Input
-              id="state"
-              value={formData.state}
-              onChange={(e) => handleInputChange("state", e.target.value)}
-              placeholder="State"
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              placeholder="Any special instructions, alternate phone, delivery time preference..."
               className="mt-1"
             />
           </div>
@@ -252,23 +180,11 @@ Thank you!`
           <Checkbox
             id="cashOnDelivery"
             checked={formData.cashOnDelivery}
-            onCheckedChange={(checked) => handleInputChange("cashOnDelivery", checked)}
+            onCheckedChange={(checked) => handleInputChange("cashOnDelivery", !!checked)}
           />
-          <Label htmlFor="cashOnDelivery" className="text-sm">
+          <Label htmlFor="cashOnDelivery" className="text-sm font-medium">
             Cash on Delivery (+₹50)
           </Label>
-        </div>
-
-        {/* Additional Notes */}
-        <div>
-          <Label htmlFor="notes">Additional Notes (Optional)</Label>
-          <Input
-            id="notes"
-            value={formData.notes}
-            onChange={(e) => handleInputChange("notes", e.target.value)}
-            placeholder="Any special instructions or preferences..."
-            className="mt-1"
-          />
         </div>
 
         {/* Action Buttons */}
@@ -285,7 +201,7 @@ Thank you!`
             <Button
               onClick={onClose}
               variant="outline"
-              className="border-slate-300 text-slate-600 hover:bg-slate-100 py-3 rounded-full transition-all duration-300 bg-transparent"
+              className="border-slate-300 text-slate-600 hover:bg-slate-100 py-3 rounded-full transition-all duration-300"
             >
               Cancel
             </Button>
