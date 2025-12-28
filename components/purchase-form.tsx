@@ -142,7 +142,7 @@ Thank you! 🙏`
           </div>
 
           <div>
-            <Label htmlFor="houseDetails">House/Flat No., Building Name, Landmark *</Label>
+            <Label htmlFor="houseDetails">Address*</Label>
             <Input
               id="houseDetails"
               value={formData.houseDetails}
