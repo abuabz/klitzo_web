@@ -23,7 +23,11 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    houseDetails: "",
+    address: "",
+    place: "",
+    post: "",
+    district: "",
+    landmark: "",
     pincode: "",
     notes: "",
     cashOnDelivery: false,
@@ -51,7 +55,11 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 • Phone: ${formData.phone}
 
 📍 *Delivery Address:*
-• Address: ${formData.houseDetails}
+• Address: ${formData.address}
+• Place: ${formData.place}
+• Post: ${formData.post}
+• District: ${formData.district}
+• Landmark: ${formData.landmark}
 • PIN Code: ${formData.pincode}
 
 ${formData.notes ? `📝 *Additional Notes:*\n${formData.notes}\n\n` : ""}Please confirm this order and let me know the payment details and delivery timeline.
@@ -66,11 +74,15 @@ Thank you! 🙏`
     }
   }
 
-  // Required fields for validation
+  // All new fields are required
   const isFormValid =
     formData.name.trim() !== "" &&
     formData.phone.trim() !== "" &&
-    formData.houseDetails.trim() !== "" &&
+    formData.address.trim() !== "" &&
+    formData.place.trim() !== "" &&
+    formData.post.trim() !== "" &&
+    formData.district.trim() !== "" &&
+    formData.landmark.trim() !== "" &&
     formData.pincode.trim() !== ""
 
   return (
@@ -112,7 +124,7 @@ Thank you! 🙏`
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -122,13 +134,14 @@ Thank you! 🙏`
               />
             </div>
             <div>
-              <Label htmlFor="phone">Mobile Number *</Label>
+              <Label htmlFor="phone">Phone *</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="+91 XXXXX XXXXX"
                 className="mt-1"
+                type="number"
               />
             </div>
           </div>
@@ -141,26 +154,73 @@ Thank you! 🙏`
             <h3 className="text-lg font-semibold text-slate-800">Delivery Address</h3>
           </div>
 
-          <div>
-            <Label htmlFor="houseDetails">Address*</Label>
-            <Input
-              id="houseDetails"
-              value={formData.houseDetails}
-              onChange={(e) => handleInputChange("houseDetails", e.target.value)}
-              placeholder="e.g., Flat 101, Sunrise Apartments, near ABC School"
-              className="mt-1"
-            />
-          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="address">Address *</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                placeholder="House/Flat no., Building name, Street"
+                className="mt-1"
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="pincode">PIN Code *</Label>
-            <Input
-              id="pincode"
-              value={formData.pincode}
-              onChange={(e) => handleInputChange("pincode", e.target.value)}
-              placeholder="e.g., 680001"
-              className="mt-1"
-            />
+            <div>
+              <Label htmlFor="place">Place *</Label>
+              <Input
+                id="place"
+                value={formData.place}
+                onChange={(e) => handleInputChange("place", e.target.value)}
+                placeholder="Village / Town / Area"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="post">Post *</Label>
+              <Input
+                id="post"
+                value={formData.post}
+                onChange={(e) => handleInputChange("post", e.target.value)}
+                placeholder="Post Office"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="district">District *</Label>
+              <Input
+                id="district"
+                value={formData.district}
+                onChange={(e) => handleInputChange("district", e.target.value)}
+                placeholder="District"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="landmark">Landmark *</Label>
+              <Input
+                id="landmark"
+                value={formData.landmark}
+                onChange={(e) => handleInputChange("landmark", e.target.value)}
+                placeholder="Nearby landmark"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pincode">Pin code *</Label>
+              <Input
+                id="pincode"
+                value={formData.pincode}
+                onChange={(e) => handleInputChange("pincode", e.target.value)}
+                placeholder="e.g., 680001"
+                className="mt-1"
+                type="number"
+              />
+            </div>
           </div>
 
           <div>

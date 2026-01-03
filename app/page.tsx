@@ -64,7 +64,7 @@ export default function KlitzoLanding() {
     },
     {
       id: 3,
-      name: "KLITZO Hard Cleaner 300ml",
+      name: "Aluminium & Steel Hard Cleaner 300ml",
       image: "/assets/hardcleaner01.jpeg",
       price: "₹499.00",
       originalPrice: "₹999.00",
@@ -102,7 +102,7 @@ export default function KlitzoLanding() {
     },
     {
       id: 3,
-      name: "KLITZO Hard Cleaner 300ml",
+      name: "Aluminium & Steel Hard Cleaner 300ml",
       image: "/assets/hardcleaner01.jpeg",
       price: "₹499.00",
       originalPrice: "₹999.00",
@@ -318,7 +318,7 @@ export default function KlitzoLanding() {
 
                       {/* Product Info */}
                       <CardContent className="p-1 sm:p-2 text-center space-y-3">
-                        <h3 className="text-[10px] sm:text-[15px] font-bold text-slate-800 line-clamp-2">
+                        <h3 className="text-[10px] whitespace-nowrap sm:text-[15px] font-bold text-slate-800 line-clamp-2">
                           {product.name}
                         </h3>
 
