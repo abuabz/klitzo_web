@@ -161,7 +161,7 @@ Thank you! 🙏`
                 id="address"
                 value={formData.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
-                placeholder="House/Flat no., Building name, Street"
+                placeholder="Address"
                 className="mt-1"
               />
             </div>
