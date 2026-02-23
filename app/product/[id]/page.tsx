@@ -139,73 +139,184 @@ export default function ProductPage() {
       freeShipping: true,
     },
     {
-  id: 3,
-  name: "Klitzo Aluminium & SS Cleaner 300ml",
-  images: [
-    "/assets/hardcleaner01.jpeg",
-    "/assets/hardcleaner02.jpeg",
-    "/assets/hardcleaner03.jpeg",
-    "/assets/hardcleaner04.jpeg"
-  ],
-  price: "₹499.00",
-  originalPrice: "₹999.00",
+      id: 3,
+      name: "Klitzo Aluminium & SS Cleaner 300ml",
+      images: [
+        "/assets/hardcleaner01.jpeg",
+        "/assets/hardcleaner02.jpeg",
+        "/assets/hardcleaner03.jpeg",
+        "/assets/hardcleaner04.jpeg"
+      ],
+      price: "₹499.00",
+      originalPrice: "₹999.00",
 
-  description:
-    "Professional-grade aluminium and stainless-steel cleaner designed to remove stains, oxidation, grease, and rust while restoring the natural metallic shine.",
+      description:
+        "Professional-grade aluminium and stainless-steel cleaner designed to remove stains, oxidation, grease, and rust while restoring the natural metallic shine.",
 
-  longDescription:
-    "Klitzo Aluminium & SS Cleaner is a powerful, non-corrosive cleaning solution specially formulated to remove tough stains, oxidation, rust, grease, and dirt from aluminium and stainless-steel surfaces. Its advanced formula restores the natural metallic shine, leaving surfaces clean, polished, and streak-free. Ideal for alloy wheels, kitchen appliances, industrial tools, machinery, and steel fixtures. Ready-to-use formulation—no dilution required.",
+      longDescription:
+        "Klitzo Aluminium & SS Cleaner is a powerful, non-corrosive cleaning solution specially formulated to remove tough stains, oxidation, rust, grease, and dirt from aluminium and stainless-steel surfaces. Its advanced formula restores the natural metallic shine, leaving surfaces clean, polished, and streak-free. Ideal for alloy wheels, kitchen appliances, industrial tools, machinery, and steel fixtures. Ready-to-use formulation—no dilution required.",
 
-  category: "aluminium-ss-cleaner",
+      category: "aluminium-ss-cleaner",
 
-  features: [
-    "Removes stains, oxidation, grease, and rust",
-    "Restores natural metallic shine",
-    "Non-corrosive and safe for aluminium & stainless steel",
-    "Ready-to-use formulation (no dilution required)",
-    "Ideal for vehicles, kitchen appliances, tools, and machinery",
-    "Leaves a clean, polished, streak-free finish"
-  ],
+      features: [
+        "Removes stains, oxidation, grease, and rust",
+        "Restores natural metallic shine",
+        "Non-corrosive and safe for aluminium & stainless steel",
+        "Ready-to-use formulation (no dilution required)",
+        "Ideal for vehicles, kitchen appliances, tools, and machinery",
+        "Leaves a clean, polished, streak-free finish"
+      ],
 
-  specifications: {
-    Volume: "300ml",
-    Type: "Ready-to-Use Liquid",
-    Appearance: "Clear / Light Purple Liquid",
-    Fragrance: "Mild Industrial / Neutral",
-    pH_Level: "Balanced for aluminium & stainless-steel safety"
-  },
+      specifications: {
+        Volume: "300ml",
+        Type: "Ready-to-Use Liquid",
+        Appearance: "Clear / Light Purple Liquid",
+        Fragrance: "Mild Industrial / Neutral",
+        pH_Level: "Balanced for aluminium & stainless-steel safety"
+      },
 
-  safetyAndUsageNotes: [
-    "Store in a cool, dry place away from direct sunlight.",
-    "Keep out of reach of children and pets.",
-    "Use protective gloves if you have sensitive skin.",
-    "Avoid contact with eyes, mouth, and open wounds.",
-    "For external use only.",
-    "Do not mix with other chemical cleaners."
-  ],
+      safetyAndUsageNotes: [
+        "Store in a cool, dry place away from direct sunlight.",
+        "Keep out of reach of children and pets.",
+        "Use protective gloves if you have sensitive skin.",
+        "Avoid contact with eyes, mouth, and open wounds.",
+        "For external use only.",
+        "Do not mix with other chemical cleaners."
+      ],
 
-  applicationGuide: [
-    "Vehicles: Alloy wheels, bike & car metal parts",
-    "Kitchen: Stainless steel sinks, appliances, utensils",
-    "Industrial: Tools, machinery, steel fixtures",
-    "Household: Metal frames, steel furniture, pipes"
-  ],
+      applicationGuide: [
+        "Vehicles: Alloy wheels, bike & car metal parts",
+        "Kitchen: Stainless steel sinks, appliances, utensils",
+        "Industrial: Tools, machinery, steel fixtures",
+        "Household: Metal frames, steel furniture, pipes"
+      ],
 
-  howToUse: [
-    "Shake the bottle well before use.",
-    "Spray directly onto the aluminium or stainless-steel surface.",
-    "Let it react for 30 seconds to 2 minutes depending on dirt/rust.",
-    "Scrub gently using a soft or hard brush.",
-    "Rinse thoroughly with clean water.",
-    "Repeat for heavily soiled or oxidized areas."
-  ],
+      howToUse: [
+        "Shake the bottle well before use.",
+        "Spray directly onto the aluminium or stainless-steel surface.",
+        "Let it react for 30 seconds to 2 minutes depending on dirt/rust.",
+        "Scrub gently using a soft or hard brush.",
+        "Rinse thoroughly with clean water.",
+        "Repeat for heavily soiled or oxidized areas."
+      ],
 
-  rating: 4.8,
-  reviews: 89,
-  inStock: true,
-  freeShipping: true
-}
-
+      rating: 4.8,
+      reviews: 89,
+      inStock: true,
+      freeShipping: true
+    },
+    {
+      id: 4,
+      name: "KLITZO Shoe Deodorizer and Disinfectant Spray 100ml",
+      images: [
+        "/assets/shoe01.jpeg",
+        "/assets/shoe02.jpeg",
+        "/assets/shoe3.jpeg",
+        "/assets/shoe4.jpeg",
+        "/assets/shoe5.jpeg",
+        "/assets/shoe6.jpeg"
+      ],
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Proprietary formulation that kills bacteria and fungus, resulting in neutralizing shoe odor.",
+      longDescription: "KLITZO Shoe Deodorizer & Disinfectant Spray is a fast-acting, long-lasting solution designed to remove, control, and prevent bad odors in all types of shoes. Made with safe, natural ingredients like glycerin and menthol extract, it provides a fresh and gentle experience while effectively killing bacteria and fungi that cause odors. It offers exceptional value with over hundreds of sprays per bottle.",
+      category: "shoe-care",
+      features: [
+        "Removes, controls, and prevents bad odors",
+        "Anti-bacterial and Anti-fungal action",
+        "Safe & non-toxic natural formulation",
+        "Long-lasting freshness with menthol extract",
+        "Suitable for all types of shoes",
+        "Fast-acting odor neutralization"
+      ],
+      specifications: {
+        Volume: "100ml",
+        Type: "Liquid Spray",
+        Ingredients: "Natural (Glycerin, Menthol Extract)",
+        Action: "Deodorizing & Disinfecting",
+        Safety: "Non-toxic & Gentle formulation"
+      },
+      safetyAndUsageNotes: [
+        "Not for application on the human body.",
+        "Keep out of reach of children.",
+        "Store in a cool, dry place.",
+        "Avoid contact with eyes.",
+        "Test on a small hidden area for delicate materials.",
+        "Do not ingest."
+      ],
+      applicationGuide: [
+        "Suitable for all types of shoes (Sport, Leather, Casual)",
+        "Can be used on gym bags and lockers",
+        "Effective on shoe insoles and linings",
+        "Ideal for daily use to maintain freshness"
+      ],
+      howToUse: [
+        "Spray directly into each shoe.",
+        "Cover all interior surfaces, including the insoles.",
+        "Allow to dry completely.",
+        "Repeat until shoes are odor-free."
+      ],
+      rating: 4.9,
+      reviews: 45,
+      inStock: true,
+      freeShipping: true,
+      specialOffer: "₹249 only for prepaid orders!"
+    },
+    {
+      id: 5,
+      name: "KLITZO Anti-bacterial Deodorizing Helmet Spray 100ml",
+      images: [
+        "/assets/helmet01.jpeg",
+        "/assets/helmet02.jpeg",
+        "/assets/helmet03.jpeg",
+        "/assets/helmet04.jpeg"
+      ],
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Advanced micro-technology formula that neutralizes odors and combats bacteria for a fresh and hygienic helmet.",
+      longDescription: "KLITZO Helmet Deodorizer is an advanced anti-bacterial spray designed to maintain helmet hygiene and comfort. Our formula contains powerful antibacterial agents that actively combat odor-causing bacteria, preventing the buildup of unpleasant smells. The advanced micro-technology neutralizes odors at the source, leaving a long-lasting fresh scent without any oily residue. Safe and non-toxic, it's suitable for all types of helmets.",
+      category: "helmet-care",
+      features: [
+        "Anti-bacterial & Anti-fungal protection",
+        "Advanced micro-technology odor neutralization",
+        "Long-lasting freshness with fresh scent",
+        "Safe & non-toxic natural formulation",
+        "No oily residue, easy to use",
+        "Suitable for all types of helmets",
+        "₹249 only for prepaid orders!"
+      ],
+      specifications: {
+        Volume: "100ml",
+        Type: "Liquid Spray",
+        Protection: "Anti-bacterial & Anti-fungal",
+        Action: "Fast-acting Deodorizing",
+        "Best For": "Motorbike, Sports & Safety Helmets"
+      },
+      safetyAndUsageNotes: [
+        "Not for application on the human body.",
+        "Keep out of reach of children.",
+        "Keep in a cool, dry place.",
+        "Avoid contact with eyes.",
+        "Non-toxic ingredients, safe for regular use."
+      ],
+      applicationGuide: [
+        "Motorcycle Helmets (Open face, Full face)",
+        "Bicycle and Sports Helmets",
+        "Industrial Safety Helmets",
+        "Helmet liners and padding"
+      ],
+      howToUse: [
+        "Simply spray the deodorizer evenly on the interior of your helmet.",
+        "Allow it to dry completely.",
+        "No rinsing required.",
+        "Use regularly for maintenance of hygiene."
+      ],
+      rating: 4.8,
+      reviews: 32,
+      inStock: true,
+      freeShipping: true,
+      specialOffer: "₹249 only for prepaid orders!"
+    }
   ]
 
   const product = products.find((p) => p.id === productId)
@@ -329,7 +440,7 @@ export default function ProductPage() {
         </div>
       </nav>
 
-      <section className="pt-20 pb-4 px-4 bg-slate-50">
+      <section className="pt-24 pb-6 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center space-x-2 text-sm text-slate-600">
             <Link href="/" className="hover:text-teal-600 transition-colors">
@@ -352,28 +463,28 @@ export default function ProductPage() {
         </div>
       </section>
 
-      <section className="py-12 px-4">
+      <section className="py-8 md:py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             <div
               className={`transform transition-all duration-1000 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"}`}
             >
               <div className="space-y-4">
-                <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
                   <img
                     src={product.images[selectedImage] || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-contain p-8"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
-                <div className="flex space-x-4 overflow-scroll overflow-y-hidden   md:overflow-x-auto max-w-[90vw] py-2">
+                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
                   {product.images.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedImage === index
-                          ? "border-teal-500 shadow-lg"
-                          : "border-slate-200 hover:border-slate-300"
+                        ? "border-teal-500 shadow-lg"
+                        : "border-slate-200 hover:border-slate-300"
                         }`}
                     >
                       <img
@@ -397,7 +508,7 @@ export default function ProductPage() {
 
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center flex-wrap gap-2 sm:gap-4">
                   <span className="text-3xl font-bold text-teal-600">{product.price}</span>
                   {product.originalPrice && (
                     <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
@@ -408,6 +519,12 @@ export default function ProductPage() {
                       {(
                         Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
                       ).toFixed(2)}
+                    </Badge>
+                  )}
+                  {/* @ts-ignore */}
+                  {product.specialOffer && (
+                    <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
+                      Special Offer: {product.specialOffer}
                     </Badge>
                   )}
                 </div>
@@ -472,7 +589,7 @@ export default function ProductPage() {
                               url: window.location.href,
                             })
                             .catch((error) => console.log("Error sharing", error))
-                          }
+                        }
                       }}
                       variant="outline"
                       size="lg"
@@ -505,9 +622,9 @@ export default function ProductPage() {
         </div>
       </section>
 
-      <section className="py-12 px-4 bg-slate-50">
+      <section className="py-8 md:py-12 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cfols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
               <p className="text-slate-600 leading-relaxed mb-6 text-justify">{product.longDescription}</p>
@@ -533,7 +650,7 @@ export default function ProductPage() {
                 ))}
               </div>
             </Card>
-             <Card className="p-6">
+            <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">How to Use</h3>
               <div className="space-y-2 text-slate-600">
                 <ol className="list-decimal pl-5 space-y-1">
@@ -545,7 +662,7 @@ export default function ProductPage() {
             </Card>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-8">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">Safety & Usage Notes</h3>
               <div className="space-y-2 text-slate-600">
@@ -571,7 +688,7 @@ export default function ProductPage() {
               </div>
             </Card>
 
-           
+
           </div>
         </div>
       </section>

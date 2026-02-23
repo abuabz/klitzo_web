@@ -78,10 +78,45 @@ export default function KlitzoLanding() {
 
       ],
       reviews: 89,
+    },
+    {
+      id: 4,
+      name: "KLITZO Shoe Deodorizer 100ml",
+      image: "/assets/shoe01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
+      category: "shoe-care",
+      features: [
+        "Removes, controls, and prevents bad odors",
+        "Anti-bacterial & Anti-fungal action",
+        "Safe and non-toxic natural formulation",
+        "Fast-acting and long-lasting freshness",
+        "Suitable for all types of shoes"
+      ],
+      reviews: 45,
+      specialOffer: "₹249 only"
+    },
+    {
+      id: 5,
+      name: "KLITZO Helmet Deodorizer 100ml",
+      image: "/assets/helmet01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Anti-bacterial spray for fresh and hygienic helmets",
+      category: "helmet-care",
+      features: [
+        "Eliminates odor-causing bacteria",
+        "Advanced micro-technology neutralizes odor",
+        "Long-lasting freshness with a fresh scent",
+        "No oily residue, safe & non-toxic",
+        "Suitable for all types of helmets"
+      ],
+      reviews: 32,
+      specialOffer: "₹249 only"
     }
-
   ]
-    const mainproducts = [
+  const mainproducts = [
     {
       id: 1,
       name: "KLITZO Stain Remover 300ml",
@@ -116,8 +151,43 @@ export default function KlitzoLanding() {
 
       ],
       reviews: 89,
+    },
+    {
+      id: 4,
+      name: "KLITZO Shoe Deodorizer 100ml",
+      image: "/assets/shoe01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
+      category: "shoe-care",
+      features: [
+        "Removes, controls, and prevents bad odors",
+        "Anti-bacterial & Anti-fungal action",
+        "Safe and non-toxic natural formulation",
+        "Fast-acting and long-lasting freshness",
+        "Suitable for all types of shoes"
+      ],
+      reviews: 45,
+      specialOffer: "₹249 only"
+    },
+    {
+      id: 5,
+      name: "KLITZO Helmet Deodorizer 100ml",
+      image: "/assets/helmet01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Anti-bacterial spray for fresh and hygienic helmets",
+      category: "helmet-care",
+      features: [
+        "Eliminates odor-causing bacteria",
+        "Advanced micro-technology neutralizes odor",
+        "Long-lasting freshness with a fresh scent",
+        "No oily residue, safe & non-toxic",
+        "Suitable for all types of helmets"
+      ],
+      reviews: 32,
+      specialOffer: "₹249 only"
     }
-
   ]
 
   return (
@@ -306,29 +376,29 @@ export default function KlitzoLanding() {
                     className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
                       }`}
                   >
-                    <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 rounded-3xl overflow-hidden">
+                    <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden">
                       {/* Product Image */}
-                      <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30">
+                      <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-32 sm:h-40 overflow-hidden">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-full object-contain group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
 
                       {/* Product Info */}
-                      <CardContent className="p-1 sm:p-2 text-center space-y-3">
-                        <h3 className="text-[10px] whitespace-nowrap sm:text-[15px] font-bold text-slate-800 line-clamp-2">
+                      <CardContent className="p-1 sm:p-2 text-center space-y-1 sm:space-y-2">
+                        <h3 className="text-[9px] whitespace-nowrap sm:text-[13px] font-bold text-slate-800 line-clamp-1">
                           {product.name}
                         </h3>
 
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="text-xl sm:text-xl font-bold text-teal-600">{product.price}</span>
-                          <span className="text-xs sm:text-md text-slate-400 line-through">{product.originalPrice}</span>
+                        <div className="flex items-center justify-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-lg font-bold text-teal-600">{product.price}</span>
+                          <span className="text-[8px] sm:text-xs text-slate-400 line-through">{product.originalPrice}</span>
                         </div>
 
                         <Link href={`/product/${product.id}`}>
-                          <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-sm sm:text-base py-1 sm:py-4 font-medium transform hover:scale-105 transition-all duration-300">
+                          <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[8px] sm:text-xs py-0 sm:py-2 h-7 sm:h-9 font-medium transform hover:scale-105 transition-all duration-300">
                             Buy Now
                           </Button>
                         </Link>
@@ -406,78 +476,84 @@ export default function KlitzoLanding() {
               {/* min-w-max prevents compression */}
               {products.map((product, index) => (
                 <Link href={`/product/${product.id}`}>
-                <div
-                  key={product.id}
-                  className="flex-none w-[280px] sm:w-[330px] lg:w-[360px]"
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <Card
-                    className={` group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                      }`}
+                  <div
+                    key={product.id}
+                    className="flex-none w-[240px] sm:w-[280px] lg:w-[300px]"
+                    style={{ transitionDelay: `${index * 100}ms` }}
                   >
-                    
-                    {/* Your existing card content (image, badge, button, etc.) */}
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {product.originalPrice && (
-                        <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
-                          50% OFF
-                        </Badge>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Link href={`/product/${product.id}`}>
-                        <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                          View Details
-                        </Button>
-                      </Link>
-                    </div>
-                
+                    <Card
+                      className={` group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                        }`}
+                    >
 
-                    <CardContent className="p-4">
-                      <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-slate-600 text-sm mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-
-                      <div className="hidden sm:flex flex-col gap-2 mb-4">
-                        {product.features.slice(0, 2).map((feature, idx) => (
-                          <div key={idx} className="flex items-center text-sm text-slate-600">
-                            <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
-                            {feature}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
-                            {product.price}
+                      {/* Your existing card content (image, badge, button, etc.) */}
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
+                        />
+                        {product.originalPrice && (
+                          <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
+                            50% OFF
                           </Badge>
-                          {product.originalPrice && (
-                            <span className="text-slate-400 line-through text-sm">
-                              {product.originalPrice}
-                            </span>
-                          )}
-                        </div>
+                        )}
+                        {/* @ts-ignore */}
+                        {product.specialOffer && (
+                          <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold shadow-md z-10">
+                            PREPAID: {product.specialOffer}
+                          </Badge>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <Link href={`/product/${product.id}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
-                          >
-                            View Product
+                          <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
+                            View Details
                           </Button>
                         </Link>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
+
+
+                      <CardContent className="p-3">
+                        <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
+                          {product.name}
+                        </h3>
+                        <p className="text-slate-600 text-xs mb-2 line-clamp-2">
+                          {product.description}
+                        </p>
+
+                        <div className="hidden sm:flex flex-col gap-1 mb-3">
+                          {product.features.slice(0, 2).map((feature, idx) => (
+                            <div key={idx} className="flex items-center text-sm text-slate-600">
+                              <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
+                              {product.price}
+                            </Badge>
+                            {product.originalPrice && (
+                              <span className="text-slate-400 line-through text-sm">
+                                {product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <Link href={`/product/${product.id}`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
+                            >
+                              View Product
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -650,9 +726,9 @@ export default function KlitzoLanding() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
 
-    </div>
+    </div >
   )
 }

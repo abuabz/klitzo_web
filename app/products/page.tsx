@@ -71,15 +71,51 @@ export default function ProductsPage() {
         "Ideal for vehicles, kitchen appliances, tools, and machinery"
       ],
       reviews: 89
+    },
+    {
+      id: 4,
+      name: "KLITZO Shoe Deodorizer 100ml",
+      image: "/assets/shoe01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
+      category: "shoe-care",
+      features: [
+        "Removes, controls, and prevents bad odors",
+        "Anti-bacterial & Anti-fungal action",
+        "Safe and non-toxic natural formulation",
+        "Fast-acting and long-lasting freshness",
+        "Suitable for all types of shoes"
+      ],
+      reviews: 45,
+      specialOffer: "₹249 only"
+    },
+    {
+      id: 5,
+      name: "KLITZO Helmet Deodorizer 100ml",
+      image: "/assets/helmet01.jpeg",
+      price: "₹349.00",
+      originalPrice: "₹699.00",
+      description: "Anti-bacterial spray for fresh and hygienic helmets",
+      category: "helmet-care",
+      features: [
+        "Eliminates odor-causing bacteria",
+        "Advanced micro-technology neutralizes odor",
+        "Long-lasting freshness with a fresh scent",
+        "No oily residue, safe & non-toxic",
+        "Suitable for all types of helmets"
+      ],
+      reviews: 32,
+      specialOffer: "₹249 only"
     }
-
-
   ]
 
   const categories = [
     { id: "all", name: "All Products" },
     { id: "stain-remover", name: "Stain Removers" },
     { id: "hard-cleaner", name: "Hard Cleaners" },
+    { id: "shoe-care", name: "Shoe Care" },
+    { id: "helmet-care", name: "Helmet Care" },
     // { id: "multi-surface", name: "Multi-Surface" },
     // { id: "brightening", name: "Brightening" },
     // { id: "automotive", name: "Car Care" },
@@ -234,11 +270,11 @@ export default function ProductsPage() {
       {/* Products Grid */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product, index) => (
               <Card
                 key={product.id}
-                className={`group cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                className={`group cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
                   }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
@@ -246,54 +282,60 @@ export default function ProductsPage() {
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-64 object-contain group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-48 object-contain group-hover:scale-110 transition-transform duration-500"
                   />
                   {product.originalPrice && (
-                    <Badge className="absolute top-4 left-4 bg-red-500 text-white">
+                    <Badge className="absolute top-4 left-4 bg-red-500 text-white text-[10px]">
                       Save ₹
                       {(
                         Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
                       ).toFixed(2)}
                     </Badge>
                   )}
+                  {/* @ts-ignore */}
+                  {product.specialOffer && (
+                    <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-bold shadow-md z-10">
+                      PREPAID: {product.specialOffer}
+                    </Badge>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <Link href={`/product/${product.id}`}>
-                    <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
+                    <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-75 group-hover:scale-90">
                       View Details
                     </Button>
                   </Link>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors">
+                <CardContent className="p-4">
+                  <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
                     {product.name}
                   </h3>
-                  <p className="text-slate-600 mb-4">{product.description}</p>
+                  <p className="text-slate-600 text-xs mb-3 line-clamp-2">{product.description}</p>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-1 mb-3">
                     {product.features.slice(0, 2).map((feature, idx) => (
-                      <div key={idx} className="flex items-center text-sm text-slate-600">
-                        <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
+                      <div key={idx} className="flex items-center text-[10px] text-slate-600">
+                        <Sparkles className="h-3 w-3 text-teal-500 mr-2" />
                         {feature}
                       </div>
                     ))}
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1 text-lg">
+                    <div className="flex items-center gap-1">
+                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-2 py-0.5 text-sm">
                         {product.price}
                       </Badge>
                       {product.originalPrice && (
-                        <span className="text-slate-400 line-through text-sm">{product.originalPrice}</span>
+                        <span className="text-slate-400 line-through text-[10px]">{product.originalPrice}</span>
                       )}
                     </div>
                     <Link href={`/product/${product.id}`}>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent"
+                        className="h-8 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent text-xs"
                       >
-                        View Product
+                        Buy
                       </Button>
                     </Link>
                   </div>
