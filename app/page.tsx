@@ -81,7 +81,7 @@ export default function KlitzoLanding() {
     },
     {
       id: 4,
-      name: "KLITZO Shoe Deodorizer 100ml",
+      name: "KLITZO Shoe Freshener 100ml",
       image: "/assets/shoe01.jpeg",
       price: "₹399.00",
       originalPrice: "₹699.00",
@@ -154,7 +154,7 @@ export default function KlitzoLanding() {
     },
     {
       id: 4,
-      name: "KLITZO Shoe Deodorizer 100ml",
+      name: "KLITZO Shoe Freshener 100ml",
       image: "/assets/shoe01.jpeg",
       price: "₹399.00",
       originalPrice: "₹699.00",
