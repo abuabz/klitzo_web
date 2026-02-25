@@ -76,7 +76,7 @@ export default function ProductsPage() {
       id: 4,
       name: "KLITZO Shoe Deodorizer 100ml",
       image: "/assets/shoe01.jpeg",
-      price: "₹349.00",
+      price: "₹399.00",
       originalPrice: "₹699.00",
       description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
       category: "shoe-care",
@@ -88,13 +88,13 @@ export default function ProductsPage() {
         "Suitable for all types of shoes"
       ],
       reviews: 45,
-      specialOffer: "₹249 only"
+      specialOffer: "₹349 only"
     },
     {
       id: 5,
       name: "KLITZO Helmet Deodorizer 100ml",
       image: "/assets/helmet01.jpeg",
-      price: "₹349.00",
+      price: "₹399.00",
       originalPrice: "₹699.00",
       description: "Anti-bacterial spray for fresh and hygienic helmets",
       category: "helmet-care",
@@ -106,7 +106,7 @@ export default function ProductsPage() {
         "Suitable for all types of helmets"
       ],
       reviews: 32,
-      specialOffer: "₹249 only"
+      specialOffer: "₹349 only"
     }
   ]
 

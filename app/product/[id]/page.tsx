@@ -216,7 +216,7 @@ export default function ProductPage() {
         "/assets/shoe5.jpeg",
         "/assets/shoe6.jpeg"
       ],
-      price: "₹349.00",
+      price: "₹399.00",
       originalPrice: "₹699.00",
       description: "Proprietary formulation that kills bacteria and fungus, resulting in neutralizing shoe odor.",
       longDescription: "KLITZO Shoe Deodorizer & Disinfectant Spray is a fast-acting, long-lasting solution designed to remove, control, and prevent bad odors in all types of shoes. Made with safe, natural ingredients like glycerin and menthol extract, it provides a fresh and gentle experience while effectively killing bacteria and fungi that cause odors. It offers exceptional value with over hundreds of sprays per bottle.",
@@ -260,7 +260,7 @@ export default function ProductPage() {
       reviews: 45,
       inStock: true,
       freeShipping: true,
-      specialOffer: "₹249 only for prepaid orders!"
+      specialOffer: "₹349 only for prepaid orders!"
     },
     {
       id: 5,
@@ -271,7 +271,7 @@ export default function ProductPage() {
         "/assets/helmet03.jpeg",
         "/assets/helmet04.jpeg"
       ],
-      price: "₹349.00",
+      price: "₹399.00",
       originalPrice: "₹699.00",
       description: "Advanced micro-technology formula that neutralizes odors and combats bacteria for a fresh and hygienic helmet.",
       longDescription: "KLITZO Helmet Deodorizer is an advanced anti-bacterial spray designed to maintain helmet hygiene and comfort. Our formula contains powerful antibacterial agents that actively combat odor-causing bacteria, preventing the buildup of unpleasant smells. The advanced micro-technology neutralizes odors at the source, leaving a long-lasting fresh scent without any oily residue. Safe and non-toxic, it's suitable for all types of helmets.",
@@ -282,8 +282,7 @@ export default function ProductPage() {
         "Long-lasting freshness with fresh scent",
         "Safe & non-toxic natural formulation",
         "No oily residue, easy to use",
-        "Suitable for all types of helmets",
-        "₹249 only for prepaid orders!"
+        "Suitable for all types of helmets"
       ],
       specifications: {
         Volume: "100ml",
@@ -315,7 +314,7 @@ export default function ProductPage() {
       reviews: 32,
       inStock: true,
       freeShipping: true,
-      specialOffer: "₹249 only for prepaid orders!"
+      specialOffer: "₹349 only for prepaid orders!"
     }
   ]
 
