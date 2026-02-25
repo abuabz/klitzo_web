@@ -99,7 +99,7 @@ export default function KlitzoLanding() {
     },
     {
       id: 5,
-      name: "KLITZO Helmet Deodorizer 100ml",
+      name: "KLITZO Helmet Freshener 100ml",
       image: "/assets/helmet01.jpeg",
       price: "₹399.00",
       originalPrice: "₹699.00",
