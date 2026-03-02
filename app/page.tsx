@@ -77,7 +77,7 @@ export default function KlitzoLanding() {
         "Leaves surfaces clean and refreshed",
 
       ],
-      reviews: 89,
+      reviews: 89
     },
     {
       id: 4,
@@ -150,7 +150,7 @@ export default function KlitzoLanding() {
         "Leaves surfaces clean and refreshed",
 
       ],
-      reviews: 89,
+      reviews: 89
     },
     {
       id: 4,
@@ -379,6 +379,12 @@ export default function KlitzoLanding() {
                     <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden">
                       {/* Product Image */}
                       <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-32 sm:h-40 overflow-hidden">
+                        {/* @ts-ignore */}
+                        {product.specialOffer && (
+                          <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10">
+                            PREPAID: {product.specialOffer}
+                          </Badge>
+                        )}
                         <img
                           src={product.image}
                           alt={product.name}

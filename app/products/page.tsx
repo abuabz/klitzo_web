@@ -70,7 +70,8 @@ export default function ProductsPage() {
         "Ready-to-use, no dilution required",
         "Ideal for vehicles, kitchen appliances, tools, and machinery"
       ],
-      reviews: 89
+      reviews: 89,
+      specialOffer: "₹349 only"
     },
     {
       id: 4,

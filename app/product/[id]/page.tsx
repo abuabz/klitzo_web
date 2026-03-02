@@ -203,7 +203,8 @@ export default function ProductPage() {
       rating: 4.8,
       reviews: 89,
       inStock: true,
-      freeShipping: true
+      freeShipping: true,
+      specialOffer: "₹349 only for prepaid orders!"
     },
     {
       id: 4,
