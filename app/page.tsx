@@ -114,6 +114,23 @@ export default function KlitzoLanding() {
       ],
       reviews: 32,
       specialOffer: "₹349 only"
+    },
+    {
+      id: 6,
+      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
+      image: "/assets/hardcleaner01.jpeg",
+      price: "₹299.00",
+      originalPrice: "₹699.00",
+      description: "Convenient 130ml Trial Pack for tough stains and rust",
+      category: "hard-cleaner",
+      features: [
+        "Removes Rust & Oxidation",
+        "Removes Grease & Oil Stains",
+        "Works on Aluminium & Steel",
+        "Cash on Delivery: ₹349"
+      ],
+      reviews: 12,
+      specialOffer: "₹299 only"
     }
   ]
   const mainproducts = [
@@ -187,7 +204,8 @@ export default function KlitzoLanding() {
       ],
       reviews: 32,
       specialOffer: "₹349 only"
-    }
+    },
+
   ]
 
   return (

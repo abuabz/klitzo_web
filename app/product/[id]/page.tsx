@@ -316,6 +316,61 @@ export default function ProductPage() {
       inStock: true,
       freeShipping: true,
       specialOffer: "₹349 only for prepaid orders!"
+    },
+    {
+      id: 6,
+      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
+      images: [
+        "/assets/hardcleaner01.jpeg",
+        "/assets/hardcleaner02.jpeg",
+        "/assets/hardcleaner03.jpeg",
+        "/assets/hardcleaner04.jpeg"
+      ],
+      price: "₹299.00",
+      originalPrice: "₹699.00",
+      description: "Professional-grade aluminium and stainless-steel cleaner in a compact 130ml trial pack.",
+      longDescription: "KLITZO Aluminium & Steel Hard Cleaner 130ml trial pack is specifically designed for removing tough stains, oxidation, and rust from metal surfaces. This powerful formula restores the natural shine of aluminium and stainless steel without being corrosive. Perfect for testing its effectiveness on alloy wheels, sinks, and industrial tools. Available at a special price of ₹299 for prepaid orders and ₹349 for cash on delivery.",
+      category: "hard-cleaner",
+      features: [
+        "Removes Rust",
+        "Clears Oxidation",
+        "Removes Grease & Oil Stains",
+        "Works on Aluminium & Steel",
+        "Restores natural metallic shine",
+        "Non-corrosive formula"
+      ],
+      specifications: {
+        Volume: "130ml",
+        Type: "Ready-to-Use Liquid",
+        Appearance: "Clear / Light Purple Liquid",
+        Fragrance: "Mild Industrial / Neutral",
+        pH_Level: "Balanced for safety"
+      },
+      safetyAndUsageNotes: [
+        "Store in a cool, dry place away from direct sunlight.",
+        "Keep out of reach of children and pets.",
+        "Use protective gloves if you have sensitive skin.",
+        "Avoid contact with eyes, mouth, and open wounds.",
+        "For external use only."
+      ],
+      applicationGuide: [
+        "Vehicles: Alloy wheels, metal parts",
+        "Kitchen: Stainless steel sinks, utensils",
+        "Industrial: Tools, machinery",
+        "Household: Metal frames, pipes"
+      ],
+      howToUse: [
+        "Shake the bottle well before use.",
+        "Spray directly onto the metal surface.",
+        "Let it react for 30 seconds to 2 minutes.",
+        "Scrub gently with a brush.",
+        "Rinse thoroughly with clean water."
+      ],
+      rating: 4.8,
+      reviews: 12,
+      inStock: true,
+      freeShipping: true,
+      specialOffer: "₹299 Prepaid / ₹349 COD"
     }
   ]
 
