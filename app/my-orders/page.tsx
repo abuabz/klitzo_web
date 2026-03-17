@@ -102,8 +102,20 @@ export default function MyOrdersPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-3">
-                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100 px-3 py-1 flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <Badge className={`${
+                          order.status.toLowerCase() === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                          order.status.toLowerCase() === 'shipping' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                          order.status.toLowerCase() === 'paid' ? 'bg-teal-50 text-teal-700 border-teal-100' :
+                          order.status.toLowerCase() === 'failed' ? 'bg-red-50 text-red-700 border-red-100' :
+                          'bg-amber-50 text-amber-700 border-amber-100'
+                        } px-3 py-1 flex items-center gap-1 border`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${
+                             order.status.toLowerCase() === 'completed' ? 'bg-emerald-500' :
+                             order.status.toLowerCase() === 'shipping' ? 'bg-blue-500' :
+                             order.status.toLowerCase() === 'paid' ? 'bg-teal-500' :
+                             order.status.toLowerCase() === 'failed' ? 'bg-red-500' :
+                             'bg-amber-500 animate-pulse'
+                          }`}></div>
                           {order.status.toUpperCase()}
                         </Badge>
                         <div className="flex items-center text-sm text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
@@ -154,13 +166,76 @@ export default function MyOrdersPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Quick Progress Tracker */}
+                    <div className="mt-10 px-6 pb-8 border-t border-slate-50 pt-8">
+                       <div className="relative flex justify-between items-center max-w-2xl mx-auto">
+                          {/* Progress Line Background */}
+                          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0 hidden sm:block"></div>
+                          
+                          {/* Active Progress Line */}
+                          {order.status.toLowerCase() !== 'failed' && (
+                            <div 
+                              className="absolute top-1/2 left-0 h-0.5 bg-teal-500 -translate-y-1/2 z-0 transition-all duration-700 hidden sm:block"
+                              style={{ 
+                                width: `${
+                                  order.status.toLowerCase() === 'completed' ? '100%' :
+                                  order.status.toLowerCase() === 'shipping' ? '66%' :
+                                  order.status.toLowerCase() === 'paid' ? '33%' : '0%'
+                                }` 
+                              }}
+                            ></div>
+                          )}
+
+                          {[
+                            { label: 'Placed', status: 'pending' },
+                            { label: 'Paid', status: 'paid' },
+                            { label: 'Shipping', status: 'shipping' },
+                            { label: 'Delivered', status: 'completed' }
+                          ].map((step, idx, arr) => {
+                            const statusMap: Record<string, number> = { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1 };
+                            const currentStatusIdx = statusMap[order.status.toLowerCase()] ?? 0;
+                            const isActive = idx <= currentStatusIdx;
+                            const isCompleted = idx < currentStatusIdx;
+
+                            return (
+                              <div key={step.label} className="relative z-10 flex flex-col items-center group">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                                  isActive 
+                                    ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-200 scale-110' 
+                                    : 'bg-white border-slate-200 text-slate-400'
+                                }`}>
+                                  {isCompleted || (order.status.toLowerCase() === 'completed' && idx === 3) ? (
+                                    <div className="w-2 h-2 rounded-full bg-white"></div>
+                                  ) : (
+                                    <span className="text-[10px] font-bold">{idx + 1}</span>
+                                  )}
+                                </div>
+                                <div className="mt-3 flex flex-col items-center">
+                                  <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors duration-300 ${
+                                    isActive ? 'text-teal-600' : 'text-slate-400'
+                                  }`}>
+                                    {step.label}
+                                  </span>
+                                  {isActive && idx === currentStatusIdx && (
+                                     <span className="w-1.5 h-1.5 rounded-full bg-teal-500 mt-1 animate-ping"></span>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+                       </div>
+                    </div>
                   </div>
                   
-                  <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
-                    <span className="text-xs text-slate-400">Payment ID: {order.razorpayPaymentId || "Processing"}</span>
-                    <button className="text-teal-600 text-sm font-semibold flex items-center hover:gap-2 transition-all">
-                      Download Invoice <ChevronRight className="h-4 w-4 ml-1" />
-                    </button>
+                  <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <span className="text-xs text-slate-400 font-medium">Payment ID: {order.razorpayPaymentId || "Processing"}</span>
+                    <Link 
+                      href={`/invoice/${order._id}`}
+                      className="w-full sm:w-auto px-6 py-2 bg-white hover:bg-teal-50 text-teal-600 border border-teal-100 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-md"
+                    >
+                      View Invoice <ChevronRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

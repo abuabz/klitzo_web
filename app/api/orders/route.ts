@@ -6,12 +6,19 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
+    const id = searchParams.get("id");
+
+    await connectDB();
+
+    if (id) {
+      const order = await Order.findById(id);
+      if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json(order);
+    }
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
-
-    await connectDB();
 
     const orders = await Order.find({ userEmail: email }).sort({ createdAt: -1 });
 

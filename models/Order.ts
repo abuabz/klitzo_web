@@ -17,7 +17,7 @@ const OrderSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     status: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "paid", "shipping", "completed", "failed"],
       default: "pending",
     },
     razorpayOrderId: String,
