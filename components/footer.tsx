@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <>
       {/* Footer CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700">
+      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700 print:hidden">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Experience the KLITZO Difference?</h2>
           <p className="text-xl text-blue-100 mb-8">
@@ -25,7 +25,7 @@ export default function Footer() {
       </section>
 
       {/* Beautiful Footer */}
-      <footer className="bg-slate-900 text-white">
+      <footer className="bg-slate-900 text-white print:hidden">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Company Info */}
