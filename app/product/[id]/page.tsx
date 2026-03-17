@@ -3,14 +3,28 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync } from "lucide-react"
+import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, User, ShoppingBag } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import PurchaseForm from "@/components/purchase-form"
+import { toast } from "sonner"
+import { AuthModal } from "@/components/auth-modal"
 
-export default function ProductPage() {
+export default function ProductDetailPage() {
   const params = useParams()
+  const router = useRouter()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const productId = Number.parseInt(params.id as string)
 
   const [isVisible, setIsVisible] = useState(false)
@@ -18,398 +32,64 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showPurchaseForm, setShowPurchaseForm] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     setIsVisible(true)
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
   }, [])
 
-  const products = [
-    {
-      id: 0,
-      name: "Test Product",
-      images: ["/assets/productmainimg.jpeg"],
-      price: "₹5.00",
-      originalPrice: "₹10.00",
-      description: "This is a test product with 5 rupees price for testing purposes.",
-      longDescription: "This is a comprehensive test product used for verifying payment gateway integrations and checkout flows. It features a 5 rupees price point.",
-      category: "stain-remover",
-      features: [
-        "Test feature 1",
-        "Test feature 2",
-        "Cost: 5 Rupees"
-      ],
-      specifications: {
-        Volume: "TEST",
-        Type: "Digital/Physical Test",
-        Fragrance: "None",
-      },
-      safetyAndUsageNotes: [
-        "This is for testing purposes only."
-      ],
-      applicationGuide: [
-        "Use this to test the checkout flow."
-      ],
-      howToUse: [
-        "Click buy now.",
-        "Complete the form.",
-        "Verify checkout works."
-      ],
-      rating: 5.0,
-      reviews: 0,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 1,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 300ml",
-      images: ["/assets/productmainimg.jpeg", "/assets/imgproduct03.jpeg ", "/assets/imgproduct04.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description:
-        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
-      longDescription:
-        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-        "Fresh orange fragrance"
-      ],
-      specifications: {
-        Volume: "300ml",
-        Type: "Liquid Spray",
-        // "Suitable for": "All washable fabrics",
-        Fragrance: "Fresh Clean",
-        // "pH Level": "7.0 (Neutral)",
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place, away from sunlight.",
-        "Keep out of reach of children and pets.",
-        "Avoid contact with eyes; rinse with water if exposed.",
-        "Wear gloves if you have sensitive skin.",
-        "Not for silk, wool, or delicate fabrics.",
-        "Do not use on ceramic-coated, waxed, or polished vehicles.",
-        "Do not use on polished/varnished wood.",
-        "Test on a hidden area first.",
-        "Use only as directed; misuse may damage surfaces.",
-        "Do not ingest; seek medical help if swallowed.",
-        "Use in a well-ventilated area."
-      ],
-      applicationGuide: [
-        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
-        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
-        "Vehicle: Body stains, watermarks, shine restoration",
-        "Household: Plastics, buckets, glass surfaces, steel pipes",
-        "Industrial/Commercial: Oil, grease, ink stains"
-      ],
-      howToUse: [
-        "Shake well before use.",
-        "Spray directly onto the stained area.",
-        "Leave for 30–60 seconds.",
-        "Wipe with a microfiber cloth or scrubber (for tough stains).",
-        "Rinse if required."
-      ],
-      rating: 4.8,
-      reviews: 156,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 2,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 130ml",
-      images: ["/assets/product_130ml.jpeg", "/assets/imgproduct03.jpeg ", "/assets/productdetailed_130ml.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
-      price: "₹299.00",
-      originalPrice: "₹599.00",
-      description:
-        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
-      longDescription:
-        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-        "Fresh orange fragrance"
-      ],
-      specifications: {
-        Volume: "130ml",
-        Type: "Liquid Spray",
-        // "Suitable for": "All washable fabrics",
-        Fragrance: "Fresh Clean",
-        // "pH Level": "7.0 (Neutral)",
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place, away from sunlight.",
-        "Keep out of reach of children and pets.",
-        "Avoid contact with eyes; rinse with water if exposed.",
-        "Wear gloves if you have sensitive skin.",
-        "Not for silk, wool, or delicate fabrics.",
-        "Do not use on ceramic-coated, waxed, or polished vehicles.",
-        "Do not use on polished/varnished wood.",
-        "Test on a hidden area first.",
-        "Use only as directed; misuse may damage surfaces.",
-        "Do not ingest; seek medical help if swallowed.",
-        "Use in a well-ventilated area."
-      ],
-      applicationGuide: [
-        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
-        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
-        "Vehicle: Body stains, watermarks, shine restoration",
-        "Household: Plastics, buckets, glass surfaces, steel pipes",
-        "Industrial/Commercial: Oil, grease, ink stains"
-      ],
-      howToUse: [
-        "Shake well before use.",
-        "Spray directly onto the stained area.",
-        "Leave for 30–60 seconds.",
-        "Wipe with a microfiber cloth or scrubber (for tough stains).",
-        "Rinse if required."
-      ],
-      rating: 4.7,
-      reviews: 156,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 3,
-      name: "Klitzo Aluminium & SS Cleaner 300ml",
-      images: [
-        "/assets/hardcleaner01.jpeg",
-        "/assets/hardcleaner02.jpeg",
-        "/assets/hardcleaner03.jpeg",
-        "/assets/hardcleaner04.jpeg"
-      ],
-      price: "₹499.00",
-      originalPrice: "₹999.00",
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    toast.success("Logged out successfully")
+    router.refresh()
+  }
 
-      description:
-        "Professional-grade aluminium and stainless-steel cleaner designed to remove stains, oxidation, grease, and rust while restoring the natural metallic shine.",
+  const [product, setProduct] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-      longDescription:
-        "Klitzo Aluminium & SS Cleaner is a powerful, non-corrosive cleaning solution specially formulated to remove tough stains, oxidation, rust, grease, and dirt from aluminium and stainless-steel surfaces. Its advanced formula restores the natural metallic shine, leaving surfaces clean, polished, and streak-free. Ideal for alloy wheels, kitchen appliances, industrial tools, machinery, and steel fixtures. Ready-to-use formulation—no dilution required.",
-
-      category: "aluminium-ss-cleaner",
-
-      features: [
-        "Removes stains, oxidation, grease, and rust",
-        "Restores natural metallic shine",
-        "Non-corrosive and safe for aluminium & stainless steel",
-        "Ready-to-use formulation (no dilution required)",
-        "Ideal for vehicles, kitchen appliances, tools, and machinery",
-        "Leaves a clean, polished, streak-free finish"
-      ],
-
-      specifications: {
-        Volume: "300ml",
-        Type: "Ready-to-Use Liquid",
-        Appearance: "Clear / Light Purple Liquid",
-        Fragrance: "Mild Industrial / Neutral",
-        pH_Level: "Balanced for aluminium & stainless-steel safety"
-      },
-
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place away from direct sunlight.",
-        "Keep out of reach of children and pets.",
-        "Use protective gloves if you have sensitive skin.",
-        "Avoid contact with eyes, mouth, and open wounds.",
-        "For external use only.",
-        "Do not mix with other chemical cleaners."
-      ],
-
-      applicationGuide: [
-        "Vehicles: Alloy wheels, bike & car metal parts",
-        "Kitchen: Stainless steel sinks, appliances, utensils",
-        "Industrial: Tools, machinery, steel fixtures",
-        "Household: Metal frames, steel furniture, pipes"
-      ],
-
-      howToUse: [
-        "Shake the bottle well before use.",
-        "Spray directly onto the aluminium or stainless-steel surface.",
-        "Let it react for 30 seconds to 2 minutes depending on dirt/rust.",
-        "Scrub gently using a soft or hard brush.",
-        "Rinse thoroughly with clean water.",
-        "Repeat for heavily soiled or oxidized areas."
-      ],
-
-      rating: 4.8,
-      reviews: 89,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Deodorizer and Disinfectant Spray 100ml",
-      images: [
-        "/assets/shoe01.jpeg",
-        "/assets/shoe02.jpeg",
-        "/assets/shoe3.jpeg",
-        "/assets/shoe4.jpeg",
-        "/assets/shoe5.jpeg",
-        "/assets/shoe6.jpeg"
-      ],
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Proprietary formulation that kills bacteria and fungus, resulting in neutralizing shoe odor.",
-      longDescription: "KLITZO Shoe Deodorizer & Disinfectant Spray is a fast-acting, long-lasting solution designed to remove, control, and prevent bad odors in all types of shoes. Made with safe, natural ingredients like glycerin and menthol extract, it provides a fresh and gentle experience while effectively killing bacteria and fungi that cause odors. It offers exceptional value with over hundreds of sprays per bottle.",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial and Anti-fungal action",
-        "Safe & non-toxic natural formulation",
-        "Long-lasting freshness with menthol extract",
-        "Suitable for all types of shoes",
-        "Fast-acting odor neutralization"
-      ],
-      specifications: {
-        Volume: "100ml",
-        Type: "Liquid Spray",
-        Ingredients: "Natural (Glycerin, Menthol Extract)",
-        Action: "Deodorizing & Disinfecting",
-        Safety: "Non-toxic & Gentle formulation"
-      },
-      safetyAndUsageNotes: [
-        "Not for application on the human body.",
-        "Keep out of reach of children.",
-        "Store in a cool, dry place.",
-        "Avoid contact with eyes.",
-        "Test on a small hidden area for delicate materials.",
-        "Do not ingest."
-      ],
-      applicationGuide: [
-        "Suitable for all types of shoes (Sport, Leather, Casual)",
-        "Can be used on gym bags and lockers",
-        "Effective on shoe insoles and linings",
-        "Ideal for daily use to maintain freshness"
-      ],
-      howToUse: [
-        "Spray directly into each shoe.",
-        "Cover all interior surfaces, including the insoles.",
-        "Allow to dry completely.",
-        "Repeat until shoes are odor-free."
-      ],
-      rating: 4.9,
-      reviews: 45,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 5,
-      name: "KLITZO Anti-bacterial Deodorizing Helmet Spray 100ml",
-      images: [
-        "/assets/helmet01.jpeg",
-        "/assets/helmet02.jpeg",
-        "/assets/helmet03.jpeg",
-        "/assets/helmet04.jpeg"
-      ],
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced micro-technology formula that neutralizes odors and combats bacteria for a fresh and hygienic helmet.",
-      longDescription: "KLITZO Helmet Deodorizer is an advanced anti-bacterial spray designed to maintain helmet hygiene and comfort. Our formula contains powerful antibacterial agents that actively combat odor-causing bacteria, preventing the buildup of unpleasant smells. The advanced micro-technology neutralizes odors at the source, leaving a long-lasting fresh scent without any oily residue. Safe and non-toxic, it's suitable for all types of helmets.",
-      category: "helmet-care",
-      features: [
-        "Anti-bacterial & Anti-fungal protection",
-        "Advanced micro-technology odor neutralization",
-        "Long-lasting freshness with fresh scent",
-        "Safe & non-toxic natural formulation",
-        "No oily residue, easy to use",
-        "Suitable for all types of helmets"
-      ],
-      specifications: {
-        Volume: "100ml",
-        Type: "Liquid Spray",
-        Protection: "Anti-bacterial & Anti-fungal",
-        Action: "Fast-acting Deodorizing",
-        "Best For": "Motorbike, Sports & Safety Helmets"
-      },
-      safetyAndUsageNotes: [
-        "Not for application on the human body.",
-        "Keep out of reach of children.",
-        "Keep in a cool, dry place.",
-        "Avoid contact with eyes.",
-        "Non-toxic ingredients, safe for regular use."
-      ],
-      applicationGuide: [
-        "Motorcycle Helmets (Open face, Full face)",
-        "Bicycle and Sports Helmets",
-        "Industrial Safety Helmets",
-        "Helmet liners and padding"
-      ],
-      howToUse: [
-        "Simply spray the deodorizer evenly on the interior of your helmet.",
-        "Allow it to dry completely.",
-        "No rinsing required.",
-        "Use regularly for maintenance of hygiene."
-      ],
-      rating: 4.8,
-      reviews: 32,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 6,
-      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
-      images: [
-        "/assets/hardcleaner01.jpeg",
-        "/assets/hardcleaner02.jpeg",
-        "/assets/hardcleaner03.jpeg",
-        "/assets/hardcleaner04.jpeg"
-      ],
-      price: "₹299.00",
-      originalPrice: "₹699.00",
-      description: "Professional-grade aluminium and stainless-steel cleaner in a compact 130ml trial pack.",
-      longDescription: "KLITZO Aluminium & Steel Hard Cleaner 130ml trial pack is specifically designed for removing tough stains, oxidation, and rust from metal surfaces. This powerful formula restores the natural shine of aluminium and stainless steel without being corrosive. Perfect for testing its effectiveness on alloy wheels, sinks, and industrial tools. Available at a special price of ₹299 for prepaid orders and ₹349 for cash on delivery.",
-      category: "hard-cleaner",
-      features: [
-        "Removes Rust",
-        "Clears Oxidation",
-        "Removes Grease & Oil Stains",
-        "Works on Aluminium & Steel",
-        "Restores natural metallic shine",
-        "Non-corrosive formula"
-      ],
-      specifications: {
-        Volume: "130ml",
-        Type: "Ready-to-Use Liquid",
-        Appearance: "Clear / Light Purple Liquid",
-        Fragrance: "Mild Industrial / Neutral",
-        pH_Level: "Balanced for safety"
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place away from direct sunlight.",
-        "Keep out of reach of children and pets.",
-        "Use protective gloves if you have sensitive skin.",
-        "Avoid contact with eyes, mouth, and open wounds.",
-        "For external use only."
-      ],
-      applicationGuide: [
-        "Vehicles: Alloy wheels, metal parts",
-        "Kitchen: Stainless steel sinks, utensils",
-        "Industrial: Tools, machinery",
-        "Household: Metal frames, pipes"
-      ],
-      howToUse: [
-        "Shake the bottle well before use.",
-        "Spray directly onto the metal surface.",
-        "Let it react for 30 seconds to 2 minutes.",
-        "Scrub gently with a brush.",
-        "Rinse thoroughly with clean water."
-      ],
-      rating: 4.8,
-      reviews: 12,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹299 Prepaid / ₹349 COD"
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch(`/api/products?id=${productId}`)
+        const data = await res.json()
+        if (data && !data.error) {
+          setProduct(data)
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error)
+        toast.error("Failed to load product details")
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
 
-  const product = products.find((p) => p.id === productId)
+    if (!isNaN(productId)) {
+      fetchProduct()
+    } else {
+      setLoading(false)
+    }
+  }, [productId])
+  
+  const getNumericPrice = (priceStr: string) => {
+    if (!priceStr) return 0
+    return Number.parseFloat(priceStr.replace(/[^0-9.]/g, "")) || 0
+  }
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-600 font-medium">Loading product details...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!product) {
     return (
@@ -425,6 +105,11 @@ export default function ProductPage() {
   }
 
   const handlePurchase = () => {
+    if (!user) {
+      setAuthMode("login")
+      setIsAuthModalOpen(true)
+      return
+    }
     setShowPurchaseForm(true)
   }
 
@@ -438,7 +123,7 @@ export default function ProductPage() {
                 id: product.id,
                 name: product.name,
                 price: product.price,
-                image: product.images[0],
+                image: (product.images && product.images.length > 0) ? product.images[0] : (product.image || "/placeholder.svg"),
               }}
               quantity={quantity}
               onClose={() => setShowPurchaseForm(false)}
@@ -482,12 +167,57 @@ export default function ProductPage() {
               </div>
             </div>
 
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center space-x-4">
               <Link href="/products">
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
                   Shop Now
                 </Button>
               </Link>
+
+              {!user ? (
+                <button
+                  onClick={() => {
+                    setAuthMode("login")
+                    setIsAuthModalOpen(true)
+                  }}
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 transition-colors duration-300 cursor-pointer"
+                  title="Login"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
+                      <Avatar className="h-7 w-7 border border-teal-200">
+                        <AvatarFallback className="bg-teal-600 text-white text-[10px]">
+                          {(user.username || user.identifier).charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-teal-700 text-xs font-semibold">{user.username || user.identifier}</span>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
+                    <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
+                      <Link href="/my-orders" className="flex items-center w-full">
+                        <ShoppingBag className="mr-3 h-4 w-4" />
+                        <span>My Orders</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
+                    <DropdownMenuItem 
+                      onClick={handleLogout}
+                      className="rounded-lg focus:bg-red-50 focus:text-red-600 text-red-500 cursor-pointer py-2.5"
+                    >
+                      <div className="flex items-center w-full">
+                        <X className="mr-3 h-4 w-4" />
+                        <span>Log out</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             <div className="md:hidden">
@@ -524,6 +254,32 @@ export default function ProductPage() {
                 >
                   Contact
                 </Link>
+                {!user ? (
+                  <button
+                    onClick={() => {
+                      setAuthMode("login")
+                      setIsAuthModalOpen(true)
+                    }}
+                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-5 w-5" /> Login
+                  </button>
+                ) : (
+                  <>
+                    <Link
+                      href="/my-orders"
+                      className="text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
+                    >
+                      My Orders
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="text-red-500 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left"
+                    >
+                      Log out
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -562,13 +318,13 @@ export default function ProductPage() {
               <div className="space-y-4">
                 <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
                   <img
-                    src={product.images[selectedImage] || "/placeholder.svg"}
+                    src={(product.images && product.images[selectedImage]) || (product.image || "/placeholder.svg")}
                     alt={product.name}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
                 <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-                  {product.images.map((image, index) => (
+                  {(product.images || []).map((image: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
@@ -598,33 +354,33 @@ export default function ProductPage() {
 
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
 
-                <div className="flex items-center flex-wrap gap-2 sm:gap-4">
-                  <span className="text-3xl font-bold text-teal-600">{product.price}</span>
-                  {product.originalPrice && (
-                    <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
-                  )}
-                  {product.originalPrice && (
-                    <Badge className="bg-red-100 text-red-800">
-                      Save ₹
-                      {(
-                        Number.parseFloat(product.originalPrice.slice(1)) - Number.parseFloat(product.price.slice(1))
-                      ).toFixed(2)}
-                    </Badge>
-                  )}
-                  {/* @ts-ignore */}
-                  {product.specialOffer && (
-                    <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
-                      Special Offer: {product.specialOffer}
-                    </Badge>
-                  )}
-                </div>
+                  <div className="flex items-center flex-wrap gap-2 sm:gap-4">
+                    <span className="text-3xl font-bold text-teal-600">{product.price}</span>
+                    {product.originalPrice && (
+                      <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
+                    )}
+                    {product.originalPrice && (
+                      <Badge className="bg-red-100 text-red-800">
+                        Save ₹
+                        {(
+                          getNumericPrice(product.originalPrice) - getNumericPrice(product.price)
+                        ).toFixed(2)}
+                      </Badge>
+                    )}
+                    {/* @ts-ignore */}
+                    {product.specialOffer && (
+                      <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
+                        Special Offer: {product.specialOffer}
+                      </Badge>
+                    )}
+                  </div>
 
                 <p className="text-lg text-slate-600 leading-relaxed">{product.description}</p>
 
                 <div className="space-y-3">
                   <h3 className="text-xl font-semibold text-slate-800">Key Features:</h3>
                   <div className="space-y-2">
-                    {product.features.slice(0, 3).map((feature, index) => (
+                    {(product.features || []).slice(0, 3).map((feature: string, index: number) => (
                       <div key={index} className="flex items-center">
                         <Sparkles className="h-5 w-5 text-teal-500 mr-3 flex-shrink-0" />
                         <span className="text-slate-700">{feature}</span>
@@ -660,7 +416,7 @@ export default function ProductPage() {
                       className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" />
-                      Buy Now - ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                      Buy Now - ₹{(getNumericPrice(product.price) * quantity).toFixed(2)}
                     </Button>
                     {/* <Button
                       variant="outline"
@@ -714,74 +470,129 @@ export default function ProductPage() {
 
       <section className="py-8 md:py-12 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
-              <p className="text-slate-600 leading-relaxed mb-6 text-justify">{product.longDescription}</p>
-              <div className="space-y-3">
-                <h4 className="text-lg font-semibold text-slate-800">All Features:</h4>
-                {product.features.map((feature, index) => (
-                  <div key={index} className="flex items-start">
-                    <Sparkles className="h-5 w-5 text-teal-500 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-slate-700">{feature}</span>
+          {/* Full Width Description Section */}
+          <div className="mb-8">
+            <Card className="p-6 md:p-10 border-0 shadow-sm bg-white overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-teal-500 to-blue-600"></div>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                Product Description
+              </h3>
+              <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+                <div className="md:col-span-2">
+                  <p className="text-slate-600 leading-relaxed text-lg text-justify mb-8">
+                    {product.longDescription}
+                  </p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-6">
+                  <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-teal-600" />
+                    Key Highlights
+                  </h4>
+                  <div className="space-y-3">
+                    {(product.features || []).map((feature: string, index: number) => (
+                      <div key={index} className="flex items-start">
+                        <div className="mt-1.5 mr-3">
+                           <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
+                        </div>
+                        <span className="text-slate-700 text-sm font-medium">{feature}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Specifications</h3>
-              <div className="space-y-4">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b border-slate-200 last:border-b-0">
-                    <span className="font-medium text-slate-700">{key}:</span>
-                    <span className="text-teal-600">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">How to Use</h3>
-              <div className="space-y-2 text-slate-600">
-                <ol className="list-decimal pl-5 space-y-1">
-                  {product.howToUse.map((step, index) => (
-                    <li key={index}>  {step}</li>
-                  ))}
-                </ol>
+                </div>
               </div>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-8">
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Safety & Usage Notes</h3>
-              <div className="space-y-2 text-slate-600">
-                <ul className="list-disc pl-5 space-y-1">
-                  {product.safetyAndUsageNotes.map((note, index) => (
-                    <li key={index}>{note}</li>
-                  ))}
-                </ul>
+          {/* Secondary Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+            <Card className="p-6 border-0 shadow-sm bg-white">
+              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
+                Specifications
+              </h3>
+              <div className="space-y-4">
+                {Object.entries(product.specifications || {}).map(([key, value]) => (
+                  <div key={key} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-b-0 group">
+                    <span className="text-sm font-semibold text-slate-500 group-hover:text-teal-600 transition-colors uppercase tracking-wider text-[10px]">{key}</span>
+                    <span className="text-sm font-bold text-slate-700">{String(value)}</span>
+                  </div>
+                ))}
               </div>
             </Card>
 
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Application Guide</h3>
-              <div className="space-y-2 text-slate-600">
-                <ul className="list-none space-y-1">
-                  {product.applicationGuide.map((app, index) => (
-                    <li key={index}>
-                      <span className="text-teal-500 mr-2">•</span>
-                      {app}
-                    </li>
-                  ))}
-                </ul>
+            <Card className="p-6 border-0 shadow-sm bg-white">
+              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">How to Use</h3>
+              <div className="space-y-4">
+                {(product.howToUse || []).map((step: string, index: number) => (
+                  <div key={index} className="flex gap-4 items-start group">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
+                      {index + 1}
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed">{step}</p>
+                  </div>
+                ))}
               </div>
             </Card>
 
+            <Card className="p-6 border-0 shadow-sm bg-white">
+              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">Safety & Usage</h3>
+              <div className="space-y-3">
+                {(product.safetyAndUsageNotes || []).map((note: string, index: number) => (
+                  <div key={index} className="flex items-start gap-3 bg-red-50/30 p-3 rounded-xl border border-red-100/20">
+                    <div className="h-1.5 w-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
+                    <p className="text-slate-600 text-sm italic">{note}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <Card className="p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 border-0 text-white shadow-xl lg:col-span-1">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                Application Guide
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(product.applicationGuide || []).map((app: string, index: number) => (
+                  <div key={index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl hover:bg-white/10 transition-colors border border-white/5">
+                    <div className="p-2 rounded-lg bg-teal-500/20">
+                      <Sparkles className="h-4 w-4 text-teal-400" />
+                    </div>
+                    <span className="text-slate-200 text-sm font-medium">{app}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            
+            {/* Trust Badges in the remaining slot */}
+            <div className="flex flex-col gap-4">
+                <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm flex items-center gap-6 border border-slate-100">
+                    <div className="p-4 bg-green-50 rounded-2xl">
+                        <LucideFolderSync className="h-8 w-8 text-green-600" />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-slate-800 text-lg">Money-Back Guarantee</h4>
+                        <p className="text-slate-500 text-sm">Full refund if you are not satisfied within 5 days.</p>
+                    </div>
+                </div>
+                <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm flex items-center gap-6 border border-slate-100">
+                    <div className="p-4 bg-blue-50 rounded-2xl">
+                        <Clock className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-slate-800 text-lg">Fast Free Shipping</h4>
+                        <p className="text-slate-500 text-sm">On all prepaid orders across India.</p>
+                    </div>
+                </div>
+            </div>
           </div>
         </div>
       </section>
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        initialMode={authMode}
+        onSuccess={(newUser) => setUser(newUser)}
+      />
     </div>
   )
 }

@@ -3,18 +3,45 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, User, ShoppingBag } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { AuthModal } from "@/components/auth-modal"
 
 export default function KlitzoLanding() {
+  const router = useRouter()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const [isVisible, setIsVisible] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [openFeature, setOpenFeature] = useState<number | null>(null)
+  const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
     setIsVisible(true)
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    toast.success("Logged out successfully")
+    router.refresh()
+  }
 
   const features = [
     { icon: Zap, text: "Works on Multiple Surfaces", content: "Cleans steel, plastic, ceramics, glass, vehicle bodies, tiles, and more.", delay: "0ms" },
@@ -25,223 +52,32 @@ export default function KlitzoLanding() {
     { icon: Timer, text: "Long Shelf Life", content: "Stays effective for a long time, ensuring lasting performance.", delay: "800ms" },
   ]
 
-  const products = [
-    {
-      id: 0,
-      name: "Test Product",
-      images: ["/assets/productmainimg.jpeg"],
-      price: "₹5.00",
-      originalPrice: "₹10.00",
-      description: "This is a test product with 5 rupees price for testing purposes.",
-      longDescription: "This is a comprehensive test product used for verifying payment gateway integrations and checkout flows. It features a 5 rupees price point.",
-      category: "stain-remover",
-      features: [
-        "Test feature 1",
-        "Test feature 2",
-        "Cost: 5 Rupees"
-      ],
-      specifications: {
-        Volume: "TEST",
-        Type: "Digital/Physical Test",
-        Fragrance: "None",
-      },
-      safetyAndUsageNotes: [
-        "This is for testing purposes only."
-      ],
-      applicationGuide: [
-        "Use this to test the checkout flow."
-      ],
-      howToUse: [
-        "Click buy now.",
-        "Complete the form.",
-        "Verify checkout works."
-      ],
-      rating: 5.0,
-      reviews: 0,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 1,
-      name: "KLITZO Stain Remover 300ml",
-      image: "/assets/productmainimg.jpeg",
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Fresh orange fragrance",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-      ],
-      reviews: 156,
-    },
-    {
-      id: 2,
-      name: "KLITZO Stain Remover 130ml",
-      image: "/assets/product_130ml.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹599.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Fresh orange fragrance",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-
-      ],
-      reviews: 156,
-    },
-    {
-      id: 3,
-      name: "Aluminium & Steel Hard Cleaner 300ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹499.00",
-      originalPrice: "₹999.00",
-      description: "Powerful cleaner for tough grime and dirt",
-      category: "hard-cleaner",
-      features: [
-        "Removes tough grime and dirt",
-        "Fresh fragrance",
-        "Safe for various surfaces",
-        "Leaves surfaces clean and refreshed",
-
-      ],
-      reviews: 89
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Freshener 100ml",
-      image: "/assets/shoe01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial & Anti-fungal action",
-        "Safe and non-toxic natural formulation",
-        "Fast-acting and long-lasting freshness",
-        "Suitable for all types of shoes"
-      ],
-      reviews: 45,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 5,
-      name: "KLITZO Helmet Freshener 100ml",
-      image: "/assets/helmet01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Anti-bacterial spray for fresh and hygienic helmets",
-      category: "helmet-care",
-      features: [
-        "Eliminates odor-causing bacteria",
-        "Advanced micro-technology neutralizes odor",
-        "Long-lasting freshness with a fresh scent",
-        "No oily residue, safe & non-toxic",
-        "Suitable for all types of helmets"
-      ],
-      reviews: 32,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 6,
-      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹699.00",
-      description: "Convenient 130ml Trial Pack for tough stains and rust",
-      category: "hard-cleaner",
-      features: [
-        "Removes Rust & Oxidation",
-        "Removes Grease & Oil Stains",
-        "Works on Aluminium & Steel",
-        "Cash on Delivery: ₹349"
-      ],
-      reviews: 12,
-      specialOffer: "₹299 only"
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch("/api/products")
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setProducts(data)
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
-  const mainproducts = [
-    {
-      id: 1,
-      name: "KLITZO Stain Remover 300ml",
-      image: "/assets/productmainimg.jpeg",
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Fresh orange fragrance",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
+    fetchProducts()
+  }, [])
 
-      ],
-      reviews: 156,
-    },
-    {
-      id: 3,
-      name: "Aluminium & Steel Hard Cleaner 300ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹499.00",
-      originalPrice: "₹999.00",
-      description: "Powerful cleaner for tough grime and dirt",
-      category: "hard-cleaner",
-      features: [
-        "Removes tough grime and dirt",
-        "Fresh fragrance",
-        "Safe for various surfaces",
-        "Leaves surfaces clean and refreshed",
-
-      ],
-      reviews: 89
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Freshener 100ml",
-      image: "/assets/shoe01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial & Anti-fungal action",
-        "Safe and non-toxic natural formulation",
-        "Fast-acting and long-lasting freshness",
-        "Suitable for all types of shoes"
-      ],
-      reviews: 45,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 5,
-      name: "KLITZO Helmet Freshener 100ml",
-      image: "/assets/helmet01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Anti-bacterial spray for fresh and hygienic helmets",
-      category: "helmet-care",
-      features: [
-        "Eliminates odor-causing bacteria",
-        "Advanced micro-technology neutralizes odor",
-        "Long-lasting freshness with a fresh scent",
-        "No oily residue, safe & non-toxic",
-        "Suitable for all types of helmets"
-      ],
-      reviews: 32,
-      specialOffer: "₹349 only"
-    },
-
-  ]
+  const mainProducts = products.filter(p => p.isNew)
+  if (mainProducts.length === 0 && products.length > 0) {
+    // Fallback if no products are marked isNew
+    mainProducts.push(...products.slice(0, 2))
+  }
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -285,13 +121,58 @@ export default function KlitzoLanding() {
               </div>
             </div>
 
-            {/* Desktop CTA Button */}
-            <div className="hidden md:block">
+            {/* Desktop CTA & User Profile */}
+            <div className="hidden md:flex items-center space-x-4">
               <Link href="/product/1">
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
                   Shop Now
                 </Button>
               </Link>
+
+              {!user ? (
+                <button
+                  onClick={() => {
+                    setAuthMode("login")
+                    setIsAuthModalOpen(true)
+                  }}
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 transition-colors duration-300 cursor-pointer"
+                  title="Login"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
+                      <Avatar className="h-7 w-7 border border-teal-200">
+                        <AvatarFallback className="bg-teal-600 text-white text-[10px]">
+                          {(user.username || user.identifier).charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-teal-700 text-xs font-semibold">{user.username || user.identifier}</span>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
+                    <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
+                      <Link href="/my-orders" className="flex items-center w-full">
+                        <ShoppingBag className="mr-3 h-4 w-4" />
+                        <span>My Orders</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="rounded-lg focus:bg-red-50 focus:text-red-600 text-red-500 cursor-pointer py-2.5"
+                    >
+                      <div className="flex items-center w-full">
+                        <X className="mr-3 h-4 w-4" />
+                        <span>Log out</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -333,6 +214,21 @@ export default function KlitzoLanding() {
                 >
                   Contact
                 </Link>
+                {!user ? (
+                  <button
+                    onClick={() => {
+                      setAuthMode("login")
+                      setIsAuthModalOpen(true)
+                    }}
+                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-5 w-5" /> Login
+                  </button>
+                ) : (
+                  <div className="text-teal-600 block px-3 py-2 text-base font-medium flex items-center gap-2">
+                    <User className="h-5 w-5" /> {user.username || user.identifier}
+                  </div>
+                )}
                 <div className="px-3 py-2">
                   <Link href="/products">
                     <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full shadow-lg">
@@ -386,7 +282,7 @@ export default function KlitzoLanding() {
       <section className="relative min-h-screen flex items-center px-4 pt-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-100/80 via-blue-50/60 to-teal-50/80 backdrop-blur-sm"></div>
 
-        <div className="max-w-7xl mx-auto w-full relative z-10">
+        <div className="max-w-7xl mx-auto w-full relative z-10 mt-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
             {/* Left: Hero Text */}
@@ -423,7 +319,7 @@ export default function KlitzoLanding() {
             {/* Right: Two Product Cards - Always Side by Side (Even on Mobile) */}
             <div className="order-1 lg:order-2">
               <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-                {mainproducts.map((product, index) => (
+                {mainProducts.map((product: any, index: number) => (
                   <div
                     key={product.id}
                     className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
@@ -438,8 +334,13 @@ export default function KlitzoLanding() {
                             PREPAID: {product.specialOffer}
                           </Badge>
                         )}
+                        {product.isNew && (
+                          <Badge className="absolute top-2 left-2 bg-teal-500 text-white text-[8px] sm:text-[10px] uppercase font-bold tracking-wider z-10">
+                            New
+                          </Badge>
+                        )}
                         <img
-                          src={product.image}
+                          src={product.image || (product.images && product.images[0])}
                           alt={product.name}
                           className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
@@ -533,87 +434,83 @@ export default function KlitzoLanding() {
 
             <div className="flex gap-4 sm:gap-6 lg:gap-8 px-4 py-6 min-w-max">
               {/* min-w-max prevents compression */}
-              {products.map((product, index) => (
-                <Link href={`/product/${product.id}`}>
-                  <div
-                    key={product.id}
-                    className="flex-none w-[240px] sm:w-[280px] lg:w-[300px]"
-                    style={{ transitionDelay: `${index * 100}ms` }}
+              {products.filter(p => p.isNew).map((product: any, index: number) => (
+                <div
+                  key={product.id}
+                  className="flex-none w-[240px] sm:w-[280px] lg:w-[300px]"
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <Card
+                    className={`group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                      }`}
                   >
-                    <Card
-                      className={` group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                        }`}
-                    >
+                    <div className="relative overflow-hidden">
 
-                      {/* Your existing card content (image, badge, button, etc.) */}
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
-                        />
-                        {product.originalPrice && (
-                          <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
-                            50% OFF
+                      <img
+                        src={product.image || (product.images && product.images[0]) || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
+                      />
+                      {product.originalPrice && (
+                        <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
+                          50% OFF
+                        </Badge>
+                      )}
+                      {/* @ts-ignore */}
+                      {product.specialOffer && (
+                        <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold shadow-md z-10">
+                          PREPAID: {product.specialOffer}
+                        </Badge>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <Link href={`/product/${product.id}`}>
+                        <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
+                          View Details
+                        </Button>
+                      </Link>
+                    </div>
+
+                    <CardContent className="p-3">
+                      <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
+                        {product.name}
+                      </h3>
+                      <p className="text-slate-600 text-xs mb-2 line-clamp-2">
+                        {product.description}
+                      </p>
+
+                      <div className="hidden sm:flex flex-col gap-1 mb-3">
+                        {product.features && product.features.slice(0, 2).map((feature: string, idx: number) => (
+                          <div key={idx} className="flex items-center text-sm text-slate-600">
+                            <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
+                            {product.price}
                           </Badge>
-                        )}
-                        {/* @ts-ignore */}
-                        {product.specialOffer && (
-                          <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold shadow-md z-10">
-                            PREPAID: {product.specialOffer}
-                          </Badge>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          {product.originalPrice && (
+                            <span className="text-slate-400 line-through text-sm">
+                              {product.originalPrice}
+                            </span>
+                          )}
+                        </div>
                         <Link href={`/product/${product.id}`}>
-                          <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                            View Details
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
+                          >
+                            View Product
                           </Button>
                         </Link>
                       </div>
-
-
-                      <CardContent className="p-3">
-                        <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
-                          {product.name}
-                        </h3>
-                        <p className="text-slate-600 text-xs mb-2 line-clamp-2">
-                          {product.description}
-                        </p>
-
-                        <div className="hidden sm:flex flex-col gap-1 mb-3">
-                          {product.features.slice(0, 2).map((feature, idx) => (
-                            <div key={idx} className="flex items-center text-sm text-slate-600">
-                              <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
-                              {feature}
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
-                              {product.price}
-                            </Badge>
-                            {product.originalPrice && (
-                              <span className="text-slate-400 line-through text-sm">
-                                {product.originalPrice}
-                              </span>
-                            )}
-                          </div>
-                          <Link href={`/product/${product.id}`}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
-                            >
-                              View Product
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </Link>
+                    </CardContent>
+                  </Card>
+                </div>
               ))}
             </div>
           </div>
@@ -788,6 +685,12 @@ export default function KlitzoLanding() {
       </section >
 
 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authMode}
+        onSuccess={(newUser) => setUser(newUser)}
+      />
     </div >
   )
 }

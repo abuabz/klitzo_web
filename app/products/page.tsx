@@ -3,145 +3,65 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Search } from "lucide-react"
+import { Sparkles, Menu, X, Search, User, ShoppingBag } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { AuthModal } from "@/components/auth-modal"
 
 export default function ProductsPage() {
+  const router = useRouter()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const [isVisible, setIsVisible] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [user, setUser] = useState<any>(null)
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setIsVisible(true)
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+    fetchProducts()
   }, [])
 
-  const products = [
-    {
-      id: 0,
-      name: "Test Product",
-      image: "/assets/productmainimg.jpeg",
-      price: "₹5.00",
-      originalPrice: "₹10.00",
-      description: "This is a test product with 5 rupees price for testing purposes.",
-      category: "stain-remover",
-      features: [
-        "Test feature 1",
-        "Test feature 2",
-        "Cost: 5 Rupees"
-      ],
-      rating: 5.0,
-      reviews: 0,
-    },
-    {
-      id: 1,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 300ml",
-      image: "/assets/productmainimg.jpeg",
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Streak-free finish for glass and shiny surfaces",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-
-        "Fresh orange fragrance"
-      ],
-      rating: 4.8,
-      reviews: 156,
-    },
-    {
-      id: 2,
-      name: "KLITZO Stain Multi Surface (All In One) Remover 130ml",
-      image: "/assets/product_130ml.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹599.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Fresh orange fragrance",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-
-      ],
-      reviews: 156,
-    },
-    {
-      id: 3,
-      name: "KLITZO Aluminium & Stainless-Steel Cleaner 300ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹499.00",
-      originalPrice: "₹999.00",
-      description: "Professional-grade cleaner for aluminium and stainless-steel surfaces",
-      category: "hard-cleaner",
-      features: [
-        "Removes stains, oxidation, grease, and rust",
-        "Restores natural metallic shine",
-        "Non-corrosive and safe for aluminium & stainless steel",
-        "Ready-to-use, no dilution required",
-        "Ideal for vehicles, kitchen appliances, tools, and machinery"
-      ],
-      reviews: 89,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Freshener 100ml",
-      image: "/assets/shoe01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial & Anti-fungal action",
-        "Safe and non-toxic natural formulation",
-        "Fast-acting and long-lasting freshness",
-        "Suitable for all types of shoes"
-      ],
-      reviews: 45,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 5,
-      name: "KLITZO Helmet Freshener 100ml",
-      image: "/assets/helmet01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Anti-bacterial spray for fresh and hygienic helmets",
-      category: "helmet-care",
-      features: [
-        "Eliminates odor-causing bacteria",
-        "Advanced micro-technology neutralizes odor",
-        "Long-lasting freshness with a fresh scent",
-        "No oily residue, safe & non-toxic",
-        "Suitable for all types of helmets"
-      ],
-      reviews: 32,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 6,
-      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹699.00",
-      description: "Professional-grade cleaner in a convenient 130ml trial pack",
-      category: "hard-cleaner",
-      features: [
-        "Removes Rust & Oxidation",
-        "Removes Grease & Oil Stains",
-        "Works on Aluminium & Steel",
-        "Cash on Delivery: ₹349"
-      ],
-      reviews: 12
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch("/api/products")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setProducts(data)
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error)
+      toast.error("Failed to load products")
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    toast.success("Logged out successfully")
+    router.refresh()
+  }
 
   const categories = [
     { id: "all", name: "All Products" },
@@ -149,17 +69,12 @@ export default function ProductsPage() {
     { id: "hard-cleaner", name: "Hard Cleaners" },
     { id: "shoe-care", name: "Shoe Care" },
     { id: "helmet-care", name: "Helmet Care" },
-    // { id: "multi-surface", name: "Multi-Surface" },
-    // { id: "brightening", name: "Brightening" },
-    // { id: "automotive", name: "Car Care" },
-    // { id: "bathroom", name: "Bathroom" },
-    // { id: "kitchen", name: "Kitchen" },
   ]
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (product.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description || "").toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
     return matchesSearch && matchesCategory
   })
@@ -202,10 +117,55 @@ export default function ProductsPage() {
               </div>
             </div>
 
-            <div className="hidden md:block">
-              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+            <div className="hidden md:flex items-center space-x-4">
+              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
                 Shop Now
               </Button>
+
+              {!user ? (
+                <button
+                  onClick={() => {
+                    setAuthMode("login")
+                    setIsAuthModalOpen(true)
+                  }}
+                  className="text-slate-700 hover:text-teal-600 px-3 py-2 transition-colors duration-300 cursor-pointer"
+                  title="Login"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
+                      <Avatar className="h-7 w-7 border border-teal-200">
+                        <AvatarFallback className="bg-teal-600 text-white text-[10px]">
+                          {(user.username || user.identifier).charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-teal-700 text-xs font-semibold">{user.username || user.identifier}</span>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
+                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
+                    <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
+                      <Link href="/my-orders" className="flex items-center w-full">
+                        <ShoppingBag className="mr-3 h-4 w-4" />
+                        <span>My Orders</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="rounded-lg focus:bg-red-50 focus:text-red-600 text-red-500 cursor-pointer py-2.5"
+                    >
+                      <div className="flex items-center w-full">
+                        <X className="mr-3 h-4 w-4" />
+                        <span>Log out</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             <div className="md:hidden">
@@ -242,6 +202,32 @@ export default function ProductsPage() {
                 >
                   Contact
                 </Link>
+                {!user ? (
+                  <button
+                    onClick={() => {
+                      setAuthMode("login")
+                      setIsAuthModalOpen(true)
+                    }}
+                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-5 w-5" /> Login
+                  </button>
+                ) : (
+                  <>
+                    <Link
+                      href="/my-orders"
+                      className="text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
+                    >
+                      My Orders
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="text-red-500 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left"
+                    >
+                      Log out
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -312,6 +298,11 @@ export default function ProductsPage() {
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="relative overflow-hidden">
+                  {/* {product.isNew && (
+                    <Badge className="absolute top-2 left-2 bg-teal-500 text-white text-[8px] sm:text-[10px] uppercase font-bold tracking-wider z-20">
+                      New Arrival
+                    </Badge>
+                  )} */}
                   <img
                     src={product.image || "/placeholder.svg"}
                     alt={product.name}
@@ -345,7 +336,7 @@ export default function ProductsPage() {
                   <p className="text-slate-600 text-xs mb-3 line-clamp-2">{product.description}</p>
 
                   <div className="space-y-1 mb-3">
-                    {product.features.slice(0, 2).map((feature, idx) => (
+                    {(product.features || []).slice(0, 2).map((feature: string, idx: number) => (
                       <div key={idx} className="flex items-center text-[10px] text-slate-600">
                         <Sparkles className="h-3 w-3 text-teal-500 mr-2" />
                         {feature}
@@ -405,6 +396,12 @@ export default function ProductsPage() {
           </Link>
         </div>
       </section>
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authMode}
+        onSuccess={(newUser) => setUser(newUser)}
+      />
     </div>
   )
 }

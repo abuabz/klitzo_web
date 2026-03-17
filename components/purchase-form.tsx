@@ -41,8 +41,25 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const user = JSON.parse(storedUser)
+      setFormData(prev => ({
+        ...prev,
+        name: user.username || "",
+        phone: user.mobile || "",
+      }))
+    }
+  }, [])
+
+  const getNumericPrice = (priceStr: string) => {
+    if (!priceStr) return 0
+    return Number.parseFloat(priceStr.replace(/[^0-9.]/g, "")) || 0
+  }
+
   const handlePurchase = () => {
-    const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+    const basePrice = getNumericPrice(product.price) * quantity
     const totalPrice = (basePrice + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)
 
     const message = `🛒 *KLITZO Product Order*
@@ -81,7 +98,7 @@ Thank you! 🙏`
   const handleRazorpayPayment = async () => {
     setIsProcessing(true)
     try {
-      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+      const basePrice = getNumericPrice(product.price) * quantity
       const totalPrice = basePrice // No COD fee for online payment
 
       // 1. Create order on server
@@ -115,6 +132,15 @@ Thank you! 🙏`
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
+              orderDetails: {
+                productId: product.id,
+                productName: product.name,
+                productImage: product.image,
+                amount: totalPrice,
+                quantity: quantity,
+                shippingAddress: { ...formData },
+                user: JSON.parse(localStorage.getItem("user") || "{}")
+              }
             }),
           })
 
@@ -218,7 +244,7 @@ Thank you! 🙏`
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
               <p className="text-lg font-bold text-teal-600">
-                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)}
+                Total: ₹{(getNumericPrice(product.price) * quantity + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)}
               </p>
             </div>
           </div>

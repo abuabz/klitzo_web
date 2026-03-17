@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import Footer from '@/components/footer'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://klitzo.com'),
@@ -74,6 +75,7 @@ html {
       </head>
       <body>
         {children}
+        <Toaster position="bottom-right" expand={true} richColors />
         <Footer />
       </body>
     </html>
