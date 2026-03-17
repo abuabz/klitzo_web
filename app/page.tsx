@@ -27,6 +27,41 @@ export default function KlitzoLanding() {
 
   const products = [
     {
+      id: 0,
+      name: "Test Product",
+      images: ["/assets/productmainimg.jpeg"],
+      price: "₹5.00",
+      originalPrice: "₹10.00",
+      description: "This is a test product with 5 rupees price for testing purposes.",
+      longDescription: "This is a comprehensive test product used for verifying payment gateway integrations and checkout flows. It features a 5 rupees price point.",
+      category: "stain-remover",
+      features: [
+        "Test feature 1",
+        "Test feature 2",
+        "Cost: 5 Rupees"
+      ],
+      specifications: {
+        Volume: "TEST",
+        Type: "Digital/Physical Test",
+        Fragrance: "None",
+      },
+      safetyAndUsageNotes: [
+        "This is for testing purposes only."
+      ],
+      applicationGuide: [
+        "Use this to test the checkout flow."
+      ],
+      howToUse: [
+        "Click buy now.",
+        "Complete the form.",
+        "Verify checkout works."
+      ],
+      rating: 5.0,
+      reviews: 0,
+      inStock: true,
+      freeShipping: true,
+    },
+    {
       id: 1,
       name: "KLITZO Stain Remover 300ml",
       image: "/assets/productmainimg.jpeg",

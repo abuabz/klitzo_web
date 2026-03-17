@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ShoppingCart, User, MapPin, MessageCircle } from "lucide-react"
-import { useState } from "react"
+import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import Script from "next/script"
+import { toast } from "sonner"
 
 interface PurchaseFormProps {
   product: {
@@ -32,6 +34,8 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
     notes: "",
     cashOnDelivery: false,
   })
+
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -74,6 +78,110 @@ Thank you! 🙏`
     }
   }
 
+  const handleRazorpayPayment = async () => {
+    setIsProcessing(true)
+    try {
+      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+      const totalPrice = basePrice // No COD fee for online payment
+
+      // 1. Create order on server
+      const response = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: totalPrice,
+          currency: "INR",
+        }),
+      })
+
+      if (!response.ok) throw new Error("Failed to create order")
+      const order = await response.json()
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "KLITZO",
+        description: `Purchase of ${product.name}`,
+        image: "/klitzo-logo.png",
+        order_id: order.id,
+        handler: async function (response: any) {
+          // 3. Verify payment on server
+          const verifyRes = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          })
+
+          const verifyData = await verifyRes.json()
+
+          if (verifyData.success) {
+            toast.success("Payment successful!")
+            // Construct message for WhatsApp after successful payment
+            const message = `🛒 *KLITZO Paid Order*
+
+✅ *Payment Status: PAID*
+🆔 *Payment ID: ${response.razorpay_payment_id}*
+
+📦 *Product Details:*
+• Product: ${product.name}
+• Price: ${product.price} each
+• Quantity: ${quantity}
+• Total Amount: ₹${totalPrice.toFixed(2)}
+
+👤 *Customer Details:*
+• Name: ${formData.name}
+• Phone: ${formData.phone}
+
+📍 *Delivery Address:*
+• Address: ${formData.address}
+• Place: ${formData.place}
+• Post: ${formData.post}
+• District: ${formData.district}
+• Landmark: ${formData.landmark}
+• PIN Code: ${formData.pincode}
+
+${formData.notes ? `📝 *Additional Notes:*\n${formData.notes}\n\n` : ""}Payment has been completed online. Please process the delivery.
+
+Thank you! 🙏`
+
+            const whatsappUrl = `https://wa.me/918111813853?text=${encodeURIComponent(message)}`
+            window.open(whatsappUrl, "_blank")
+            if (onClose) onClose()
+          } else {
+            toast.error("Payment verification failed. Please contact support.")
+          }
+        },
+        prefill: {
+          name: formData.name,
+          contact: formData.phone,
+        },
+        notes: {
+          address: formData.address,
+        },
+        theme: {
+          color: "#0d9488", // teal-600
+        },
+      }
+
+      const rzp = new (window as any).Razorpay(options)
+      rzp.on("payment.failed", function (response: any) {
+        toast.error(response.error.description)
+      })
+      rzp.open()
+    } catch (error: any) {
+      console.error(error)
+      toast.error("Something went wrong. Please try again.")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   // All new fields are required
   const isFormValid =
     formData.name.trim() !== "" &&
@@ -87,12 +195,13 @@ Thank you! 🙏`
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
           <ShoppingCart className="h-6 w-6 text-teal-600" />
           Complete Your Order
         </CardTitle>
-        <p className="text-slate-600">Fill in your details to proceed with WhatsApp order</p>
+        <p className="text-slate-600">Choose your preferred payment method</p>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -250,23 +359,39 @@ Thank you! 🙏`
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <Button
+            onClick={handleRazorpayPayment}
+            disabled={!isFormValid || isProcessing}
+            className="flex-1 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isProcessing ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <CreditCard className="mr-2 h-5 w-5" />
+            )}
+            Pay Online (Prepaid)
+          </Button>
+
+          <Button
             onClick={handlePurchase}
-            disabled={!isFormValid}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            disabled={!isFormValid || isProcessing}
+            variant="outline"
+            className="flex-1 border-2 border-slate-300 text-slate-700 hover:bg-slate-50 py-6 text-lg rounded-xl transition-all duration-300 disabled:opacity-50"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
-            Order via WhatsApp
+            Order on WhatsApp
           </Button>
-          {onClose && (
-            <Button
-              onClick={onClose}
-              variant="outline"
-              className="border-slate-300 text-slate-600 hover:bg-slate-100 py-3 rounded-full transition-all duration-300"
-            >
-              Cancel
-            </Button>
-          )}
         </div>
+
+        {onClose && (
+          <div className="flex justify-center">
+            <button
+              onClick={onClose}
+              className="text-slate-500 hover:text-slate-700 text-sm font-medium underline"
+            >
+              Cancel Order
+            </button>
+          </div>
+        )}
 
         <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
           <p>🔒 Your information is secure and will only be used to process your order.</p>
