@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2 } from "lucide-react"
+import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
 export default function MyOrdersPage() {
@@ -188,28 +188,24 @@ export default function MyOrdersPage() {
                           )}
 
                           {[
-                            { label: 'Placed', status: 'pending' },
-                            { label: 'Paid', status: 'paid' },
-                            { label: 'Shipping', status: 'shipping' },
-                            { label: 'Delivered', status: 'completed' }
-                          ].map((step, idx, arr) => {
+                            { label: 'Placed', icon: Package },
+                            { label: 'Paid', icon: CreditCard },
+                            { label: 'Shipping', icon: Truck },
+                            { label: 'Delivered', icon: CheckCircle2 }
+                          ].map((step, idx) => {
+                            const Icon = step.icon;
                             const statusMap: Record<string, number> = { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1 };
                             const currentStatusIdx = statusMap[order.status.toLowerCase()] ?? 0;
                             const isActive = idx <= currentStatusIdx;
-                            const isCompleted = idx < currentStatusIdx;
 
                             return (
                               <div key={step.label} className="relative z-10 flex flex-col items-center group">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
                                   isActive 
                                     ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-200 scale-110' 
                                     : 'bg-white border-slate-200 text-slate-400'
                                 }`}>
-                                  {isCompleted || (order.status.toLowerCase() === 'completed' && idx === 3) ? (
-                                    <div className="w-2 h-2 rounded-full bg-white"></div>
-                                  ) : (
-                                    <span className="text-[10px] font-bold">{idx + 1}</span>
-                                  )}
+                                  <Icon className="h-5 w-5" />
                                 </div>
                                 <div className="mt-3 flex flex-col items-center">
                                   <span className={`text-[10px] font-black uppercase tracking-tighter transition-colors duration-300 ${
