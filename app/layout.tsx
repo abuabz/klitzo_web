@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import Footer from '@/components/footer'
+import WhatsappButton from '@/components/whatsappButton'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://klitzo.com'),
@@ -74,6 +75,7 @@ html {
       </head>
       <body>
         {children}
+        <WhatsappButton />
         <Footer />
       </body>
     </html>
