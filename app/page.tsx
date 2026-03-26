@@ -469,44 +469,7 @@ export default function KlitzoLanding() {
         </div>
       </section>
 
-      {/* Product Highlights Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
-            Why Choose{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">KLITZO</span>?
-          </h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className={`transform transition-all duration-700 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
-                style={{ transitionDelay: feature.delay }}
-              >
-                <Card onClick={() => setOpenFeature(openFeature === index ? null : index)} className=" p-6 pb-0  cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-slate-50 to-blue-50 group ">
-                  <CardContent className="flex items-center space-x-4 p-0">
-                    <div className="p-3 rounded-full bg-gradient-to-r from-teal-500 to-blue-600 group-hover:scale-110 transition-transform duration-300">
-                      <feature.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <p className="text-lg font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
-                      {feature.text}
-                    </p>
-                  </CardContent>
-                  {/* Feature content collapsible with smooth transition */}
-                  <div
-                    className={`overflow-hidden transition-all duration-500 ${openFeature === index ? "max-h-40 opacity-100 " : "max-h-0 opacity-0 mt-0 "}`}
-                  >
-                    <p className="text-xs pb-6 font-semibold text-slate-700 group-hover:text-slate-900 transition-colors duration-300">
-                      {feature.content}
-                    </p>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Products Section */}
       <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
@@ -600,6 +563,44 @@ export default function KlitzoLanding() {
                 <CarouselNext className="-right-4 lg:-right-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
               </div>
             </Carousel>
+          </div>
+        </div>
+      </section>
+      {/* Product Highlights Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
+            Why Choose{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">KLITZO</span>?
+          </h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className={`transform transition-all duration-700 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
+                style={{ transitionDelay: feature.delay }}
+              >
+                <Card onClick={() => setOpenFeature(openFeature === index ? null : index)} className=" p-6 pb-0  cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-gradient-to-br from-slate-50 to-blue-50 group ">
+                  <CardContent className="flex items-center space-x-4 p-0">
+                    <div className="p-3 rounded-full bg-gradient-to-r from-teal-500 to-blue-600 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <p className="text-lg font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">
+                      {feature.text}
+                    </p>
+                  </CardContent>
+                  {/* Feature content collapsible with smooth transition */}
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ${openFeature === index ? "max-h-40 opacity-100 " : "max-h-0 opacity-0 mt-0 "}`}
+                  >
+                    <p className="text-xs pb-6 font-semibold text-slate-700 group-hover:text-slate-900 transition-colors duration-300">
+                      {feature.content}
+                    </p>
+                  </div>
+                </Card>
+              </div>
+            ))}
           </div>
         </div>
       </section>
