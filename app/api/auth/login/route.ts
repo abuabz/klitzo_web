@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
 
+    console.log("Found user in login:", { email: user.email, isAdmin: user.isAdmin });
+
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -35,7 +37,8 @@ export async function POST(req: NextRequest) {
         user: { 
           username: user.username, 
           email: user.email, 
-          mobile: user.mobile 
+          mobile: user.mobile,
+          isAdmin: user.isAdmin || false
         } 
       },
       { status: 200 }

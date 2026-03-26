@@ -21,8 +21,17 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a password"],
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
+
+// Clear the model from mongoose if it doesn't have isAdmin to handle hot reloads
+if (mongoose.models.User && !mongoose.models.User.schema.paths.isAdmin) {
+  delete mongoose.models.User;
+}
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

@@ -6,23 +6,7 @@ export default function Footer() {
   return (
     <>
       {/* Footer CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-blue-700 print:hidden">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Experience the KLITZO Difference?</h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of satisfied customers who trust KLITZO for their cleaning needs.
-          </p>
-          <Link href="/products">
-            <Button
-              size="lg"
-              className="bg-white text-teal-600 hover:bg-slate-100 px-12 py-6 text-xl rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 hover:-translate-y-1 font-semibold"
-            >
-              Shop All Products
-              <Car className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
-        </div>
-      </section>
+
 
       {/* Beautiful Footer */}
       <footer className="bg-slate-900 text-white print:hidden">
@@ -76,9 +60,9 @@ export default function Footer() {
                 </a>
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-slate-800 hover:bg-teal-600 transition-colors duration-300">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <rect width="20" height="20" x="2" y="2" rx="5" strokeWidth={2} stroke="currentColor" fill="none"/>
-                  <circle cx="12" cy="12" r="5" strokeWidth={2} stroke="currentColor" fill="none"/>
-                  <circle cx="17" cy="7" r="1.5" fill="currentColor"/>
+                    <rect width="20" height="20" x="2" y="2" rx="5" strokeWidth={2} stroke="currentColor" fill="none" />
+                    <circle cx="12" cy="12" r="5" strokeWidth={2} stroke="currentColor" fill="none" />
+                    <circle cx="17" cy="7" r="1.5" fill="currentColor" />
                   </svg>
                 </a>
               </div>
@@ -125,13 +109,11 @@ export default function Footer() {
             <div>
               <h3 className="text-lg font-semibold mb-6 text-teal-400">Products</h3>
               <ul className="space-y-3">
-                <Link href="/product/1">
                 <li>
-                  <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
+                  <Link href="/product/1" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
                     Multi Surface Stain Remover
-                  </a>
+                  </Link>
                 </li>
-                </Link>
                 {/* <li>
                   <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
                     Multi-Surface Cleaner
@@ -180,7 +162,7 @@ export default function Footer() {
                     />
                   </svg>
                   <p className="text-slate-300 text-sm">
-                    Inkel City, Malappuram 
+                    Inkel City, Malappuram
                     <br />
                     676519, Kerala, India
                   </p>
