@@ -63,7 +63,7 @@ export default function KlitzoLanding() {
       id: 2,
       name: "KLITZO Stain Remover 130ml",
       image: "/assets/product_130ml.jpeg",
-      price: "₹299.00",
+      price: "₹349.00",
       originalPrice: "₹599.00",
       description: "Ultimate stain fighting power for the toughest stains",
       category: "stain-remover",
@@ -76,12 +76,13 @@ export default function KlitzoLanding() {
 
       ],
       reviews: 156,
+      specialOffer: "₹299 only"
     },
     {
       id: 3,
       name: "Aluminium & Steel Hard Cleaner 300ml",
       image: "/assets/hardcleaner01.jpeg",
-      price: "₹499.00",
+      price: "₹549.00",
       originalPrice: "₹999.00",
       description: "Powerful cleaner for tough grime and dirt",
       category: "hard-cleaner",
@@ -92,7 +93,8 @@ export default function KlitzoLanding() {
         "Leaves surfaces clean and refreshed",
 
       ],
-      reviews: 89
+      reviews: 89,
+      specialOffer: "₹499 only"
     },
     {
       id: 4,
@@ -134,7 +136,7 @@ export default function KlitzoLanding() {
       id: 6,
       name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
       image: "/assets/hardcleaner01.jpeg",
-      price: "₹299.00",
+      price: "₹349.00",
       originalPrice: "₹699.00",
       description: "Convenient 130ml Trial Pack for tough stains and rust",
       category: "hard-cleaner",
@@ -418,39 +420,41 @@ export default function KlitzoLanding() {
                   {products.map((product) => (
                     <CarouselItem key={product.id} className="pl-2 sm:pl-4 basis-1/2 md:basis-1/2 lg:basis-1/2">
                       <div className="h-full py-2">
-                        <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden h-full flex flex-col gap-0">
-                          {/* Product Image */}
-                          <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-36 sm:h-48 overflow-hidden flex-shrink-0 p-3 sm:p-5">
-                            {product.specialOffer && (
-                              <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-sm sm:rounded-md border border-yellow-500">
-                                PREPAID: {product.specialOffer}
-                              </Badge>
-                            )}
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 filter drop-shadow-sm"
-                            />
-                          </div>
-
-                          {/* Product Info */}
-                          <CardContent className="p-3 sm:p-5 text-center flex flex-col items-center flex-grow justify-between gap-2 sm:gap-3">
-                            <h3 className="text-[10px] sm:text-sm md:text-base font-bold text-slate-800 line-clamp-2 min-h-[1rem] sm:min-h-[2.5rem] flex items-center justify-center group-hover:text-teal-700 transition-colors duration-300">
-                              {product.name}
-                            </h3>
-
-                            <div className="flex items-center justify-center gap-2 sm:gap-3 w-full my-1">
-                              <span className="text-base sm:text-lg lg:text-xl font-extrabold text-teal-600">{product.price}</span>
-                              <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice}</span>
+                        <Link href={`/product/${product.id}`}>
+                          <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden h-full flex flex-col gap-0">
+                            {/* Product Image */}
+                            <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-36 sm:h-48 overflow-hidden flex-shrink-0 p-3 sm:p-5">
+                              {product.specialOffer && (
+                                <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-sm sm:rounded-md border border-yellow-500">
+                                  PREPAID: {product.specialOffer}
+                                </Badge>
+                              )}
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 filter drop-shadow-sm"
+                              />
                             </div>
 
-                            <Link href={`/product/${product.id}`} className="w-full mt-auto block">
-                              <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2.5 h-8 sm:h-11 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
-                                Buy Now
-                              </Button>
-                            </Link>
-                          </CardContent>
-                        </Card>
+                            {/* Product Info */}
+                            <CardContent className="p-3 sm:p-5 text-center flex flex-col items-center flex-grow justify-between gap-2 sm:gap-3">
+                              <h3 className="text-[10px] sm:text-sm md:text-base font-bold text-slate-800 line-clamp-2 min-h-[1rem] sm:min-h-[2.5rem] flex items-center justify-center group-hover:text-teal-700 transition-colors duration-300">
+                                {product.name}
+                              </h3>
+
+                              <div className="flex items-center justify-center gap-2 sm:gap-3 w-full my-1">
+                                <span className="text-base sm:text-lg lg:text-xl font-extrabold text-teal-600">{product.price}</span>
+                                <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice}</span>
+                              </div>
+
+                              <Link href={`/product/${product.id}`} className="w-full mt-auto block">
+                                <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2.5 h-8 sm:h-11 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                                  Buy Now
+                                </Button>
+                              </Link>
+                            </CardContent>
+                          </Card>
+                        </Link>
                       </div>
                     </CarouselItem>
                   ))}
