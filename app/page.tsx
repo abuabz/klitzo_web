@@ -271,7 +271,7 @@ export default function KlitzoLanding() {
 
             {/* Desktop CTA Button */}
             <div className="hidden md:block">
-              <Link href="/product/1">
+              <Link href="/products">
                 <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                   Shop Now
                 </Button>
@@ -390,13 +390,13 @@ export default function KlitzoLanding() {
 
               <div className={`transform transition-all duration-1000 delay-500 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/product/1">
-                    <Button size="lg" className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-10 py-6 text-lg rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+                  <Link className="cursor-pointer" href="/products">
+                    <Button size="lg" className="cursor-pointer bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-10 py-6 text-lg rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
                       Shop Now <Sparkles className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link href="/about">
-                    <Button variant="outline" size="lg" className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-10 py-6 text-lg rounded-full backdrop-blur-sm">
+                  <Link className="cursor-pointer" href="/about">
+                    <Button variant="outline" size="lg" className="cursor-pointer border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-10 py-6 text-lg rounded-full backdrop-blur-sm">
                       Learn More
                     </Button>
                   </Link>
