@@ -8,6 +8,10 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import PurchaseForm from "@/components/purchase-form"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+
+import products from "@/lib/data.json"
 
 export default function ProductPage() {
   const params = useParams()
@@ -18,361 +22,12 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showPurchaseForm, setShowPurchaseForm] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "prepaid">("cod")
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
-  const products = [
-    {
-      id: 1,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 300ml",
-      images: ["/assets/productmainimg.jpeg", "/assets/imgproduct03.jpeg ", "/assets/imgproduct04.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description:
-        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
-      longDescription:
-        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-        "Fresh orange fragrance"
-      ],
-      specifications: {
-        Volume: "300ml",
-        Type: "Liquid Spray",
-        // "Suitable for": "All washable fabrics",
-        Fragrance: "Fresh Clean",
-        // "pH Level": "7.0 (Neutral)",
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place, away from sunlight.",
-        "Keep out of reach of children and pets.",
-        "Avoid contact with eyes; rinse with water if exposed.",
-        "Wear gloves if you have sensitive skin.",
-        "Not for silk, wool, or delicate fabrics.",
-        "Do not use on ceramic-coated, waxed, or polished vehicles.",
-        "Do not use on polished/varnished wood.",
-        "Test on a hidden area first.",
-        "Use only as directed; misuse may damage surfaces.",
-        "Do not ingest; seek medical help if swallowed.",
-        "Use in a well-ventilated area."
-      ],
-      applicationGuide: [
-        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
-        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
-        "Vehicle: Body stains, watermarks, shine restoration",
-        "Household: Plastics, buckets, glass surfaces, steel pipes",
-        "Industrial/Commercial: Oil, grease, ink stains"
-      ],
-      howToUse: [
-        "Shake well before use.",
-        "Spray directly onto the stained area.",
-        "Leave for 30–60 seconds.",
-        "Wipe with a microfiber cloth or scrubber (for tough stains).",
-        "Rinse if required."
-      ],
-      rating: 4.8,
-      reviews: 156,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 2,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 130ml",
-      images: ["/assets/product_130ml.jpeg", "/assets/imgproduct03.jpeg ", "/assets/productdetailed_130ml.jpeg", "/assets/imgproduct05.jpeg", "/assets/imgproduct06.jpeg", "/assets/imgproduct07.jpeg", "/assets/imgproduct08.jpeg"],
-      price: "₹299.00",
-      originalPrice: "₹599.00",
-      description:
-        "Ultimate stain fighting power for the toughest stains. Our advanced formula works in just 30 seconds to break down even the most stubborn stains.",
-      longDescription:
-        "Klitzo Stain Remover is your go-to solution for tackling the toughest stains on all washable fabrics. Whether it's oil, grease, ink, rust, food stains, toilet yellow stains, or hard-water spots, our powerful formula works in just 30 seconds to break down and lift away even the most stubborn stains. Safe for use on a variety of surfaces including steel, plastic, ceramics, glass, vehicle bodies, tiles, and more, Klitzo Stain Remover ensures a streak-free finish every time. Plus, it leaves behind a fresh orange fragrance that keeps your fabrics smelling clean and revitalized.",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-        "Fresh orange fragrance"
-      ],
-      specifications: {
-        Volume: "130ml",
-        Type: "Liquid Spray",
-        // "Suitable for": "All washable fabrics",
-        Fragrance: "Fresh Clean",
-        // "pH Level": "7.0 (Neutral)",
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place, away from sunlight.",
-        "Keep out of reach of children and pets.",
-        "Avoid contact with eyes; rinse with water if exposed.",
-        "Wear gloves if you have sensitive skin.",
-        "Not for silk, wool, or delicate fabrics.",
-        "Do not use on ceramic-coated, waxed, or polished vehicles.",
-        "Do not use on polished/varnished wood.",
-        "Test on a hidden area first.",
-        "Use only as directed; misuse may damage surfaces.",
-        "Do not ingest; seek medical help if swallowed.",
-        "Use in a well-ventilated area."
-      ],
-      applicationGuide: [
-        "Kitchen: Burnt pans, chimneys, crockery, tea/coffee stains",
-        "Bathroom: Toilet yellow stains, tiles, hard-water spots, rust removal",
-        "Vehicle: Body stains, watermarks, shine restoration",
-        "Household: Plastics, buckets, glass surfaces, steel pipes",
-        "Industrial/Commercial: Oil, grease, ink stains"
-      ],
-      howToUse: [
-        "Shake well before use.",
-        "Spray directly onto the stained area.",
-        "Leave for 30–60 seconds.",
-        "Wipe with a microfiber cloth or scrubber (for tough stains).",
-        "Rinse if required."
-      ],
-      rating: 4.7,
-      reviews: 156,
-      inStock: true,
-      freeShipping: true,
-    },
-    {
-      id: 3,
-      name: "Klitzo Aluminium & SS Cleaner 300ml",
-      images: [
-        "/assets/hardcleaner01.jpeg",
-        "/assets/hardcleaner02.jpeg",
-        "/assets/hardcleaner03.jpeg",
-        "/assets/hardcleaner04.jpeg"
-      ],
-      price: "₹499.00",
-      originalPrice: "₹999.00",
-
-      description:
-        "Professional-grade aluminium and stainless-steel cleaner designed to remove stains, oxidation, grease, and rust while restoring the natural metallic shine.",
-
-      longDescription:
-        "Klitzo Aluminium & SS Cleaner is a powerful, non-corrosive cleaning solution specially formulated to remove tough stains, oxidation, rust, grease, and dirt from aluminium and stainless-steel surfaces. Its advanced formula restores the natural metallic shine, leaving surfaces clean, polished, and streak-free. Ideal for alloy wheels, kitchen appliances, industrial tools, machinery, and steel fixtures. Ready-to-use formulation—no dilution required.",
-
-      category: "aluminium-ss-cleaner",
-
-      features: [
-        "Removes stains, oxidation, grease, and rust",
-        "Restores natural metallic shine",
-        "Non-corrosive and safe for aluminium & stainless steel",
-        "Ready-to-use formulation (no dilution required)",
-        "Ideal for vehicles, kitchen appliances, tools, and machinery",
-        "Leaves a clean, polished, streak-free finish"
-      ],
-
-      specifications: {
-        Volume: "300ml",
-        Type: "Ready-to-Use Liquid",
-        Appearance: "Clear / Light Purple Liquid",
-        Fragrance: "Mild Industrial / Neutral",
-        pH_Level: "Balanced for aluminium & stainless-steel safety"
-      },
-
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place away from direct sunlight.",
-        "Keep out of reach of children and pets.",
-        "Use protective gloves if you have sensitive skin.",
-        "Avoid contact with eyes, mouth, and open wounds.",
-        "For external use only.",
-        "Do not mix with other chemical cleaners."
-      ],
-
-      applicationGuide: [
-        "Vehicles: Alloy wheels, bike & car metal parts",
-        "Kitchen: Stainless steel sinks, appliances, utensils",
-        "Industrial: Tools, machinery, steel fixtures",
-        "Household: Metal frames, steel furniture, pipes"
-      ],
-
-      howToUse: [
-        "Shake the bottle well before use.",
-        "Spray directly onto the aluminium or stainless-steel surface.",
-        "Let it react for 30 seconds to 2 minutes depending on dirt/rust.",
-        "Scrub gently using a soft or hard brush.",
-        "Rinse thoroughly with clean water.",
-        "Repeat for heavily soiled or oxidized areas."
-      ],
-
-      rating: 4.8,
-      reviews: 89,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Deodorizer and Disinfectant Spray 100ml",
-      images: [
-        "/assets/shoe01.jpeg",
-        "/assets/shoe02.jpeg",
-        "/assets/shoe3.jpeg",
-        "/assets/shoe4.jpeg",
-        "/assets/shoe5.jpeg",
-        "/assets/shoe6.jpeg"
-      ],
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Proprietary formulation that kills bacteria and fungus, resulting in neutralizing shoe odor.",
-      longDescription: "KLITZO Shoe Deodorizer & Disinfectant Spray is a fast-acting, long-lasting solution designed to remove, control, and prevent bad odors in all types of shoes. Made with safe, natural ingredients like glycerin and menthol extract, it provides a fresh and gentle experience while effectively killing bacteria and fungi that cause odors. It offers exceptional value with over hundreds of sprays per bottle.",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial and Anti-fungal action",
-        "Safe & non-toxic natural formulation",
-        "Long-lasting freshness with menthol extract",
-        "Suitable for all types of shoes",
-        "Fast-acting odor neutralization"
-      ],
-      specifications: {
-        Volume: "100ml",
-        Type: "Liquid Spray",
-        Ingredients: "Natural (Glycerin, Menthol Extract)",
-        Action: "Deodorizing & Disinfecting",
-        Safety: "Non-toxic & Gentle formulation"
-      },
-      safetyAndUsageNotes: [
-        "Not for application on the human body.",
-        "Keep out of reach of children.",
-        "Store in a cool, dry place.",
-        "Avoid contact with eyes.",
-        "Test on a small hidden area for delicate materials.",
-        "Do not ingest."
-      ],
-      applicationGuide: [
-        "Suitable for all types of shoes (Sport, Leather, Casual)",
-        "Can be used on gym bags and lockers",
-        "Effective on shoe insoles and linings",
-        "Ideal for daily use to maintain freshness"
-      ],
-      howToUse: [
-        "Spray directly into each shoe.",
-        "Cover all interior surfaces, including the insoles.",
-        "Allow to dry completely.",
-        "Repeat until shoes are odor-free."
-      ],
-      rating: 4.9,
-      reviews: 45,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 5,
-      name: "KLITZO Anti-bacterial Deodorizing Helmet Spray 100ml",
-      images: [
-        "/assets/helmet01.jpeg",
-        "/assets/helmet02.jpeg",
-        "/assets/helmet03.jpeg",
-        "/assets/helmet04.jpeg"
-      ],
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced micro-technology formula that neutralizes odors and combats bacteria for a fresh and hygienic helmet.",
-      longDescription: "KLITZO Helmet Deodorizer is an advanced anti-bacterial spray designed to maintain helmet hygiene and comfort. Our formula contains powerful antibacterial agents that actively combat odor-causing bacteria, preventing the buildup of unpleasant smells. The advanced micro-technology neutralizes odors at the source, leaving a long-lasting fresh scent without any oily residue. Safe and non-toxic, it's suitable for all types of helmets.",
-      category: "helmet-care",
-      features: [
-        "Anti-bacterial & Anti-fungal protection",
-        "Advanced micro-technology odor neutralization",
-        "Long-lasting freshness with fresh scent",
-        "Safe & non-toxic natural formulation",
-        "No oily residue, easy to use",
-        "Suitable for all types of helmets"
-      ],
-      specifications: {
-        Volume: "100ml",
-        Type: "Liquid Spray",
-        Protection: "Anti-bacterial & Anti-fungal",
-        Action: "Fast-acting Deodorizing",
-        "Best For": "Motorbike, Sports & Safety Helmets"
-      },
-      safetyAndUsageNotes: [
-        "Not for application on the human body.",
-        "Keep out of reach of children.",
-        "Keep in a cool, dry place.",
-        "Avoid contact with eyes.",
-        "Non-toxic ingredients, safe for regular use."
-      ],
-      applicationGuide: [
-        "Motorcycle Helmets (Open face, Full face)",
-        "Bicycle and Sports Helmets",
-        "Industrial Safety Helmets",
-        "Helmet liners and padding"
-      ],
-      howToUse: [
-        "Simply spray the deodorizer evenly on the interior of your helmet.",
-        "Allow it to dry completely.",
-        "No rinsing required.",
-        "Use regularly for maintenance of hygiene."
-      ],
-      rating: 4.8,
-      reviews: 32,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹349 only for prepaid orders!"
-    },
-    {
-      id: 6,
-      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
-      images: [
-        "/assets/hardcleaner01.jpeg",
-        "/assets/hardcleaner02.jpeg",
-        "/assets/hardcleaner03.jpeg",
-        "/assets/hardcleaner04.jpeg"
-      ],
-      price: "₹299.00",
-      originalPrice: "₹699.00",
-      description: "Professional-grade aluminium and stainless-steel cleaner in a compact 130ml trial pack.",
-      longDescription: "KLITZO Aluminium & Steel Hard Cleaner 130ml trial pack is specifically designed for removing tough stains, oxidation, and rust from metal surfaces. This powerful formula restores the natural shine of aluminium and stainless steel without being corrosive. Perfect for testing its effectiveness on alloy wheels, sinks, and industrial tools. Available at a special price of ₹299 for prepaid orders and ₹349 for cash on delivery.",
-      category: "hard-cleaner",
-      features: [
-        "Removes Rust",
-        "Clears Oxidation",
-        "Removes Grease & Oil Stains",
-        "Works on Aluminium & Steel",
-        "Restores natural metallic shine",
-        "Non-corrosive formula"
-      ],
-      specifications: {
-        Volume: "130ml",
-        Type: "Ready-to-Use Liquid",
-        Appearance: "Clear / Light Purple Liquid",
-        Fragrance: "Mild Industrial / Neutral",
-        pH_Level: "Balanced for safety"
-      },
-      safetyAndUsageNotes: [
-        "Store in a cool, dry place away from direct sunlight.",
-        "Keep out of reach of children and pets.",
-        "Use protective gloves if you have sensitive skin.",
-        "Avoid contact with eyes, mouth, and open wounds.",
-        "For external use only."
-      ],
-      applicationGuide: [
-        "Vehicles: Alloy wheels, metal parts",
-        "Kitchen: Stainless steel sinks, utensils",
-        "Industrial: Tools, machinery",
-        "Household: Metal frames, pipes"
-      ],
-      howToUse: [
-        "Shake the bottle well before use.",
-        "Spray directly onto the metal surface.",
-        "Let it react for 30 seconds to 2 minutes.",
-        "Scrub gently with a brush.",
-        "Rinse thoroughly with clean water."
-      ],
-      rating: 4.8,
-      reviews: 12,
-      inStock: true,
-      freeShipping: true,
-      specialOffer: "₹299 Prepaid / ₹349 COD"
-    }
-  ]
 
   const product = products.find((p) => p.id === productId)
 
@@ -402,10 +57,11 @@ export default function ProductPage() {
               product={{
                 id: product.id,
                 name: product.name,
-                price: product.price,
+                price: `₹${(Number.parseFloat(product.price.replace(/[^\d.]/g, "")) - 50).toFixed(2)}`,
                 image: product.images[0],
               }}
               quantity={quantity}
+              initialCashOnDelivery={paymentMethod === "cod"}
               onClose={() => setShowPurchaseForm(false)}
             />
           </div>
@@ -564,7 +220,13 @@ export default function ProductPage() {
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
 
                 <div className="flex items-center flex-wrap gap-2 sm:gap-4">
-                  <span className="text-3xl font-bold text-teal-600">{product.price}</span>
+                  <span className="text-3xl font-bold text-teal-600">
+                    ₹
+                    {(
+                      Number.parseFloat(product.price.replace(/[^\d.]/g, "")) -
+                      (paymentMethod === "prepaid" ? 50 : 0)
+                    ).toFixed(2)}
+                  </span>
                   {product.originalPrice && (
                     <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
                   )}
@@ -618,6 +280,47 @@ export default function ProductPage() {
                     </div>
                   </div>
 
+                  <div className="space-y-3">
+                    <span className="text-lg font-semibold text-slate-800">Select Payment Method:</span>
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={(value) => setPaymentMethod(value as "cod" | "prepaid")}
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                    >
+                      <div
+                        className={`flex items-center space-x-3 border-2 p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
+                          paymentMethod === "cod" ? "border-teal-500 bg-teal-50/50" : "border-slate-200 hover:border-slate-300"
+                        }`}
+                        onClick={() => setPaymentMethod("cod")}
+                      >
+                        <RadioGroupItem value="cod" id="cod" className="border-teal-500 text-teal-600" />
+                        <div className="flex-1">
+                          <Label htmlFor="cod" className="font-bold cursor-pointer text-slate-800">
+                            Cash on Delivery
+                          </Label>
+                          <p className="text-xs text-slate-500">Standard delivery</p>
+                        </div>
+                      </div>
+
+                      <div
+                        className={`flex items-center space-x-3 border-2 p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
+                          paymentMethod === "prepaid"
+                            ? "border-teal-500 bg-teal-50/50"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
+                        onClick={() => setPaymentMethod("prepaid")}
+                      >
+                        <RadioGroupItem value="prepaid" id="prepaid" className="border-teal-500 text-teal-600" />
+                        <div className="flex-1">
+                          <Label htmlFor="prepaid" className="font-bold cursor-pointer text-slate-800">
+                            Prepaid
+                          </Label>
+                          <p className="text-xs text-teal-600 font-medium">Extra ₹50 Instant Discount</p>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       onClick={handlePurchase}
@@ -625,7 +328,12 @@ export default function ProductPage() {
                       className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" />
-                      Buy Now - ₹{(Number.parseFloat(product.price.slice(1)) * quantity).toFixed(2)}
+                      Buy Now - ₹
+                      {(
+                        (Number.parseFloat(product.price.replace(/[^\d.]/g, "")) -
+                          (paymentMethod === "prepaid" ? 50 : 0)) *
+                        quantity
+                      ).toFixed(2)}
                     </Button>
                     {/* <Button
                       variant="outline"

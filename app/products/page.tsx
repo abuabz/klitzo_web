@@ -7,6 +7,8 @@ import { Sparkles, Menu, X, Search } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
+import products from "@/lib/data.json"
+
 export default function ProductsPage() {
   const [isVisible, setIsVisible] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,128 +19,14 @@ export default function ProductsPage() {
     setIsVisible(true)
   }, [])
 
-  const products = [
-    {
-      id: 1,
-      name: "Klitzo Multi Surface (All In One) Stain Remover 300ml",
-      image: "/assets/productmainimg.jpeg",
-      price: "₹599.00",
-      originalPrice: "₹1199.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Streak-free finish for glass and shiny surfaces",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-
-        "Fresh orange fragrance"
-      ],
-      rating: 4.8,
-      reviews: 156,
-    },
-    {
-      id: 2,
-      name: "KLITZO Stain Multi Surface (All In One) Remover 130ml",
-      image: "/assets/product_130ml.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹599.00",
-      description: "Ultimate stain fighting power for the toughest stains",
-      category: "stain-remover",
-      features: [
-        "Instant removal of old & new stains",
-        "Fresh orange fragrance",
-        "Effective on oil, grease, ink, rust, food stains, toilet yellow stains, and hard-water spots",
-        "Safe for steel, plastic, ceramics, glass, vehicle bodies, tiles, and more",
-        "Streak-free finish for glass and shiny surfaces",
-
-      ],
-      reviews: 156,
-    },
-    {
-      id: 3,
-      name: "KLITZO Aluminium & Stainless-Steel Cleaner 300ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹499.00",
-      originalPrice: "₹999.00",
-      description: "Professional-grade cleaner for aluminium and stainless-steel surfaces",
-      category: "hard-cleaner",
-      features: [
-        "Removes stains, oxidation, grease, and rust",
-        "Restores natural metallic shine",
-        "Non-corrosive and safe for aluminium & stainless steel",
-        "Ready-to-use, no dilution required",
-        "Ideal for vehicles, kitchen appliances, tools, and machinery"
-      ],
-      reviews: 89,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 4,
-      name: "KLITZO Shoe Freshener 100ml",
-      image: "/assets/shoe01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Advanced anti-bacterial spray for fresh and hygienic shoes",
-      category: "shoe-care",
-      features: [
-        "Removes, controls, and prevents bad odors",
-        "Anti-bacterial & Anti-fungal action",
-        "Safe and non-toxic natural formulation",
-        "Fast-acting and long-lasting freshness",
-        "Suitable for all types of shoes"
-      ],
-      reviews: 45,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 5,
-      name: "KLITZO Helmet Freshener 100ml",
-      image: "/assets/helmet01.jpeg",
-      price: "₹399.00",
-      originalPrice: "₹699.00",
-      description: "Anti-bacterial spray for fresh and hygienic helmets",
-      category: "helmet-care",
-      features: [
-        "Eliminates odor-causing bacteria",
-        "Advanced micro-technology neutralizes odor",
-        "Long-lasting freshness with a fresh scent",
-        "No oily residue, safe & non-toxic",
-        "Suitable for all types of helmets"
-      ],
-      reviews: 32,
-      specialOffer: "₹349 only"
-    },
-    {
-      id: 6,
-      name: "KLITZO Aluminium & Steel Hard Cleaner 130ml",
-      image: "/assets/hardcleaner01.jpeg",
-      price: "₹299.00",
-      originalPrice: "₹699.00",
-      description: "Professional-grade cleaner in a convenient 130ml trial pack",
-      category: "hard-cleaner",
-      features: [
-        "Removes Rust & Oxidation",
-        "Removes Grease & Oil Stains",
-        "Works on Aluminium & Steel",
-        "Cash on Delivery: ₹349"
-      ],
-      reviews: 12
-    }
-  ]
-
   const categories = [
     { id: "all", name: "All Products" },
     { id: "stain-remover", name: "Stain Removers" },
     { id: "hard-cleaner", name: "Hard Cleaners" },
     { id: "shoe-care", name: "Shoe Care" },
     { id: "helmet-care", name: "Helmet Care" },
-    // { id: "multi-surface", name: "Multi-Surface" },
-    // { id: "brightening", name: "Brightening" },
-    // { id: "automotive", name: "Car Care" },
-    // { id: "bathroom", name: "Bathroom" },
-    // { id: "kitchen", name: "Kitchen" },
   ]
+
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -187,7 +75,7 @@ export default function ProductsPage() {
             </div>
 
             <div className="hidden md:block">
-              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <Button className="cursor-pointer bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 Shop Now
               </Button>
             </div>

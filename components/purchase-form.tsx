@@ -16,10 +16,11 @@ interface PurchaseFormProps {
     image: string
   }
   quantity: number
+  initialCashOnDelivery?: boolean
   onClose?: () => void
 }
 
-export default function PurchaseForm({ product, quantity, onClose }: PurchaseFormProps) {
+export default function PurchaseForm({ product, quantity, initialCashOnDelivery, onClose }: PurchaseFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -30,7 +31,7 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
     landmark: "",
     pincode: "",
     notes: "",
-    cashOnDelivery: false,
+    cashOnDelivery: initialCashOnDelivery ?? false,
   })
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
@@ -45,9 +46,9 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
 
 📦 *Product Details:*
 • Product: ${product.name}
-• Price: ${product.price} each
+• Price: ₹${Number.parseFloat(product.price.replace(/[^\d.]/g, "")).toFixed(2)}
 • Quantity: ${quantity}
-• Cash on Delivery: ${formData.cashOnDelivery ? "Yes (+₹50)" : "No"}
+• Cash on Delivery: ${formData.cashOnDelivery ? "Yes (+₹50)" : "No (Prepaid Discount applied)"}
 • Total Amount: ₹${totalPrice}
 
 👤 *Customer Details:*
