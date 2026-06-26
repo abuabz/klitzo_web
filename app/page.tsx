@@ -55,7 +55,7 @@ export default function KlitzoLanding() {
       {/* Announcement Bar */}
       <div className={`bg-gradient-to-r from-teal-600 to-blue-600 text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center gap-2 shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
         <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
-        All India Free Delivery on Prepaid Orders!
+        All India Free Delivery
       </div>
 
       <nav className={`fixed left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full transition-all duration-300 ${isScrolled ? "top-0 mt-4" : "top-10 md:top-10 mt-2 sm:mt-4"}`}>
