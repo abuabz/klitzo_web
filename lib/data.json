@@ -350,5 +350,108 @@
     "reviews": 32,
     "inStock": true,
     "freeShipping": true
+  },
+  {
+    "id": 7,
+    "name": "KLITZO Water Repellent Spray",
+    "image": "/assets/water-repellent01.jpeg",
+    "images": [
+      "/assets/water-repellent01.jpeg",
+      "/assets/water-repellent02.jpeg",
+      "/assets/water-repellent03.jpeg"
+    ],
+    "price": "₹499.00",
+    "originalPrice": "₹799.00",
+    "specialOffer": "",
+    "description": "Specially formulated to create an invisible hydrophobic coating on glass and transparent surfaces, making water bead up and roll away instantly.",
+    "longDescription": "Rain should never compromise your visibility. KLITZO Water Repellent Spray is specially formulated to create an invisible hydrophobic coating on glass and transparent surfaces, making water bead up and roll away instantly. This helps improve visibility, enhances driving safety, and keeps surfaces cleaner for longer. Whether you're driving through heavy rain or riding your bike in challenging weather conditions, KLITZO Water Repellent Spray ensures a clearer view and a more confident journey. FREE WITH EVERY BOTTLE: Premium 500 GSM Microfiber Cloth.",
+    "category": "water-repellent",
+    "features": [
+      "Instant Water Beading Effect",
+      "Enhanced Visibility During Rain",
+      "Long-Lasting Protection (Up to 2–3 Months)",
+      "Easy Spray & Wipe Application",
+      "Streak-Free Finish",
+      "Nano Shield Technology",
+      "Suitable for Multiple Transparent Surfaces"
+    ],
+    "specifications": {
+      "Brand": "KLITZO",
+      "Volume": "60 ml",
+      "Protection Duration": "Up to 2–3 Months",
+      "Free Gift": "Premium 500 GSM Microfiber Cloth"
+    },
+    "safetyAndUsageNotes": [
+      "Keep out of reach of children.",
+      "Store in a cool, dry place.",
+      "Avoid contact with eyes."
+    ],
+    "applicationGuide": [
+      "Car Windshields",
+      "Helmet Visors",
+      "Side Mirrors",
+      "Glass Doors",
+      "Windows",
+      "Acrylic & Transparent Surfaces"
+    ],
+    "howToUse": [
+      "Clean the surface thoroughly.",
+      "Shake the bottle well before use.",
+      "Spray evenly on the surface.",
+      "Spread using the included microfiber cloth.",
+      "Allow to dry for 10–15 minutes.",
+      "Buff lightly for best results."
+    ],
+    "rating": 5.0,
+    "reviews": 0,
+    "inStock": true,
+    "freeShipping": true
+  },
+  {
+    "id": 8,
+    "name": "KLITZO Shoe & Helmet Cleaner Combo",
+    "image": "/assets/compo-shoe-and-helmet.jpeg",
+    "images": [
+      "/assets/compo-shoe-and-helmet.jpeg",
+      "/assets/helmet01.jpeg",
+      "/assets/shoe01.jpeg"
+    ],
+    "price": "₹449.00",
+    "originalPrice": "₹1398.00",
+    "specialOffer": "Combo Deal",
+    "description": "Complete hygiene combo for your daily commute. Keep your helmet fresh and shoes odor-free with our powerful anti-bacterial formulas.",
+    "longDescription": "The ultimate KLITZO hygiene combo pack includes our premium Helmet Deodorizer and Shoe Deodorizer. Designed to maintain freshness and comfort for your daily rides and active lifestyle. Both formulas use advanced micro-technology to neutralize odors at the source, preventing the buildup of bacteria and fungi without leaving any oily residue.",
+    "category": "combo-pack",
+    "features": [
+      "2-in-1 Complete Hygiene Solution",
+      "Anti-bacterial & Anti-fungal protection",
+      "Advanced odor neutralization technology",
+      "Safe, non-toxic & easy to use",
+      "Long-lasting freshness for daily use"
+    ],
+    "specifications": {
+      "Package Contents": "1x Helmet Cleaner (100ml) + 1x Shoe Cleaner (100ml)",
+      "Type": "Liquid Spray",
+      "Protection": "Anti-bacterial & Anti-fungal",
+      "Action": "Deodorizing & Disinfecting"
+    },
+    "safetyAndUsageNotes": [
+      "Not for application on the human body.",
+      "Keep out of reach of children.",
+      "Store in a cool, dry place."
+    ],
+    "applicationGuide": [
+      "All types of Helmets (Motorcycle, Sports)",
+      "All types of Shoes (Sport, Leather, Casual)"
+    ],
+    "howToUse": [
+      "Spray evenly on the interior of the helmet or shoe.",
+      "Allow to dry completely before use.",
+      "No rinsing required."
+    ],
+    "rating": 4.9,
+    "reviews": 87,
+    "inStock": true,
+    "freeShipping": true
   }
 ]

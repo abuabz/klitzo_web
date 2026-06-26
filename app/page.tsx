@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
@@ -181,7 +181,164 @@ export default function KlitzoLanding() {
         <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent animate-slide-right"></div>
         <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent animate-slide-left"></div>
       </div>
+      {/* Special Combo Offer Section */}
 
+
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
+            Our{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
+          </h2>
+
+          <div className="w-full px-4 sm:px-8">
+            {/* Desktop & Tablet Carousel */}
+            <div className="hidden md:block">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[productsPlugin.current]}
+                onMouseEnter={() => productsPlugin.current.stop()}
+                onMouseLeave={() => productsPlugin.current.play()}
+                className="w-full relative"
+              >
+                <CarouselContent className="px-2">
+                  {products.map((product, index) => (
+                    <CarouselItem key={product.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-4" style={{ transitionDelay: `${index * 100}ms` }}>
+                      <Link href={`/product/${product.id}`} className="block h-full py-4">
+                        <Card
+                          className={`group h-full py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white flex flex-col overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+                        >
+                          <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white flex-shrink-0 h-48 sm:h-56 p-4">
+                            <img
+                              src={product.image || "/placeholder.svg"}
+                              alt={product.name}
+                              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply drop-shadow-sm"
+                            />
+                            {product.originalPrice && (
+                              <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs shadow-sm">
+                                SALE
+                              </Badge>
+                            )}
+                            {product.specialOffer && (
+                              <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-bold shadow-md z-10 border border-yellow-500">
+                                PREPAID: {product.specialOffer}
+                              </Badge>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg shadow-teal-500/30">
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+
+                          <CardContent className="p-4 sm:p-5 flex flex-col flex-grow justify-between gap-3">
+                            <div>
+                              <h3 className="text-sm sm:text-base font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
+                                {product.name}
+                              </h3>
+                              <p className="text-slate-500 text-xs mb-3 line-clamp-2">
+                                {product.description}
+                              </p>
+
+                              <div className="hidden sm:flex flex-col gap-1.5 mb-2">
+                                {product.features.slice(0, 2).map((feature, idx) => (
+                                  <div key={idx} className="flex items-start text-xs text-slate-600">
+                                    <Sparkles className="h-3.5 w-3.5 text-teal-500 mr-2 flex-shrink-0 mt-0.5" />
+                                    <span className="line-clamp-1">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 mt-auto pt-2 border-t border-slate-100">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge className="bg-slate-800 text-white text-sm px-3 py-1 shadow-sm">
+                                  {product.price}
+                                </Badge>
+                                {product.originalPrice && (
+                                  <span className="text-slate-400 line-through text-xs font-medium">
+                                    {product.originalPrice}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm text-center">
+                                Buy Now
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="hidden sm:block">
+                  <CarouselPrevious className="-left-4 lg:-left-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
+                  <CarouselNext className="-right-4 lg:-right-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
+                </div>
+              </Carousel>
+            </div>
+
+            {/* Mobile Grid View */}
+            <div className="grid grid-cols-2 gap-3 md:hidden">
+              {products.map((product, index) => (
+                <div key={product.id} className="h-full" style={{ transitionDelay: `${index * 100}ms` }}>
+                  <Link href={`/product/${product.id}`} className="block h-full py-2">
+                    <Card
+                      className={`group h-full py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white flex flex-col overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+                    >
+                      <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white flex-shrink-0 h-36 p-2">
+                        <img
+                          src={product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply drop-shadow-sm"
+                        />
+                        {product.originalPrice && (
+                          <Badge className="absolute top-2 left-2 bg-red-500 text-white text-[8px] sm:text-xs shadow-sm">
+                            SALE
+                          </Badge>
+                        )}
+                        {product.specialOffer && (
+                          <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] font-bold shadow-md z-10 border border-yellow-500">
+                            PREPAID: {product.specialOffer}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <CardContent className="p-3 flex flex-col flex-grow justify-between gap-2">
+                        <div>
+                          <h3 className="text-[11px] font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2rem] leading-snug">
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        <div className="flex flex-col gap-2 mt-auto pt-1 border-t border-slate-100">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {product.price}
+                            </span>
+                            {product.originalPrice && (
+                              <span className="text-[9px] text-slate-400 line-through font-medium">
+                                {product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 text-white rounded-full py-1.5 shadow-sm font-bold text-[10px] text-center">
+                            Buy Now
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Hero Section */}
       {/* Hero Section - 2 Products Side-by-Side on ALL Devices (including Mobile) */}
       <section className="relative min-h-screen flex items-center px-4 pt-20 overflow-hidden">
@@ -288,101 +445,54 @@ export default function KlitzoLanding() {
 
 
 
-      {/* Products Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+      <section className="py-12 md:py-20 px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
-            Our{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
-          </h2>
+          <div className="bg-gradient-to-r from-teal-900 to-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative">
+            {/* Background glowing effects */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
 
-          <div className="w-full px-4 sm:px-8">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              plugins={[productsPlugin.current]}
-              onMouseEnter={() => productsPlugin.current.stop()}
-              onMouseLeave={() => productsPlugin.current.play()}
-              className="w-full relative"
-            >
-              <CarouselContent className="px-2">
-                {products.map((product, index) => (
-                  <CarouselItem key={product.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-4" style={{ transitionDelay: `${index * 100}ms` }}>
-                    <Link href={`/product/${product.id}`} className="block h-full py-4">
-                      <Card
-                        className={`group h-full py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white flex flex-col overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
-                      >
-                        <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white flex-shrink-0 h-48 sm:h-56 p-4">
-                          <img
-                            src={product.image || "/placeholder.svg"}
-                            alt={product.name}
-                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply drop-shadow-sm"
-                          />
-                          {product.originalPrice && (
-                            <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs shadow-sm">
-                              SALE
-                            </Badge>
-                          )}
-                          {product.specialOffer && (
-                            <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold shadow-md z-10 border border-yellow-500">
-                              PREPAID: {product.specialOffer}
-                            </Badge>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
-                            <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg shadow-teal-500/30">
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-
-                        <CardContent className="p-4 sm:p-5 flex flex-col flex-grow justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm sm:text-base font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
-                              {product.name}
-                            </h3>
-                            <p className="text-slate-500 text-xs mb-3 line-clamp-2">
-                              {product.description}
-                            </p>
-
-                            <div className="hidden sm:flex flex-col gap-1.5 mb-2">
-                              {product.features.slice(0, 2).map((feature, idx) => (
-                                <div key={idx} className="flex items-start text-xs text-slate-600">
-                                  <Sparkles className="h-3.5 w-3.5 text-teal-500 mr-2 flex-shrink-0 mt-0.5" />
-                                  <span className="line-clamp-1">{feature}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
-                            <div className="flex items-center gap-2">
-                              <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3 py-1 shadow-sm">
-                                {product.price}
-                              </Badge>
-                              {product.originalPrice && (
-                                <span className="text-slate-400 line-through text-xs font-medium">
-                                  {product.originalPrice}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <div className="hidden sm:block">
-                <CarouselPrevious className="-left-4 lg:-left-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
-                <CarouselNext className="-right-4 lg:-right-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
+            <div className="flex flex-col-reverse md:flex-row items-center justify-between p-6 sm:p-8 md:p-12 relative z-10 gap-8 md:gap-4">
+              <div className="w-full md:w-1/2 text-white space-y-4 md:space-y-6 flex flex-col items-center text-center md:items-start md:text-left">
+                <Badge className="bg-yellow-400 text-slate-900 border-none font-bold px-4 py-1.5 text-xs sm:text-sm uppercase tracking-wider mb-2 inline-block">
+                  Limited Time Offer
+                </Badge>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+                  KLITZO Shoe & Helmet <br className="hidden sm:block" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Cleaner Combo</span>
+                </h2>
+                <p className="text-slate-300 text-sm sm:text-base md:text-lg max-w-md mx-auto md:mx-0">
+                  Complete hygiene combo for your daily commute. Keep your helmet fresh and shoes odor-free with our powerful anti-bacterial formulas.
+                </p>
+                <div className="flex items-end justify-center md:justify-start gap-3 md:gap-4 mt-2">
+                  <span className="text-4xl sm:text-5xl font-bold text-yellow-400">₹449</span>
+                  <div className="flex flex-col pb-1 text-left">
+                    <span className="text-slate-400 line-through text-base sm:text-lg">₹1398</span>
+                    <span className="text-teal-400 font-semibold text-xs sm:text-sm">Save ₹949</span>
+                  </div>
+                </div>
+                <Link href="/product/8" className="inline-block mt-4 w-full sm:w-auto">
+                  <Button size="lg" className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white rounded-full py-6 px-8 sm:px-10 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 font-bold text-base sm:text-lg w-full group">
+                    <ShoppingCart className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+                    Grab the Deal Now
+                  </Button>
+                </Link>
               </div>
-            </Carousel>
+              <div className="w-full md:w-1/2 relative flex justify-center items-center">
+                <div className="relative w-[80%] max-w-[250px] sm:max-w-xs md:max-w-sm aspect-square">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/30 to-blue-500/30 rounded-full blur-2xl animate-pulse"></div>
+                  <img
+                    src="/assets/compo-shoe-and-helmet.jpeg"
+                    alt="Shoe & Helmet Cleaner Combo"
+                    className="relative z-10 w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500 rounded-3xl"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
       {/* Product Highlights Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">

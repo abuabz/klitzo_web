@@ -7,10 +7,10 @@ export default function WhatsappButton() {
                 href="https://wa.me/918111813853?text=Hi%20there!%20I%20have%20an%20inquiry%20about%20KLITZO%20products."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-[100] p-3 sm:p-4 bg-[#25D366] text-white rounded-full shadow-2xl hover:bg-[#1ebe57] transform hover:scale-110 transition-all duration-300 group flex items-center justify-center "
+                className="fixed bottom-16 right-6 z-[100] p-3 sm:p-4 bg-[#25D366] text-white rounded-full shadow-2xl hover:bg-[#1ebe57] transform hover:scale-110 transition-all duration-300 group flex items-center justify-center flex-col"
                 aria-label="Chat on WhatsApp"
             >
-                <span className="absolute right-full mr-4 bg-white text-slate-800 px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.1)] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap hidden sm:block">
+                <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white text-slate-800 px-3 py-1.5 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.1)] text-xs sm:text-sm font-semibold pointer-events-none whitespace-nowrap block">
                     Chat with us!
                 </span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-[1.6rem] h-[1.6rem] sm:w-[2rem] sm:h-[2rem]" fill="currentColor">

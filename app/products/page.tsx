@@ -225,22 +225,20 @@ export default function ProductsPage() {
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-2 py-0.5 text-sm">
+                  <div className="flex flex-col gap-3 mt-auto pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Badge className="bg-slate-800 text-white px-3 py-1 text-sm shadow-sm">
                         {product.price}
                       </Badge>
                       {product.originalPrice && (
-                        <span className="text-slate-400 line-through text-[10px]">{product.originalPrice}</span>
+                        <span className="text-slate-400 line-through text-xs font-medium">{product.originalPrice}</span>
                       )}
                     </div>
-                    <Link href={`/product/${product.id}`}>
+                    <Link href={`/product/${product.id}`} className="block w-full">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white transition-all duration-300 bg-transparent text-xs"
+                        className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm"
                       >
-                        Buy
+                        Buy Now
                       </Button>
                     </Link>
                   </div>

@@ -31,16 +31,46 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     landmark: "",
     pincode: "",
     notes: "",
-    cashOnDelivery: initialCashOnDelivery ?? false,
+    isPrepaid: false,
   })
+  const [places, setPlaces] = useState<string[]>([])
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handlePincodeChange = async (value: string) => {
+    handleInputChange("pincode", value)
+    if (value.length === 6) {
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${value}`)
+        const data = await res.json()
+        if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice) {
+          const fetchedPlaces = data[0].PostOffice.map((po: any) => po.Name)
+          setPlaces(fetchedPlaces)
+          if (fetchedPlaces.length > 0 && !fetchedPlaces.includes(formData.place)) {
+            handleInputChange("place", fetchedPlaces[0])
+          }
+          if (data[0].PostOffice[0].District) {
+            handleInputChange("district", data[0].PostOffice[0].District)
+          }
+        } else {
+          setPlaces([])
+        }
+      } catch (err) {
+        console.error(err)
+        setPlaces([])
+      }
+    } else {
+      setPlaces([])
+    }
+  }
+
+
   const handlePurchase = () => {
     const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
-    const totalPrice = (basePrice + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)
+    const discount = formData.isPrepaid ? 50 : 0
+    const totalPrice = (basePrice - discount).toFixed(2)
 
     const message = `🛒 *KLITZO Product Order*
 
@@ -48,7 +78,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
 • Product: ${product.name}
 • Price: ₹${Number.parseFloat(product.price.replace(/[^\d.]/g, "")).toFixed(2)}
 • Quantity: ${quantity}
-• Cash on Delivery: ${formData.cashOnDelivery ? "Yes (+₹50)" : "No (Prepaid Discount applied)"}
+• Payment Mode: ${formData.isPrepaid ? "Prepaid (-₹50 Discount applied)" : "Standard (Pay on Delivery)"}
 • Total Amount: ₹${totalPrice}
 
 👤 *Customer Details:*
@@ -75,7 +105,7 @@ Thank you! 🙏`
     }
   }
 
-  // All new fields are required
+  // All new fields are required except landmark
   const isFormValid =
     formData.name.trim() !== "" &&
     formData.phone.trim() !== "" &&
@@ -83,7 +113,6 @@ Thank you! 🙏`
     formData.place.trim() !== "" &&
     formData.post.trim() !== "" &&
     formData.district.trim() !== "" &&
-    formData.landmark.trim() !== "" &&
     formData.pincode.trim() !== ""
 
   return (
@@ -109,8 +138,11 @@ Thank you! 🙏`
             <div className="flex-1">
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
-              <p className="text-lg font-bold text-teal-600">
-                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)}
+              {formData.isPrepaid && (
+                <p className="text-sm text-green-600 font-semibold mt-0.5">Prepaid Discount: -₹50</p>
+              )}
+              <p className="text-lg font-bold text-teal-600 mt-1">
+                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity - (formData.isPrepaid ? 50 : 0)).toFixed(2)}
               </p>
             </div>
           </div>
@@ -132,6 +164,7 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
                 className="mt-1"
+                autoComplete="name"
               />
             </div>
             <div>
@@ -142,7 +175,8 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="+91 XXXXX XXXXX"
                 className="mt-1"
-                type="number"
+                type="tel"
+                autoComplete="tel"
               />
             </div>
           </div>
@@ -164,18 +198,44 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 placeholder="Address"
                 className="mt-1"
+                autoComplete="street-address"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pincode">Pin code *</Label>
+              <Input
+                id="pincode"
+                value={formData.pincode}
+                onChange={(e) => handlePincodeChange(e.target.value)}
+                placeholder="e.g., 680001"
+                className="mt-1"
+                type="number"
+                autoComplete="postal-code"
               />
             </div>
 
             <div>
               <Label htmlFor="place">Place *</Label>
-              <Input
-                id="place"
-                value={formData.place}
-                onChange={(e) => handleInputChange("place", e.target.value)}
-                placeholder="Village / Town / Area"
-                className="mt-1"
-              />
+              {places.length > 0 ? (
+                <select
+                  id="place"
+                  value={formData.place}
+                  onChange={(e) => handleInputChange("place", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 mt-1"
+                >
+                  <option value="">Select Place</option>
+                  {places.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              ) : (
+                <Input
+                  id="place"
+                  value={formData.place}
+                  onChange={(e) => handleInputChange("place", e.target.value)}
+                  placeholder="Village / Town / Area"
+                  className="mt-1"
+                />
+              )}
             </div>
 
             <div>
@@ -197,29 +257,18 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("district", e.target.value)}
                 placeholder="District"
                 className="mt-1"
+                autoComplete="address-level2"
               />
             </div>
 
-            <div>
-              <Label htmlFor="landmark">Landmark *</Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="landmark">Landmark (Optional)</Label>
               <Input
                 id="landmark"
                 value={formData.landmark}
                 onChange={(e) => handleInputChange("landmark", e.target.value)}
                 placeholder="Nearby landmark"
                 className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="pincode">Pin code *</Label>
-              <Input
-                id="pincode"
-                value={formData.pincode}
-                onChange={(e) => handleInputChange("pincode", e.target.value)}
-                placeholder="e.g., 680001"
-                className="mt-1"
-                type="number"
               />
             </div>
           </div>
@@ -236,16 +285,23 @@ Thank you! 🙏`
           </div>
         </div>
 
-        {/* Cash on Delivery */}
-        <div className="flex items-center space-x-2">
+        {/* Prepaid Option */}
+        <div className={`p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-3 ${formData.isPrepaid ? "border-green-500 bg-green-50 shadow-md" : "border-slate-200 bg-white hover:border-green-300"}`} onClick={() => handleInputChange("isPrepaid", !formData.isPrepaid)}>
           <Checkbox
-            id="cashOnDelivery"
-            checked={formData.cashOnDelivery}
-            onCheckedChange={(checked) => handleInputChange("cashOnDelivery", !!checked)}
+            id="isPrepaid"
+            checked={formData.isPrepaid}
+            onCheckedChange={(checked) => handleInputChange("isPrepaid", !!checked)}
+            className="mt-1 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
           />
-          <Label htmlFor="cashOnDelivery" className="text-sm font-medium">
-            Cash on Delivery (+₹50)
-          </Label>
+          <div className="flex-1">
+            <Label htmlFor="isPrepaid" className="text-base font-bold text-green-700 cursor-pointer flex flex-wrap items-center gap-2">
+              Pay Prepaid & Save ₹50!
+              <span className="bg-green-100 text-green-800 text-[10px] uppercase px-2 py-0.5 rounded-full font-bold border border-green-200">Recommended</span>
+            </Label>
+            <p className="text-sm text-slate-600 mt-1 cursor-pointer">
+              Get an instant ₹50 discount on your order by choosing to pay prepaid. We will contact you with payment details.
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}

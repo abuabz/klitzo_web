@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync } from "lucide-react"
+import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -57,11 +57,10 @@ export default function ProductPage() {
               product={{
                 id: product.id,
                 name: product.name,
-                price: `₹${(Number.parseFloat(product.price.replace(/[^\d.]/g, "")) - 50).toFixed(2)}`,
+                price: product.price,
                 image: product.images[0],
               }}
               quantity={quantity}
-              initialCashOnDelivery={paymentMethod === "cod"}
               onClose={() => setShowPurchaseForm(false)}
             />
           </div>
@@ -221,11 +220,7 @@ export default function ProductPage() {
 
                 <div className="flex items-center flex-wrap gap-2 sm:gap-4">
                   <span className="text-3xl font-bold text-teal-600">
-                    ₹
-                    {(
-                      Number.parseFloat(product.price.replace(/[^\d.]/g, "")) -
-                      (paymentMethod === "prepaid" ? 50 : 0)
-                    ).toFixed(2)}
+                    ₹{Number.parseFloat(product.price.replace(/[^\d.]/g, "")).toFixed(2)}
                   </span>
                   {product.originalPrice && (
                     <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
@@ -280,46 +275,7 @@ export default function ProductPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <span className="text-lg font-semibold text-slate-800">Select Payment Method:</span>
-                    <RadioGroup
-                      value={paymentMethod}
-                      onValueChange={(value) => setPaymentMethod(value as "cod" | "prepaid")}
-                      className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                    >
-                      <div
-                        className={`flex items-center space-x-3 border-2 p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
-                          paymentMethod === "cod" ? "border-teal-500 bg-teal-50/50" : "border-slate-200 hover:border-slate-300"
-                        }`}
-                        onClick={() => setPaymentMethod("cod")}
-                      >
-                        <RadioGroupItem value="cod" id="cod" className="border-teal-500 text-teal-600" />
-                        <div className="flex-1">
-                          <Label htmlFor="cod" className="font-bold cursor-pointer text-slate-800">
-                            Cash on Delivery
-                          </Label>
-                          <p className="text-xs text-slate-500">Standard delivery</p>
-                        </div>
-                      </div>
 
-                      <div
-                        className={`flex items-center space-x-3 border-2 p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
-                          paymentMethod === "prepaid"
-                            ? "border-teal-500 bg-teal-50/50"
-                            : "border-slate-200 hover:border-slate-300"
-                        }`}
-                        onClick={() => setPaymentMethod("prepaid")}
-                      >
-                        <RadioGroupItem value="prepaid" id="prepaid" className="border-teal-500 text-teal-600" />
-                        <div className="flex-1">
-                          <Label htmlFor="prepaid" className="font-bold cursor-pointer text-slate-800">
-                            Prepaid
-                          </Label>
-                          <p className="text-xs text-teal-600 font-medium">Extra ₹50 Instant Discount</p>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
@@ -329,11 +285,7 @@ export default function ProductPage() {
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" />
                       Buy Now - ₹
-                      {(
-                        (Number.parseFloat(product.price.replace(/[^\d.]/g, "")) -
-                          (paymentMethod === "prepaid" ? 50 : 0)) *
-                        quantity
-                      ).toFixed(2)}
+                      {(Number.parseFloat(product.price.replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
                     </Button>
                     {/* <Button
                       variant="outline"
@@ -369,13 +321,13 @@ export default function ProductPage() {
                         <span className="font-medium  text-sm ">100% Money-Back Guarantee within 5-Days</span>
                       </div>
                       <div className="flex items-center text-teal-800 bg-blue-50 p-3 rounded-lg">
-                        <Clock className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">Free Shipping on prepaid orders</span>
+                        <Truck className="h-5 w-5 mr-2" />
+                        <span className="font-medium text-sm ">All India Free Delivery</span>
                       </div>
-                      <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
+                      {/* <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
                         <ShoppingCart className="h-5 w-5 mr-2" />
                         <span className="font-medium text-sm ">₹50 COD Fee for Cash on Delivery</span>
-                      </div>
+                      </div> */}
                     </div>
                   )}
                 </div>
