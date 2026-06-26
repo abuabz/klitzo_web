@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck } from "lucide-react"
+import { Sparkles, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -18,7 +18,6 @@ export default function ProductPage() {
   const productId = Number.parseInt(params.id as string)
 
   const [isVisible, setIsVisible] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showPurchaseForm, setShowPurchaseForm] = useState(false)
@@ -67,90 +66,8 @@ export default function ProductPage() {
         </div>
       )}
 
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <img src="/klitzo-logo.png" alt="KLITZO Logo" className="h-10 w-auto cursor-pointer" />
-              </Link>
-            </div>
-
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link href="/products" className="text-teal-600 px-3 py-2 text-sm font-medium">
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-              </div>
-            </div>
-
-            <div className="hidden md:block">
-              <Link href="/products">
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                  Shop Now
-                </Button>
-              </Link>
-            </div>
-
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-slate-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-300"
-              >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-
-          {isMobileMenuOpen && (
-            <div className="md:hidden backdrop-blur-md bg-white/20 border-t border-white/20 rounded-b-lg mt-2">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link href="/products" className="text-teal-600 block px-3 py-2 text-base font-medium">
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <section className="pt-24 pb-6 px-4 bg-slate-50">
+      {/* Product Details Section */}
+      <section className="pt-40 pb-6 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center space-x-2 text-sm text-slate-600">
             <Link href="/" className="hover:text-teal-600 transition-colors">

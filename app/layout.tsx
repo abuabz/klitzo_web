@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import Footer from '@/components/footer'
+import Header from '@/components/header'
 import WhatsappButton from '@/components/whatsappButton'
 
 export const metadata: Metadata = {
@@ -74,6 +75,7 @@ html {
         `}</style>
       </head>
       <body>
+        <Header />
         {children}
         <WhatsappButton />
         <Footer />

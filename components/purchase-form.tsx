@@ -314,7 +314,7 @@ Thank you! 🙏`
             <MessageCircle className="mr-2 h-5 w-5" />
             Order via WhatsApp
           </Button>
-          {onClose && (
+          {/* {onClose && (
             <Button
               onClick={onClose}
               variant="outline"
@@ -322,7 +322,7 @@ Thank you! 🙏`
             >
               Cancel
             </Button>
-          )}
+          )} */}
         </div>
 
         <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
