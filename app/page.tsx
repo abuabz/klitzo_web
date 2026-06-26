@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart, Truck } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
@@ -27,9 +27,15 @@ export default function KlitzoLanding() {
   )
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [openFeature, setOpenFeature] = useState<number | null>(null)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 40)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const features = [
@@ -46,7 +52,13 @@ export default function KlitzoLanding() {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full">
+      {/* Announcement Bar */}
+      <div className={`bg-gradient-to-r from-teal-600 to-blue-600 text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center gap-2 shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
+        <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
+        All India Free Delivery on Prepaid Orders!
+      </div>
+
+      <nav className={`fixed left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full transition-all duration-300 ${isScrolled ? "top-0 mt-4" : "top-10 md:top-10 mt-2 sm:mt-4"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -184,12 +196,12 @@ export default function KlitzoLanding() {
       {/* Special Combo Offer Section */}
 
 
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+      <section className="pt-40 pb-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
+          {/* <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
             Our{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
-          </h2>
+          </h2> */}
 
           <div className="w-full px-4 sm:px-8">
             {/* Desktop & Tablet Carousel */}

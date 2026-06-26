@@ -33,7 +33,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     notes: "",
     isPrepaid: false,
   })
-  const [places, setPlaces] = useState<string[]>([])
+  const [postOffices, setPostOffices] = useState<string[]>([])
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -46,23 +46,23 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         const res = await fetch(`https://api.postalpincode.in/pincode/${value}`)
         const data = await res.json()
         if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice) {
-          const fetchedPlaces = data[0].PostOffice.map((po: any) => po.Name)
-          setPlaces(fetchedPlaces)
-          if (fetchedPlaces.length > 0 && !fetchedPlaces.includes(formData.place)) {
-            handleInputChange("place", fetchedPlaces[0])
+          const fetchedPostOffices = data[0].PostOffice.map((po: any) => po.Name)
+          setPostOffices(fetchedPostOffices)
+          if (fetchedPostOffices.length > 0 && !fetchedPostOffices.includes(formData.post)) {
+            handleInputChange("post", fetchedPostOffices[0])
           }
           if (data[0].PostOffice[0].District) {
             handleInputChange("district", data[0].PostOffice[0].District)
           }
         } else {
-          setPlaces([])
+          setPostOffices([])
         }
       } catch (err) {
         console.error(err)
-        setPlaces([])
+        setPostOffices([])
       }
     } else {
-      setPlaces([])
+      setPostOffices([])
     }
   }
 
@@ -217,36 +217,36 @@ Thank you! 🙏`
 
             <div>
               <Label htmlFor="place">Place *</Label>
-              {places.length > 0 ? (
-                <select
-                  id="place"
-                  value={formData.place}
-                  onChange={(e) => handleInputChange("place", e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 mt-1"
-                >
-                  <option value="">Select Place</option>
-                  {places.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              ) : (
-                <Input
-                  id="place"
-                  value={formData.place}
-                  onChange={(e) => handleInputChange("place", e.target.value)}
-                  placeholder="Village / Town / Area"
-                  className="mt-1"
-                />
-              )}
+              <Input
+                id="place"
+                value={formData.place}
+                onChange={(e) => handleInputChange("place", e.target.value)}
+                placeholder="Village / Town / Area"
+                className="mt-1"
+              />
             </div>
 
             <div>
-              <Label htmlFor="post">Post *</Label>
-              <Input
-                id="post"
-                value={formData.post}
-                onChange={(e) => handleInputChange("post", e.target.value)}
-                placeholder="Post Office"
-                className="mt-1"
-              />
+              <Label htmlFor="post">Post Office *</Label>
+              {postOffices.length > 0 ? (
+                <select
+                  id="post"
+                  value={formData.post}
+                  onChange={(e) => handleInputChange("post", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 mt-1"
+                >
+                  <option value="">Select Post Office</option>
+                  {postOffices.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              ) : (
+                <Input
+                  id="post"
+                  value={formData.post}
+                  onChange={(e) => handleInputChange("post", e.target.value)}
+                  placeholder="Post Office"
+                  className="mt-1"
+                />
+              )}
             </div>
 
             <div>
