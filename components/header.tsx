@@ -31,7 +31,7 @@ export default function Header() {
       {/* Announcement Bar */}
       <div className={`bg-gradient-to-r from-teal-600 to-blue-600 text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center gap-2 shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
         <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
-        All India Free Delivery on Prepaid Orders!
+        All India Free Delivery !
       </div>
 
       {/* Navigation */}
@@ -52,11 +52,10 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`px-3 py-2 text-sm font-medium transition-colors duration-300 ${
-                      (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
+                    className={`px-3 py-2 text-sm font-medium transition-colors duration-300 ${(pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
                         ? "text-teal-600 font-bold"
                         : "text-slate-700 hover:text-teal-600"
-                    }`}
+                      }`}
                   >
                     {link.name}
                   </Link>
@@ -93,11 +92,10 @@ export default function Header() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block px-3 py-2 text-base font-medium transition-colors duration-300 ${
-                      (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
+                    className={`block px-3 py-2 text-base font-medium transition-colors duration-300 ${(pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
                         ? "text-teal-600 font-bold bg-white/30 rounded-md"
                         : "text-slate-700 hover:text-teal-600 hover:bg-white/10 rounded-md"
-                    }`}
+                      }`}
                   >
                     {link.name}
                   </Link>
