@@ -43,6 +43,9 @@ export default function ProductPage() {
     )
   }
 
+  const baseName = product.name.replace(/\s*\d+ml$/i, "")
+  const variants = products.filter((p) => p.name.replace(/\s*\d+ml$/i, "") === baseName)
+
   const handlePurchase = () => {
     setShowPurchaseForm(true)
   }
@@ -133,6 +136,48 @@ export default function ProductPage() {
                   {product.inStock && <Badge className="bg-green-100 text-green-800">In Stock</Badge>}
                 </div>
 
+                {variants.length > 1 && (
+                  <div className="space-y-3 pb-2 border-b border-slate-100 mb-4">
+                    <h3 className="text-lg text-slate-800">
+                      Size: <span className="font-bold">{product.specifications?.Volume || "Standard"}</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {variants.map((variant) => {
+                        const isSelected = variant.id === product.id
+                        return (
+                          <Link key={variant.id} href={`/product/${variant.id}`}>
+                            <div
+                              className={`border-2 rounded-xl p-3 cursor-pointer transition-all duration-200 bg-white hover:shadow-md ${
+                                isSelected ? "border-blue-600 shadow-sm" : "border-slate-200 hover:border-slate-300"
+                              } flex flex-col min-w-[140px]`}
+                            >
+                              <div className="h-16 w-full mb-2 flex items-center justify-center bg-transparent rounded-lg">
+                                <img
+                                  src={variant.image || variant.images[0] || "/placeholder.svg"}
+                                  alt={variant.name}
+                                  className="max-h-full max-w-full object-contain"
+                                />
+                              </div>
+                              <div className="text-sm font-semibold text-slate-800">
+                                {variant.name.match(/\d+ml/i)?.[0] || variant.specifications?.Volume || "Standard"}
+                              </div>
+                              <div className="text-sm font-bold text-slate-800 mt-1">{variant.price}</div>
+                              {variant.originalPrice && (
+                                <div className="text-xs text-slate-400 line-through">{variant.originalPrice}</div>
+                              )}
+                              {variant.inStock ? (
+                                <div className="text-xs text-green-600 font-medium mt-1">In stock</div>
+                              ) : (
+                                <div className="text-xs text-red-500 font-medium mt-1">Out of stock</div>
+                              )}
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
 
                 <div className="flex items-center flex-wrap gap-2 sm:gap-4">
@@ -158,7 +203,7 @@ export default function ProductPage() {
                   )}
                 </div>
 
-                <p className="text-lg text-slate-600 leading-relaxed">{product.description}</p>
+                <p className="text-lg text-slate-600 leading-relaxed pt-2">{product.description}</p>
 
                 <div className="space-y-3">
                   <h3 className="text-xl font-semibold text-slate-800">Key Features:</h3>
