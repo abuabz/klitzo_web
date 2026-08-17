@@ -7,20 +7,29 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const adminEmail = "adminklitzo@gmail.com";
-    const adminPassword = "Klitzo@789";
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      return NextResponse.json({ error: "Admin credentials not configured in environment" }, { status: 500 });
+    }
 
     // Check if admin already exists
     let admin = await User.findOne({ email: adminEmail });
 
+    // Create admin user
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+
     if (admin) {
-      // Ensure it has isAdmin: true
-      await User.findOneAndUpdate({ email: adminEmail }, { isAdmin: true });
-      return NextResponse.json({ message: "Admin user updated/verified" });
+      // Ensure it has isAdmin: true and the latest password from .env
+      await User.findOneAndUpdate(
+        { email: adminEmail },
+        { isAdmin: true, password: hashedPassword }
+      );
+      return NextResponse.json({ message: "Admin user updated with latest password" });
     }
 
     // Create admin user
-    const hashedPassword = await bcrypt.hash(adminPassword, 12);
     
     await User.create({
       username: "AdminKlitzo",

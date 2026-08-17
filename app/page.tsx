@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, User, ShoppingBag } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, User, ShoppingBag, ShoppingCart } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
@@ -27,12 +27,27 @@ export default function KlitzoLanding() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [openFeature, setOpenFeature] = useState<number | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [hasActiveOrders, setHasActiveOrders] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      const parsedUser = JSON.parse(storedUser)
+      setUser(parsedUser)
+      
+      // Fetch user's orders to check for active ones
+      fetch(`/api/orders?email=${parsedUser.email}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const active = data.some(order => 
+              order.status && (order.status.toLowerCase() === "paid" || order.status.toLowerCase() === "shipping")
+            )
+            setHasActiveOrders(active)
+          }
+        })
+        .catch(err => console.error("Error fetching orders status:", err))
     }
   }, [])
 
@@ -123,6 +138,32 @@ export default function KlitzoLanding() {
 
             {/* Desktop CTA & User Profile */}
             <div className="hidden md:flex items-center space-x-4">
+              {user ? (
+                <Link href="/my-orders" className="text-slate-700 hover:text-teal-600 text-sm font-medium transition-colors duration-300 relative flex items-center">
+                  My Orders
+                  {hasActiveOrders && (
+                    <span className="absolute -top-1 -right-2 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                    </span>
+                  )}
+                </Link>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setAuthMode("login")
+                    setIsAuthModalOpen(true)
+                  }}
+                  className="text-slate-700 hover:text-teal-600 text-sm font-medium transition-colors duration-300 cursor-pointer"
+                >
+                  My Orders
+                </button>
+              )}
+
+              <Link href="/cart" className="text-slate-700 hover:text-teal-600 p-2 transition-colors duration-300 cursor-pointer" title="Cart">
+                <ShoppingCart className="h-5 w-5" />
+              </Link>
+
               <Link href="/product/1">
                 <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
                   Shop Now
@@ -143,21 +184,31 @@ export default function KlitzoLanding() {
               ) : (
                 <DropdownMenu>
                   <DropdownMenuTrigger className="focus:outline-none">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
-                      <Avatar className="h-7 w-7 border border-teal-200">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors max-w-[150px]">
+                      <Avatar className="h-7 w-7 border border-teal-200 shrink-0">
                         <AvatarFallback className="bg-teal-600 text-white text-[10px]">
                           {(user.username || user.identifier).charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-teal-700 text-xs font-semibold">{user.username || user.identifier}</span>
+                      <span className="text-teal-700 text-xs font-semibold truncate">
+                        {(user.username || user.identifier).split(' ')[0]}
+                      </span>
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
                     <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
                     <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
-                      <Link href="/my-orders" className="flex items-center w-full">
-                        <ShoppingBag className="mr-3 h-4 w-4" />
-                        <span>My Orders</span>
+                      <Link href="/my-orders" className="flex items-center w-full justify-between">
+                        <div className="flex items-center">
+                          <ShoppingBag className="mr-3 h-4 w-4" />
+                          <span>My Orders</span>
+                        </div>
+                        {hasActiveOrders && (
+                          <span className="relative flex h-2 w-2 mr-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-slate-100 my-1" />
@@ -213,6 +264,36 @@ export default function KlitzoLanding() {
                   className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
                 >
                   Contact
+                </Link>
+                {user ? (
+                  <Link
+                    href="/my-orders"
+                    className="text-slate-700 hover:text-teal-600 px-3 py-2 text-base font-medium transition-colors duration-300 flex items-center justify-between"
+                  >
+                    <span>My Orders</span>
+                    {hasActiveOrders && (
+                      <span className="relative flex h-2 w-2 mr-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                      </span>
+                    )}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setAuthMode("login")
+                      setIsAuthModalOpen(true)
+                    }}
+                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left cursor-pointer"
+                  >
+                    My Orders
+                  </button>
+                )}
+                <Link
+                  href="/cart"
+                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 flex items-center gap-2"
+                >
+                  <ShoppingCart className="h-5 w-5" /> Cart
                 </Link>
                 {!user ? (
                   <button

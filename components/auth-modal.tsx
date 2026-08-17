@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, Mail, Phone, Lock, ArrowRight, Loader2, LogIn, Sparkles, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { GoogleLogin } from "@react-oauth/google"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -97,6 +98,34 @@ export function AuthModal({ isOpen, onClose, initialMode = "login", onSuccess }:
       const user = { ...data.user, isLoggedIn: true }
       localStorage.setItem("user", JSON.stringify(user))
       toast.success("Account created successfully!")
+      if (onSuccess) onSuccess(user)
+      onClose()
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setIsPending(false)
+    }
+  }
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsPending(true)
+    try {
+      const response = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Google authentication failed")
+      }
+
+      const user = { ...data.user, isLoggedIn: true }
+      localStorage.setItem("user", JSON.stringify(user))
+      toast.success(data.message || "Welcome back to KLITZO!")
       if (onSuccess) onSuccess(user)
       onClose()
       router.refresh()
@@ -269,6 +298,29 @@ export function AuthModal({ isOpen, onClose, initialMode = "login", onSuccess }:
                 </form>
               </TabsContent>
             </Tabs>
+
+            <div className="mt-6 flex flex-col items-center">
+              <div className="relative w-full flex items-center justify-center mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-200"></div>
+                </div>
+                <div className="relative bg-white px-4 text-xs font-semibold text-slate-500">
+                  Or continue with
+                </div>
+              </div>
+              <div className="w-full flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => {
+                    toast.error("Google login failed");
+                  }}
+                  useOneTap
+                  theme="outline"
+                  shape="pill"
+                  size="large"
+                />
+              </div>
+            </div>
 
             <div className="mt-4 sm:mt-10 hidden sm:flex items-center justify-center space-x-4 grayscale opacity-40">
               <div className="h-px w-10 bg-slate-200"></div>

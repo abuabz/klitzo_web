@@ -24,8 +24,18 @@ import {
   LogOut,
   ChevronRight,
   Search,
-  RefreshCw
+  RefreshCw,
+  ChevronDown
 } from "lucide-react"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function AdminPage() {
   const [mounted, setMounted] = useState(false)
@@ -218,6 +228,15 @@ export default function AdminPage() {
       case "paid": return "bg-teal-100 text-teal-700 border-teal-200"
       case "failed": return "bg-red-100 text-red-700 border-red-200"
       default: return "bg-slate-100 text-slate-700 border-slate-200"
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed": return <CheckCircle className="mr-2 h-4 w-4" />
+      case "shipping": return <Truck className="mr-2 h-4 w-4" />
+      case "paid": return <CreditCard className="mr-2 h-4 w-4" />
+      default: return <RefreshCw className="mr-2 h-4 w-4" />
     }
   }
 
@@ -435,32 +454,46 @@ export default function AdminPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-1 opacity-10 md:opacity-10 group-hover:opacity-100 transition-opacity">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-teal-600 hover:bg-teal-50 rounded-lg px-3"
-                            onClick={() => updateOrderStatus(order._id, "Paid")}
-                          >
-                            Mark Paid
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-blue-600 hover:bg-blue-50 rounded-lg px-3"
-                            onClick={() => updateOrderStatus(order._id, "Shipping")}
-                          >
-                            Ship
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="text-emerald-600 hover:bg-emerald-50 rounded-lg px-3"
-                            onClick={() => updateOrderStatus(order._id, "Completed")}
-                          >
-                            Finish
-                          </Button>
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 gap-1 rounded-lg text-slate-600 hover:text-slate-900 shadow-sm w-[110px] justify-between"
+                            >
+                              <span className="flex items-center capitalize">
+                                {getStatusIcon(order.status)}
+                                {order.status === 'Completed' ? 'Finished' : order.status}
+                              </span>
+                              <ChevronDown className="h-3 w-3 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-lg border-slate-100">
+                            <DropdownMenuLabel className="text-xs text-slate-500 uppercase tracking-wider font-bold">Update Status</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-slate-100" />
+                            <DropdownMenuItem 
+                              onClick={() => updateOrderStatus(order._id, "Paid")}
+                              className="cursor-pointer text-teal-600 hover:text-teal-700 hover:bg-teal-50 focus:text-teal-700 focus:bg-teal-50 rounded-lg py-2 my-1"
+                            >
+                              <CreditCard className="mr-2 h-4 w-4" />
+                              <span>Mark Paid</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => updateOrderStatus(order._id, "Shipping")}
+                              className="cursor-pointer text-blue-600 hover:text-blue-700 hover:bg-blue-50 focus:text-blue-700 focus:bg-blue-50 rounded-lg py-2 my-1"
+                            >
+                              <Truck className="mr-2 h-4 w-4" />
+                              <span>Ship</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => updateOrderStatus(order._id, "Completed")}
+                              className="cursor-pointer text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 focus:text-emerald-700 focus:bg-emerald-50 rounded-lg py-2 my-1"
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              <span>Finish</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}

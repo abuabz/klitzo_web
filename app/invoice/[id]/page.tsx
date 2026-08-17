@@ -106,21 +106,21 @@ export default function InvoicePage() {
         </div>
 
         {/* Invoice Card */}
-        <div className="bg-white shadow-2xl rounded-3xl overflow-hidden print:shadow-none print:rounded-none border border-slate-100 print:border-0 print:border-transparent">
+        <div className="bg-white shadow-2xl rounded-[1.5rem] overflow-hidden print:shadow-none print:rounded-[1.5rem] border border-slate-100 print:border-0 print:border-transparent">
           {/* Header */}
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-8 md:p-12 text-white print:p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 print:gap-2">
-              <div>
-                <img src="/klitzo-logo.png" alt="KLITZO" className="h-12 w-auto mb-6 brightness-0 invert print:h-8 print:mb-2" />
-                <h1 className="text-4xl font-black tracking-tighter mb-2 italic print:text-2xl print:mb-0">INVOICE</h1>
-                <p className="text-slate-400 font-medium print:text-xs">#{order.razorpayOrderId?.slice(-8).toUpperCase() || "ORD-" + order._id.slice(-6).toUpperCase()}</p>
+          <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-8 md:p-12 text-white print:p-8 print:bg-slate-900">
+            <div className="flex flex-col md:flex-row print:flex-row justify-between items-start md:items-start print:items-start gap-6 print:gap-4">
+              <div className="flex flex-col">
+                <img src="/klitzo-logo.png" alt="KLITZO" className="h-12 w-auto mb-6 brightness-0 invert print:h-10 print:mb-6" />
+                <h1 className="text-4xl font-black tracking-tighter mb-2 italic print:text-4xl print:mb-2 text-white">INVOICE</h1>
+                <p className="text-slate-400 font-medium print:text-sm print:text-slate-300">#{order.razorpayOrderId?.slice(-8).toUpperCase() || "ORD-" + order._id.slice(-6).toUpperCase()}</p>
               </div>
-              <div className="text-left md:text-right space-y-1 print:space-y-0 text-sm print:text-[10px]">
-                <p className="text-xl font-bold print:text-base">Klitzo India</p>
-                <p className="text-slate-400">Industrial Area, MG Road</p>
-                <p className="text-slate-400">Thrissur, Kerala - 680001</p>
-                <p className="text-slate-400">contact@klitzo.com</p>
-                <p className="text-slate-400 font-bold mt-2 hover:text-white print:mt-1">+91 8111813853</p>
+              <div className="text-left md:text-right print:text-right space-y-1 print:space-y-1 text-sm print:text-sm">
+                <p className="text-xl font-bold print:text-xl text-white mb-2">Klitzo India</p>
+                <p className="text-slate-400 print:text-slate-300">Industrial Area, MG Road</p>
+                <p className="text-slate-400 print:text-slate-300">Thrissur, Kerala - 680001</p>
+                <p className="text-slate-400 print:text-slate-300">contact@klitzo.com</p>
+                <p className="text-white font-bold mt-2 hover:text-white print:mt-2">+91 8111813853</p>
               </div>
             </div>
           </div>
@@ -224,13 +224,6 @@ export default function InvoicePage() {
                 </p>
               </div>
 
-              {/* Signature Area */}
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-32 h-12 bg-slate-50 rounded-lg flex items-center justify-center mb-2 border border-slate-100 border-dashed print:w-24 print:h-8 print:mb-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase italic print:text-[7px]">Authorized Sign</span>
-                </div>
-                <p className="text-sm font-bold text-slate-800 print:text-[9px]">For KLITZO INDIA</p>
-              </div>
             </div>
           </div>
 

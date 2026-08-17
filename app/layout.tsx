@@ -57,6 +57,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { GoogleProvider } from '@/components/google-provider'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,9 +76,11 @@ html {
         `}</style>
       </head>
       <body>
-        {children}
-        <Toaster position="bottom-right" expand={true} richColors />
-        <Footer />
+        <GoogleProvider>
+          {children}
+          <Toaster position="bottom-right" expand={true} richColors />
+          <Footer />
+        </GoogleProvider>
       </body>
     </html>
   )
