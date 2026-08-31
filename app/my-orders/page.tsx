@@ -97,7 +97,7 @@ export default function MyOrdersPage() {
                         </div>
                         <div>
                           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Order ID</p>
-                          <p className="font-bold text-slate-800">#{order.razorpayOrderId?.slice(-8) || "N/A"}</p>
+                          <p className="font-bold text-slate-800">#{order.razorpayOrderId?.slice(-8).toUpperCase() || "ORD-" + order._id.slice(-6).toUpperCase()}</p>
                         </div>
                       </div>
 
@@ -179,22 +179,30 @@ export default function MyOrdersPage() {
                               className="absolute top-1/2 left-0 h-0.5 bg-teal-500 -translate-y-1/2 z-0 transition-all duration-700 hidden sm:block"
                               style={{ 
                                 width: `${
-                                  order.status.toLowerCase() === 'completed' ? '100%' :
-                                  order.status.toLowerCase() === 'shipping' ? '66%' :
-                                  order.status.toLowerCase() === 'paid' ? '33%' : '0%'
+                                  order.status.toLowerCase() === 'completed' ? (order.razorpayPaymentId ? '100%' : '66%') :
+                                  order.status.toLowerCase() === 'shipping' ? (order.razorpayPaymentId ? '66%' : '33%') :
+                                  order.status.toLowerCase() === 'paid' ? (order.razorpayPaymentId ? '33%' : '100%') : '0%'
                                 }` 
                               }}
                             ></div>
                           )}
 
-                          {[
+                          {(order.razorpayPaymentId ? [
                             { label: 'Placed', icon: Package },
                             { label: 'Paid', icon: CreditCard },
                             { label: 'Shipping', icon: Truck },
                             { label: 'Delivered', icon: CheckCircle2 }
-                          ].map((step, idx) => {
+                          ] : [
+                            { label: 'Placed', icon: Package },
+                            { label: 'Shipping', icon: Truck },
+                            { label: 'Delivered', icon: CheckCircle2 },
+                            { label: 'Paid', icon: CreditCard }
+                          ]).map((step, idx) => {
                             const Icon = step.icon;
-                            const statusMap: Record<string, number> = { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1 };
+                            const statusMap: Record<string, number> = order.razorpayPaymentId 
+                              ? { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1 }
+                              : { 'pending': 0, 'shipping': 1, 'completed': 2, 'paid': 3, 'failed': -1 };
+                            
                             const currentStatusIdx = statusMap[order.status.toLowerCase()] ?? 0;
                             const isActive = idx <= currentStatusIdx;
 
@@ -225,7 +233,7 @@ export default function MyOrdersPage() {
                   </div>
                   
                   <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <span className="text-xs text-slate-400 font-medium">Payment ID: {order.razorpayPaymentId || "Processing"}</span>
+                    <span className="text-xs text-slate-400 font-medium">{order.razorpayPaymentId ? `Payment ID: ${order.razorpayPaymentId}` : "Payment Mode: Cash on Delivery"}</span>
                     <Link 
                       href={`/invoice/${order._id}`}
                       className="w-full sm:w-auto px-6 py-2 bg-white hover:bg-teal-50 text-teal-600 border border-teal-100 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-md"

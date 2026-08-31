@@ -69,7 +69,7 @@ export default function InvoicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 print:p-0 print:bg-white print:min-h-0 printable-page">
+    <div className="min-h-screen bg-slate-50 p-4 pt-32 md:p-8 md:pt-40 print:p-0 print:bg-white print:min-h-0 printable-page">
       <style jsx global>{`
         @media print {
           @page {

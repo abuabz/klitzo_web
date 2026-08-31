@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2 } from "lucide-react"
+import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2, ShoppingBag } from "lucide-react"
 import { useState } from "react"
 import Script from "next/script"
 import { toast } from "sonner"
@@ -70,41 +70,47 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   }
 
 
-  const handlePurchase = () => {
-    const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
-    const discount = formData.isPrepaid ? 50 : 0
-    const totalPrice = (basePrice - discount).toFixed(2)
+  const handlePurchase = async () => {
+    setIsProcessing(true);
+    try {
+      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity;
+      const discount = formData.isPrepaid ? 50 : 0;
+      const totalPrice = (basePrice - discount).toFixed(2);
 
-    const message = `🛒 *KLITZO Product Order*
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-📦 *Product Details:*
-• Product: ${product.name}
-• Price: ₹${Number.parseFloat(product.price.replace(/[^\d.]/g, "")).toFixed(2)}
-• Quantity: ${quantity}
-• Payment Mode: ${formData.isPrepaid ? "Prepaid (-₹50 Discount applied)" : "Standard (Pay on Delivery)"}
-• Total Amount: ₹${totalPrice}
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          productName: product.name,
+          productImage: product.image,
+          amount: Number(totalPrice),
+          quantity: quantity,
+          status: "pending",
+          shippingAddress: { ...formData },
+          notes: formData.notes,
+          user: user
+        }),
+      });
 
-👤 *Customer Details:*
-• Name: ${formData.name}
-• Phone: ${formData.phone}
+      if (!response.ok) {
+        throw new Error("Failed to save order to database");
+      }
 
-📍 *Delivery Address:*
-• Address: ${formData.address}
-• Place: ${formData.place}
-• Post: ${formData.post}
-• District: ${formData.district}
-• Landmark: ${formData.landmark}
-• PIN Code: ${formData.pincode}
-
-${formData.notes ? `📝 *Additional Notes:*\n${formData.notes}\n\n` : ""}Please confirm this order and let me know the payment details and delivery timeline.
-
-Thank you! 🙏`
-
-    const whatsappUrl = `https://wa.me/918111813853?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, "_blank")
-
-    if (onClose) {
-      onClose()
+      toast.success("Order placed successfully!");
+      
+      // Open my-orders in a new tab
+      window.open("/my-orders", "_blank");
+      if (onClose) {
+        onClose()
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to process order. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -402,8 +408,8 @@ Thank you! 🙏`
           </div>
         </div>
 
-        {/* Prepaid Option */}
-        <div className={`p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-3 ${formData.isPrepaid ? "border-green-500 bg-green-50 shadow-md" : "border-slate-200 bg-white hover:border-green-300"}`} onClick={() => handleInputChange("isPrepaid", !formData.isPrepaid)}>
+        {/* Prepaid Option - Hidden per user request */}
+        <div className={`hidden p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer items-start space-x-3 ${formData.isPrepaid ? "border-green-500 bg-green-50 shadow-md" : "border-slate-200 bg-white hover:border-green-300"}`} onClick={() => handleInputChange("isPrepaid", !formData.isPrepaid)}>
           <Checkbox
             id="isPrepaid"
             checked={formData.isPrepaid}
@@ -423,10 +429,11 @@ Thank you! 🙏`
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          {/* Razorpay Button - Hidden per user request */}
           <Button
             onClick={handleRazorpayPayment}
             disabled={!isFormValid || isProcessing}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="hidden flex-1 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isProcessing ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -435,21 +442,24 @@ Thank you! 🙏`
             )}
             Pay Online (Prepaid)
           </Button>
-          
+
           <Button
             onClick={handlePurchase}
             disabled={!isFormValid || isProcessing}
-            variant="outline"
-            className="flex-1 border-2 border-slate-300 text-slate-700 hover:bg-slate-50 py-3 text-lg rounded-full transition-all duration-300 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:transform-none"
           >
-            <MessageCircle className="mr-2 h-5 w-5" />
-            Order via WhatsApp
+            {isProcessing ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <ShoppingBag className="mr-2 h-5 w-5" />
+            )}
+            Complete Order
           </Button>
         </div>
 
         <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
           <p>🔒 Your information is secure and will only be used to process your order.</p>
-          <p>📱 You'll be redirected to WhatsApp to complete your purchase.</p>
+          <p>🚚 Payment will be collected upon delivery.</p>
         </div>
       </CardContent>
     </Card>

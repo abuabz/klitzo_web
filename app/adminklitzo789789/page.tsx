@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,11 @@ import {
   Search,
   RefreshCw,
   ChevronDown,
-  X
+  X,
+  Download,
+  MapPin,
+  Phone,
+  MessageCircle
 } from "lucide-react"
 
 import {
@@ -49,6 +53,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("orders")
   const [searchQuery, setSearchQuery] = useState("")
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
   const [showProductModal, setShowProductModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<any>(null)
   const [productForm, setProductForm] = useState({
@@ -239,6 +244,44 @@ export default function AdminPage() {
       toast.error("Error deleting product")
     }
   }
+
+  const downloadOrdersExcel = () => {
+    if (orders.length === 0) return;
+  
+    const headers = ["Order ID", "Date", "Customer Name", "Customer Phone", "Email", "Product", "Quantity", "Amount", "Status", "Address", "Place", "Post Office", "District", "PIN", "Landmark", "Notes"];
+    
+    const csvContent = [
+      headers.join(","),
+      ...orders.map(o => [
+        o._id,
+        new Date(o.createdAt).toLocaleDateString(),
+        `"${o.shippingAddress?.name || ''}"`,
+        `"${o.shippingAddress?.phone || ''}"`,
+        `"${o.userEmail || ''}"`,
+        `"${o.productName || ''}"`,
+        o.quantity || 1,
+        o.amount,
+        o.status,
+        `"${o.shippingAddress?.address || ''}"`,
+        `"${o.shippingAddress?.place || ''}"`,
+        `"${o.shippingAddress?.post || ''}"`,
+        `"${o.shippingAddress?.district || ''}"`,
+        `"${o.shippingAddress?.pincode || ''}"`,
+        `"${o.shippingAddress?.landmark || ''}"`,
+        `"${(o.notes || '').replace(/"/g, '""')}"`
+      ].join(","))
+    ].join("\n");
+  
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Klitzo_Orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -541,6 +584,14 @@ export default function AdminPage() {
                  <Plus className="h-4 w-4" /> Add Product
                </Button>
              )}
+             {activeTab === 'orders' && (
+               <Button 
+                 onClick={downloadOrdersExcel}
+                 className="bg-green-600 hover:bg-green-700 text-white gap-2 h-10 px-6 rounded-full shadow-lg shadow-green-900/10"
+               >
+                 <Download className="h-4 w-4" /> Export CSV
+               </Button>
+             )}
           </div>
         </header>
 
@@ -560,7 +611,11 @@ export default function AdminPage() {
                 </TableHeader>
                 <TableBody>
                   {orders.map((order) => (
-                    <TableRow key={order._id} className="group border-slate-50">
+                    <React.Fragment key={order._id}>
+                    <TableRow 
+                      className="group border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)}
+                    >
                       <TableCell className="py-6">
                         <span className="font-mono text-xs text-slate-400 group-hover:text-teal-600 transition-colors font-bold tracking-tighter">
                           #{order.razorpayOrderId?.slice(-8) || order._id.slice(-6)}
@@ -581,7 +636,7 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                             <Button 
                               size="sm" 
                               variant="outline" 
@@ -622,6 +677,54 @@ export default function AdminPage() {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
+                    {expandedOrderId === order._id && (
+                      <TableRow className="bg-slate-50/50">
+                        <TableCell colSpan={6} className="p-0 border-b-0">
+                          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-top-2">
+                            <div className="space-y-2">
+                              <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><MapPin className="h-3 w-3" /> Delivery Address</h4>
+                              <div className="text-sm text-slate-700 bg-white p-3 rounded-xl border border-slate-200">
+                                <p className="font-bold">{order.shippingAddress?.name}</p>
+                                <p>{order.shippingAddress?.address}</p>
+                                <p>{order.shippingAddress?.place}, {order.shippingAddress?.post}</p>
+                                <p>{order.shippingAddress?.district} - {order.shippingAddress?.pincode}</p>
+                                {order.shippingAddress?.landmark && <p className="text-xs text-slate-500 mt-1">Landmark: {order.shippingAddress.landmark}</p>}
+                                <p className="font-medium mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+                                  <Phone className="h-3 w-3 text-slate-400" /> {order.shippingAddress?.phone}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><ShoppingBag className="h-3 w-3" /> Order Details</h4>
+                              <div className="text-sm text-slate-700 bg-white p-3 rounded-xl border border-slate-200">
+                                <div className="flex gap-3 mb-2 pb-2 border-b border-slate-100">
+                                  {order.productImage && (
+                                    <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0">
+                                      <img src={order.productImage} className="w-full h-full object-contain" alt="" />
+                                    </div>
+                                  )}
+                                  <div>
+                                    <p className="font-bold">{order.productName}</p>
+                                    <p className="text-slate-500">Qty: {order.quantity || 1}</p>
+                                  </div>
+                                </div>
+                                <p className="flex justify-between items-center text-xs mt-2"><span className="text-slate-500">Date</span> <span className="font-medium">{new Date(order.createdAt).toLocaleString()}</span></p>
+                                <p className="flex justify-between items-center text-xs mt-1"><span className="text-slate-500">Total Amount</span> <span className="font-bold text-teal-600">₹{order.amount}</span></p>
+                              </div>
+                            </div>
+                            {order.notes && (
+                              <div className="space-y-2">
+                                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><MessageCircle className="h-3 w-3" /> Additional Notes</h4>
+                                <div className="text-sm text-slate-700 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                                  <p>{order.notes}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    </React.Fragment>
                   ))}
                   {orders.length === 0 && (
                     <TableRow>

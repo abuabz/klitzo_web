@@ -42,6 +42,43 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const data = await request.json();
+    
+    await connectDB();
+    
+    let userId = null;
+    if (data.user && data.user.email) {
+      const user = await User.findOne({ email: data.user.email });
+      if (user) userId = user._id;
+    }
+
+    const order = await Order.create({
+      userId,
+      userEmail: data.user?.email,
+      userMobile: data.user?.mobile,
+      userName: data.user?.username,
+      productId: data.productId,
+      productName: data.productName,
+      productImage: data.productImage,
+      amount: data.amount,
+      quantity: data.quantity,
+      status: data.status || "pending",
+      shippingAddress: data.shippingAddress,
+      notes: data.notes
+    });
+
+    return NextResponse.json({ message: "Order created successfully", order }, { status: 201 });
+  } catch (error: any) {
+    console.error("Error creating order:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const { orderId, status, adminEmail } = await request.json();
