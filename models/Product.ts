@@ -21,8 +21,20 @@ const ProductSchema = new mongoose.Schema(
     inStock: { type: Boolean, default: true },
     freeShipping: { type: Boolean, default: true },
     specialOffer: { type: String },
-    stock: { type: Number, default: 100 },
+    stock: { type: Number, default: 100 }, // Legacy field, keeping for backward compatibility
     isNew: { type: Boolean, default: false },
+    variants: [
+      {
+        sku: { type: String },
+        size: { type: String, required: true },
+        price: { type: String, required: true },
+        originalPrice: { type: String },
+        stock: { type: Number, default: 0 },
+        image: { type: String }, // Legacy, keep for backward compatibility
+        images: [{ type: String }],
+        specifications: { type: mongoose.Schema.Types.Mixed }
+      }
+    ]
   },
   { timestamps: true }
 );

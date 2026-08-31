@@ -3,60 +3,38 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Menu, X, Phone, Mail, MapPin, Clock, Send, Timer, User, ShoppingBag, ShoppingCart } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { AuthModal } from "@/components/auth-modal"
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
 export default function KlitzoLanding() {
-  const router = useRouter()
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const [isVisible, setIsVisible] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const heroPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  )
+  const productsPlugin = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  )
   const [openFeature, setOpenFeature] = useState<number | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [hasActiveOrders, setHasActiveOrders] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
 
   useEffect(() => {
     setIsVisible(true)
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser)
-      setUser(parsedUser)
-      
-      // Fetch user's orders to check for active ones
-      fetch(`/api/orders?email=${parsedUser.email}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            const active = data.some(order => 
-              order.status && (order.status.toLowerCase() === "paid" || order.status.toLowerCase() === "shipping")
-            )
-            setHasActiveOrders(active)
-          }
-        })
-        .catch(err => console.error("Error fetching orders status:", err))
-    }
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProducts(data);
+      })
+      .catch(err => console.error("Error fetching products:", err))
   }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    setUser(null)
-    toast.success("Logged out successfully")
-    router.refresh()
-  }
 
   const features = [
     { icon: Zap, text: "Works on Multiple Surfaces", content: "Cleans steel, plastic, ceramics, glass, vehicle bodies, tiles, and more.", delay: "0ms" },
@@ -67,261 +45,11 @@ export default function KlitzoLanding() {
     { icon: Timer, text: "Long Shelf Life", content: "Stays effective for a long time, ensuring lasting performance.", delay: "800ms" },
   ]
 
-  const [products, setProducts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const mainproducts = products.filter(p => [1, 3, 5, 6].includes(p.id))
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true)
-        const res = await fetch("/api/products")
-        const data = await res.json()
-        if (Array.isArray(data)) {
-          setProducts(data)
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchProducts()
-  }, [])
-
-  const mainProducts = products.filter(p => p.isNew)
-  if (mainProducts.length === 0 && products.length > 0) {
-    // Fallback if no products are marked isNew
-    mainProducts.push(...products.slice(0, 2))
-  }
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href="/">
-                <img src="/klitzo-logo.png" alt="KLITZO Logo" className="h-10 w-auto cursor-pointer" />
-              </Link>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/products"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-              </div>
-            </div>
-
-            {/* Desktop CTA & User Profile */}
-            <div className="hidden md:flex items-center space-x-4">
-              {user ? (
-                <Link href="/my-orders" className="text-slate-700 hover:text-teal-600 text-sm font-medium transition-colors duration-300 relative flex items-center">
-                  My Orders
-                  {hasActiveOrders && (
-                    <span className="absolute -top-1 -right-2 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-                    </span>
-                  )}
-                </Link>
-              ) : (
-                <button 
-                  onClick={() => {
-                    setAuthMode("login")
-                    setIsAuthModalOpen(true)
-                  }}
-                  className="text-slate-700 hover:text-teal-600 text-sm font-medium transition-colors duration-300 cursor-pointer"
-                >
-                  My Orders
-                </button>
-              )}
-
-              <Link href="/cart" className="text-slate-700 hover:text-teal-600 p-2 transition-colors duration-300 cursor-pointer" title="Cart">
-                <ShoppingCart className="h-5 w-5" />
-              </Link>
-
-              <Link href="/product/1">
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
-                  Shop Now
-                </Button>
-              </Link>
-
-              {!user ? (
-                <button
-                  onClick={() => {
-                    setAuthMode("login")
-                    setIsAuthModalOpen(true)
-                  }}
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 transition-colors duration-300 cursor-pointer"
-                  title="Login"
-                >
-                  <User className="h-5 w-5" />
-                </button>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="focus:outline-none">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors max-w-[150px]">
-                      <Avatar className="h-7 w-7 border border-teal-200 shrink-0">
-                        <AvatarFallback className="bg-teal-600 text-white text-[10px]">
-                          {(user.username || user.identifier).charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-teal-700 text-xs font-semibold truncate">
-                        {(user.username || user.identifier).split(' ')[0]}
-                      </span>
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
-                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
-                    <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
-                      <Link href="/my-orders" className="flex items-center w-full justify-between">
-                        <div className="flex items-center">
-                          <ShoppingBag className="mr-3 h-4 w-4" />
-                          <span>My Orders</span>
-                        </div>
-                        {hasActiveOrders && (
-                          <span className="relative flex h-2 w-2 mr-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-                          </span>
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
-                    <DropdownMenuItem
-                      onClick={handleLogout}
-                      className="rounded-lg focus:bg-red-50 focus:text-red-600 text-red-500 cursor-pointer py-2.5"
-                    >
-                      <div className="flex items-center w-full">
-                        <X className="mr-3 h-4 w-4" />
-                        <span>Log out</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-slate-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-300"
-              >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden backdrop-blur-md bg-white/20 border-t border-white/20 rounded-b-lg mt-2">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/products"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-                {user ? (
-                  <Link
-                    href="/my-orders"
-                    className="text-slate-700 hover:text-teal-600 px-3 py-2 text-base font-medium transition-colors duration-300 flex items-center justify-between"
-                  >
-                    <span>My Orders</span>
-                    {hasActiveOrders && (
-                      <span className="relative flex h-2 w-2 mr-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
-                      </span>
-                    )}
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setAuthMode("login")
-                      setIsAuthModalOpen(true)
-                    }}
-                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left cursor-pointer"
-                  >
-                    My Orders
-                  </button>
-                )}
-                <Link
-                  href="/cart"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 flex items-center gap-2"
-                >
-                  <ShoppingCart className="h-5 w-5" /> Cart
-                </Link>
-                {!user ? (
-                  <button
-                    onClick={() => {
-                      setAuthMode("login")
-                      setIsAuthModalOpen(true)
-                    }}
-                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    <User className="h-5 w-5" /> Login
-                  </button>
-                ) : (
-                  <div className="text-teal-600 block px-3 py-2 text-base font-medium flex items-center gap-2">
-                    <User className="h-5 w-5" /> {user.username || user.identifier}
-                  </div>
-                )}
-                <div className="px-3 py-2">
-                  <Link href="/products">
-                    <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full shadow-lg">
-                      Shop Now
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
 
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none">
@@ -357,13 +85,170 @@ export default function KlitzoLanding() {
         <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-400/40 to-transparent animate-slide-right"></div>
         <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent animate-slide-left"></div>
       </div>
+      {/* Special Combo Offer Section */}
 
+
+      <section className="pt-40 pb-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          {/* <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
+            Our{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
+          </h2> */}
+
+          <div className="w-full px-4 sm:px-8">
+            {/* Desktop & Tablet Carousel */}
+            <div className="hidden md:block">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[productsPlugin.current]}
+                onMouseEnter={() => productsPlugin.current.stop()}
+                onMouseLeave={() => productsPlugin.current.play()}
+                className="w-full relative"
+              >
+                <CarouselContent className="px-2">
+                  {products.map((product, index) => (
+                    <CarouselItem key={product.id} className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 pl-4" style={{ transitionDelay: `${index * 100}ms` }}>
+                      <Link href={`/product/${product.id}`} className="block h-full py-4">
+                        <Card
+                          className={`group h-full py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white flex flex-col overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+                        >
+                          <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white flex-shrink-0 h-48 sm:h-56 p-4">
+                            <img
+                              src={product.image || "/placeholder.svg"}
+                              alt={product.name}
+                              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply drop-shadow-sm"
+                            />
+                            {product.originalPrice && (
+                              <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs shadow-sm">
+                                SALE
+                              </Badge>
+                            )}
+                            {product.specialOffer && (
+                              <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-bold shadow-md z-10 border border-yellow-500">
+                                PREPAID: {product.specialOffer}
+                              </Badge>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+                              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg shadow-teal-500/30">
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+
+                          <CardContent className="p-4 sm:p-5 flex flex-col flex-grow justify-between gap-3">
+                            <div>
+                              <h3 className="text-sm sm:text-base font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
+                                {product.name}
+                              </h3>
+                              <p className="text-slate-500 text-xs mb-3 line-clamp-2">
+                                {product.description}
+                              </p>
+
+                              <div className="hidden sm:flex flex-col gap-1.5 mb-2">
+                                {product.features.slice(0, 2).map((feature, idx) => (
+                                  <div key={idx} className="flex items-start text-xs text-slate-600">
+                                    <Sparkles className="h-3.5 w-3.5 text-teal-500 mr-2 flex-shrink-0 mt-0.5" />
+                                    <span className="line-clamp-1">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 mt-auto pt-2 border-t border-slate-100">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge className="bg-slate-800 text-white text-sm px-3 py-1 shadow-sm">
+                                  {product.price}
+                                </Badge>
+                                {product.originalPrice && (
+                                  <span className="text-slate-400 line-through text-xs font-medium">
+                                    {product.originalPrice}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm text-center">
+                                Buy Now
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="hidden sm:block">
+                  <CarouselPrevious className="-left-4 lg:-left-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
+                  <CarouselNext className="-right-4 lg:-right-6 bg-white shadow-lg text-teal-600 hover:bg-slate-50 border-slate-200" />
+                </div>
+              </Carousel>
+            </div>
+
+            {/* Mobile Grid View */}
+            <div className="grid grid-cols-2 gap-3 md:hidden">
+              {products.map((product, index) => (
+                <div key={product.id} className="h-full" style={{ transitionDelay: `${index * 100}ms` }}>
+                  <Link href={`/product/${product.id}`} className="block h-full py-2">
+                    <Card
+                      className={`group h-full py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white flex flex-col overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+                    >
+                      <div className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white flex-shrink-0 h-36 p-2">
+                        <img
+                          src={product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply drop-shadow-sm"
+                        />
+                        {product.originalPrice && (
+                          <Badge className="absolute top-2 left-2 bg-red-500 text-white text-[8px] sm:text-xs shadow-sm">
+                            SALE
+                          </Badge>
+                        )}
+                        {product.specialOffer && (
+                          <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] font-bold shadow-md z-10 border border-yellow-500">
+                            PREPAID: {product.specialOffer}
+                          </Badge>
+                        )}
+                      </div>
+
+                      <CardContent className="p-3 flex flex-col flex-grow justify-between gap-2">
+                        <div>
+                          <h3 className="text-[11px] font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2rem] leading-snug">
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        <div className="flex flex-col gap-2 mt-auto pt-1 border-t border-slate-100">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {product.price}
+                            </span>
+                            {product.originalPrice && (
+                              <span className="text-[9px] text-slate-400 line-through font-medium">
+                                {product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 text-white rounded-full py-1.5 shadow-sm font-bold text-[10px] text-center">
+                            Buy Now
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Hero Section */}
       {/* Hero Section - 2 Products Side-by-Side on ALL Devices (including Mobile) */}
       <section className="relative min-h-screen flex items-center px-4 pt-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-100/80 via-blue-50/60 to-teal-50/80 backdrop-blur-sm"></div>
 
-        <div className="max-w-7xl mx-auto w-full relative z-10 mt-10">
+        <div className="max-w-7xl mx-auto w-full relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
             {/* Left: Hero Text */}
@@ -383,13 +268,13 @@ export default function KlitzoLanding() {
 
               <div className={`transform transition-all duration-1000 delay-500 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/product/1">
-                    <Button size="lg" className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-10 py-6 text-lg rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
+                  <Link className="cursor-pointer" href="/products">
+                    <Button size="lg" className="cursor-pointer bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-10 py-6 text-lg rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300">
                       Shop Now <Sparkles className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
-                  <Link href="/about">
-                    <Button variant="outline" size="lg" className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-10 py-6 text-lg rounded-full backdrop-blur-sm">
+                  <Link className="cursor-pointer" href="/about">
+                    <Button variant="outline" size="lg" className="cursor-pointer border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-10 py-6 text-lg rounded-full backdrop-blur-sm">
                       Learn More
                     </Button>
                   </Link>
@@ -397,56 +282,115 @@ export default function KlitzoLanding() {
               </div>
             </div>
 
-            {/* Right: Two Product Cards - Always Side by Side (Even on Mobile) */}
-            <div className="order-1 lg:order-2">
-              <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-                {mainProducts.map((product: any, index: number) => (
-                  <div
-                    key={product.id}
-                    className={`transform transition-all duration-1000 delay-${700 + index * 200} ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
-                      }`}
-                  >
-                    <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden">
-                      {/* Product Image */}
-                      <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-32 sm:h-40 overflow-hidden">
-                        {/* @ts-ignore */}
-                        {product.specialOffer && (
-                          <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10">
-                            PREPAID: {product.specialOffer}
-                          </Badge>
-                        )}
-                        {product.isNew && (
-                          <Badge className="absolute top-2 left-2 bg-teal-500 text-white text-[8px] sm:text-[10px] uppercase font-bold tracking-wider z-10">
-                            New
-                          </Badge>
-                        )}
-                        <img
-                          src={product.image || (product.images && product.images[0])}
-                          alt={product.name}
-                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-
-                      {/* Product Info */}
-                      <CardContent className="p-1 sm:p-2 text-center space-y-1 sm:space-y-2">
-                        <h3 className="text-[9px] whitespace-nowrap sm:text-[13px] font-bold text-slate-800 line-clamp-1">
-                          {product.name}
-                        </h3>
-
-                        <div className="flex items-center justify-center gap-1 sm:gap-2">
-                          <span className="text-sm sm:text-lg font-bold text-teal-600">{product.price}</span>
-                          <span className="text-[8px] sm:text-xs text-slate-400 line-through">{product.originalPrice}</span>
-                        </div>
-
+            {/* Right: Product Carousel */}
+            <div className={`order-1 lg:order-2 w-full max-w-lg mx-auto lg:max-w-none transform transition-all duration-1000 delay-700 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"}`}>
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[heroPlugin.current]}
+                className="w-full relative"
+                onMouseEnter={() => heroPlugin.current.stop()}
+                onMouseLeave={() => heroPlugin.current.play()}
+              >
+                <CarouselContent className="-ml-2 sm:-ml-4">
+                  {products.map((product) => (
+                    <CarouselItem key={product.id} className="pl-2 sm:pl-4 basis-1/2 md:basis-1/2 lg:basis-1/2">
+                      <div className="h-full py-2">
                         <Link href={`/product/${product.id}`}>
-                          <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[8px] sm:text-xs py-0 sm:py-2 h-7 sm:h-9 font-medium transform hover:scale-105 transition-all duration-300">
-                            Buy Now
-                          </Button>
+                          <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden h-full flex flex-col gap-0">
+                            {/* Product Image */}
+                            <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-36 sm:h-48 overflow-hidden flex-shrink-0 p-3 sm:p-5">
+                              {product.specialOffer && (
+                                <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-sm sm:rounded-md border border-yellow-500">
+                                  PREPAID: {product.specialOffer}
+                                </Badge>
+                              )}
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500 filter drop-shadow-sm"
+                              />
+                            </div>
+
+                            {/* Product Info */}
+                            <CardContent className="p-3 sm:p-5 text-center flex flex-col items-center flex-grow justify-between gap-2 sm:gap-3">
+                              <h3 className="text-[10px] sm:text-sm md:text-base font-bold text-slate-800 line-clamp-2 min-h-[1rem] sm:min-h-[2.5rem] flex items-center justify-center group-hover:text-teal-700 transition-colors duration-300">
+                                {product.name}
+                              </h3>
+
+                              <div className="flex items-center justify-center gap-2 sm:gap-3 w-full my-1">
+                                <span className="text-base sm:text-lg lg:text-xl font-extrabold text-teal-600">{product.price}</span>
+                                <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice}</span>
+                              </div>
+
+                              <Link href={`/product/${product.id}`} className="w-full mt-auto block">
+                                <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2.5 h-8 sm:h-11 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                                  Buy Now
+                                </Button>
+                              </Link>
+                            </CardContent>
+                          </Card>
                         </Link>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="hidden sm:block">
+                  <CarouselPrevious className="left-[-1.5rem] bg-white/95 hover:bg-white text-teal-600 border-teal-200 shadow-md h-10 w-10 transition-all duration-300 hover:scale-110" />
+                  <CarouselNext className="right-[-1.5rem] bg-white/95 hover:bg-white text-teal-600 border-teal-200 shadow-md h-10 w-10 transition-all duration-300 hover:scale-110" />
+                </div>
+              </Carousel>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <section className="py-12 md:py-20 px-4 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-gradient-to-r from-teal-900 to-slate-900 rounded-[2rem] overflow-hidden shadow-2xl relative">
+            {/* Background glowing effects */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+
+            <div className="flex flex-col-reverse md:flex-row items-center justify-between p-6 sm:p-8 md:p-12 relative z-10 gap-8 md:gap-4">
+              <div className="w-full md:w-1/2 text-white space-y-4 md:space-y-6 flex flex-col items-center text-center md:items-start md:text-left">
+                <Badge className="bg-yellow-400 text-slate-900 border-none font-bold px-4 py-1.5 text-xs sm:text-sm uppercase tracking-wider mb-2 inline-block">
+                  Limited Time Offer
+                </Badge>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
+                  KLITZO Shoe & Helmet <br className="hidden sm:block" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Cleaner Combo</span>
+                </h2>
+                <p className="text-slate-300 text-sm sm:text-base md:text-lg max-w-md mx-auto md:mx-0">
+                  Complete hygiene combo for your daily commute. Keep your helmet fresh and shoes odor-free with our powerful anti-bacterial formulas.
+                </p>
+                <div className="flex items-end justify-center md:justify-start gap-3 md:gap-4 mt-2">
+                  <span className="text-4xl sm:text-5xl font-bold text-yellow-400">₹449</span>
+                  <div className="flex flex-col pb-1 text-left">
+                    <span className="text-slate-400 line-through text-base sm:text-lg">₹1398</span>
+                    <span className="text-teal-400 font-semibold text-xs sm:text-sm">Save ₹949</span>
                   </div>
-                ))}
+                </div>
+                <Link href="/product/8" className="inline-block mt-4 w-full sm:w-auto">
+                  <Button size="lg" className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white rounded-full py-6 px-8 sm:px-10 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 font-bold text-base sm:text-lg w-full group">
+                    <ShoppingCart className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
+                    Grab the Deal Now
+                  </Button>
+                </Link>
+              </div>
+              <div className="w-full md:w-1/2 relative flex justify-center items-center">
+                <div className="relative w-[80%] max-w-[250px] sm:max-w-xs md:max-w-sm aspect-square">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/30 to-blue-500/30 rounded-full blur-2xl animate-pulse"></div>
+                  <img
+                    src="/assets/compo-shoe-and-helmet.jpeg"
+                    alt="Shoe & Helmet Cleaner Combo"
+                    className="relative z-10 w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500 rounded-3xl"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -488,112 +432,6 @@ export default function KlitzoLanding() {
                 </Card>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Products Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-800 mb-16">
-            Our{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Products</span>
-          </h2>
-
-          {/* <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> */}
-          <div className="w-full overflow-x-auto scrollbar-hide">
-            {/* Hide scrollbar but keep functionality */}
-            <style jsx>{`
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  `}</style>
-
-            <div className="flex gap-4 sm:gap-6 lg:gap-8 px-4 py-6 min-w-max">
-              {/* min-w-max prevents compression */}
-              {products.filter(p => p.isNew).map((product: any, index: number) => (
-                <div
-                  key={product.id}
-                  className="flex-none w-[240px] sm:w-[280px] lg:w-[300px]"
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <Card
-                    className={`group py-0 gap-0 cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-white overflow-hidden transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                      }`}
-                  >
-                    <div className="relative overflow-hidden">
-
-                      <img
-                        src={product.image || (product.images && product.images[0]) || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-full h-48 sm:h-56 object-contain group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {product.originalPrice && (
-                        <Badge className="absolute top-4 left-4 bg-red-500 text-white text-xs">
-                          50% OFF
-                        </Badge>
-                      )}
-                      {/* @ts-ignore */}
-                      {product.specialOffer && (
-                        <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold shadow-md z-10">
-                          PREPAID: {product.specialOffer}
-                        </Badge>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Link href={`/product/${product.id}`}>
-                        <Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-90 group-hover:scale-100">
-                          View Details
-                        </Button>
-                      </Link>
-                    </div>
-
-                    <CardContent className="p-3">
-                      <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
-                        {product.name}
-                      </h3>
-                      <p className="text-slate-600 text-xs mb-2 line-clamp-2">
-                        {product.description}
-                      </p>
-
-                      <div className="hidden sm:flex flex-col gap-1 mb-3">
-                        {product.features && product.features.slice(0, 2).map((feature: string, idx: number) => (
-                          <div key={idx} className="flex items-center text-sm text-slate-600">
-                            <Sparkles className="h-4 w-4 text-teal-500 mr-2" />
-                            {feature}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm px-3">
-                            {product.price}
-                          </Badge>
-                          {product.originalPrice && (
-                            <span className="text-slate-400 line-through text-sm">
-                              {product.originalPrice}
-                            </span>
-                          )}
-                        </div>
-                        <Link href={`/product/${product.id}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="hidden sm:block border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white"
-                          >
-                            View Product
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -766,12 +604,6 @@ export default function KlitzoLanding() {
       </section >
 
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        initialMode={authMode}
-        onSuccess={(newUser) => setUser(newUser)}
-      />
     </div >
   )
 }

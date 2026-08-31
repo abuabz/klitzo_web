@@ -25,7 +25,8 @@ import {
   ChevronRight,
   Search,
   RefreshCw,
-  ChevronDown
+  ChevronDown,
+  X
 } from "lucide-react"
 
 import {
@@ -53,12 +54,85 @@ export default function AdminPage() {
   const [productForm, setProductForm] = useState({
     name: "",
     price: "",
+    originalPrice: "",
     category: "",
     image: "",
     stock: "",
-    description: ""
+    description: "",
+    longDescription: "",
+    features: "",
+    images: [] as string[],
+    specifications: [] as {key: string, value: string}[],
+    variants: [] as any[]
   })
+  const [dragItemIndex, setDragItemIndex] = useState<number | null>(null)
+  const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null)
+  const [variantDragItem, setVariantDragItem] = useState<{variantIndex: number, imageIndex: number} | null>(null)
+  const [variantDragOverItem, setVariantDragOverItem] = useState<{variantIndex: number, imageIndex: number} | null>(null)
   const router = useRouter()
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Compress to WebP at 0.7 quality to save space
+          const dataUrl = canvas.toDataURL("image/webp", 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (error) => reject(error);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleSort = () => {
+    if (dragItemIndex === null || dragOverItemIndex === null) return;
+    const newImages = [...productForm.images];
+    const draggedItem = newImages.splice(dragItemIndex, 1)[0];
+    newImages.splice(dragOverItemIndex, 0, draggedItem);
+    setProductForm({ ...productForm, images: newImages });
+    setDragItemIndex(null);
+    setDragOverItemIndex(null);
+  };
+
+  const handleVariantSort = (variantIndex: number) => {
+    if (variantDragItem === null || variantDragOverItem === null || variantDragItem.variantIndex !== variantIndex || variantDragOverItem.variantIndex !== variantIndex) return;
+    const newVariants = [...productForm.variants];
+    const newImages = [...(newVariants[variantIndex].images || [])];
+    const draggedItem = newImages.splice(variantDragItem.imageIndex, 1)[0];
+    newImages.splice(variantDragOverItem.imageIndex, 0, draggedItem);
+    newVariants[variantIndex].images = newImages;
+    setProductForm({ ...productForm, variants: newVariants });
+    setVariantDragItem(null);
+    setVariantDragOverItem(null);
+  };
 
   const fetchData = async () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}")
@@ -171,13 +245,45 @@ export default function AdminPage() {
     const user = JSON.parse(localStorage.getItem("user") || "{}")
     setLoading(true)
     try {
+      let globalSpecs: Record<string, string> = {};
+      
+      productForm.specifications.forEach(spec => {
+        if (spec.key.trim() && spec.value.trim()) {
+          globalSpecs[spec.key.trim()] = spec.value.trim();
+        }
+      });
+
+      const finalProductData = {
+        ...productForm,
+        image: productForm.images[0] || "",
+        id: editingProduct?.id,
+        features: productForm.features.split(",").map(s => s.trim()).filter(Boolean),
+        specifications: globalSpecs,
+        variants: productForm.variants.map(v => {
+          let parsedSpecs: Record<string, string> = {};
+          if (v.specifications && Array.isArray(v.specifications)) {
+            v.specifications.forEach((spec: any) => {
+              if (spec.key.trim() && spec.value.trim()) {
+                parsedSpecs[spec.key.trim()] = spec.value.trim();
+              }
+            });
+          }
+          return {
+            ...v,
+            image: v.images?.[0] || v.image || "",
+            images: v.images || (v.image ? [v.image] : []),
+            specifications: parsedSpecs
+          };
+        })
+      }
+
       const url = "/api/products"
       const method = editingProduct ? "PUT" : "POST"
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          productData: { ...productForm, id: editingProduct?.id }, 
+          productData: finalProductData, 
           adminEmail: user.email 
         }),
       })
@@ -201,21 +307,41 @@ export default function AdminPage() {
       setEditingProduct(product)
       setProductForm({
         name: product.name,
-        price: product.price.toString(),
-        category: product.category,
-        image: product.image || "",
-        stock: product.stock.toString(),
-        description: product.description || ""
+        price: product.price?.toString() || "",
+        originalPrice: product.originalPrice?.toString() || "",
+        category: product.category || "",
+        image: product.image || product.images?.[0] || "",
+        images: product.images || [],
+        stock: product.stock?.toString() || "",
+        description: product.description || "",
+        longDescription: product.longDescription || "",
+        features: Array.isArray(product.features) ? product.features.join(", ") : "",
+        specifications: product.specifications 
+          ? Object.entries(product.specifications).map(([k,val]) => ({ key: k, value: String(val) }))
+          : [],
+        variants: (product.variants || []).map((v: any) => ({
+          ...v,
+          images: v.images || (v.image ? [v.image] : []),
+          specifications: v.specifications 
+            ? Object.entries(v.specifications).map(([k,val]) => ({ key: k, value: String(val) }))
+            : []
+        }))
       })
     } else {
       setEditingProduct(null)
       setProductForm({
         name: "",
         price: "",
+        originalPrice: "",
         category: "",
         image: "",
         stock: "",
-        description: ""
+        description: "",
+        longDescription: "",
+        features: "",
+        images: [],
+        specifications: [],
+        variants: []
       })
     }
     setShowProductModal(true)
@@ -512,54 +638,89 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         ) : activeTab === 'products' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {products.map((product) => (
-               <Card key={product.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-2xl bg-white">
-                 <div className="h-48 bg-slate-50 relative overflow-hidden group-hover:bg-slate-100 transition-colors flex items-center justify-center p-8">
-                    <img 
-                      src={product.images?.[0] || product.image || "/placeholder.svg"} 
-                      className="max-h-full max-w-full object-contain transform group-hover:scale-110 transition-transform duration-500" 
-                      alt="" 
-                    />
-                    <div className="absolute top-4 right-4 flex gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                      <Button 
-                        size="icon" 
-                        variant="secondary" 
-                        className="bg-white/80 backdrop-blur shadow-lg border-0 h-9 w-9 rounded-full hover:bg-white text-slate-800"
-                        onClick={() => openProductModal(product)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        size="icon" 
-                        variant="destructive" 
-                        className="bg-red-500 shadow-lg border-0 h-9 w-9 rounded-full hover:bg-red-600 shadow-red-500/20"
-                        onClick={() => deleteProduct(product.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                 </div>
-                 <CardContent className="p-6">
-                   <Badge className="bg-slate-100 text-slate-500 hover:bg-slate-100 border-0 rounded-full mb-3 px-2 py-0 text-[10px] font-bold uppercase tracking-tighter">
-                     {product.category}
-                   </Badge>
-                   <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-teal-600 transition-colors">{product.name}</h3>
-                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-400 font-medium tracking-tight">Price</span>
-                        <span className="text-xl font-black text-slate-900 tracking-tighter">₹{product.price}</span>
+          <div className="space-y-12">
+            {Object.entries(products.reduce((acc, p) => {
+              const cat = p.category || 'Uncategorized';
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(p);
+              return acc;
+            }, {} as Record<string, any[]>)).map(([category, catProducts]) => (
+              <div key={category} className="space-y-6">
+                <h2 className="text-2xl font-black text-slate-800 capitalize flex items-center gap-3">
+                  <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
+                  {category.replace(/-/g, ' ')}
+                  <Badge className="ml-2 bg-slate-100 text-slate-600 border-0">{catProducts.length}</Badge>
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {catProducts.map((product) => (
+                    <Card key={product.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-2xl bg-white flex flex-col">
+                      <div className="h-48 bg-slate-50 relative overflow-hidden group-hover:bg-slate-100 transition-colors flex items-center justify-center p-8 shrink-0">
+                        <img 
+                          src={product.images?.[0] || product.image || "/placeholder.svg"} 
+                          className="max-h-full max-w-full object-contain transform group-hover:scale-110 transition-transform duration-500" 
+                          alt="" 
+                        />
+                        <div className="absolute top-4 right-4 flex gap-2 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                          <Button 
+                            size="icon" 
+                            variant="secondary" 
+                            className="bg-white/80 backdrop-blur shadow-lg border-0 h-9 w-9 rounded-full hover:bg-white text-slate-800"
+                            onClick={() => openProductModal(product)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="icon" 
+                            variant="destructive" 
+                            className="bg-red-500 shadow-lg border-0 h-9 w-9 rounded-full hover:bg-red-600 shadow-red-500/20"
+                            onClick={() => deleteProduct(product.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-xs text-slate-400 font-medium tracking-tight whitespace-nowrap">Stock Status</span>
-                        <span className={`text-xs font-bold ${product.stock > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {product.stock > 0 ? `${product.stock} Units` : 'Out of Stock'}
-                        </span>
-                      </div>
-                   </div>
-                 </CardContent>
-               </Card>
-             ))}
+                      <CardContent className="p-6 flex-1 flex flex-col">
+                        <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:text-teal-600 transition-colors">{product.name}</h3>
+                        
+                        {product.variants && product.variants.length > 0 ? (
+                          <div className="mt-4 flex-1 flex flex-col">
+                            <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">{product.variants.length} Variants Available</p>
+                            <div className="space-y-2 mb-4">
+                              {product.variants.slice(0, 3).map((v: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center bg-slate-50 p-2 rounded-lg">
+                                  <span className="text-sm font-medium text-slate-700">{v.size || v.sku || `Variant ${idx + 1}`}</span>
+                                  <span className="text-sm font-bold text-teal-600">₹{v.price}</span>
+                                </div>
+                              ))}
+                              {product.variants.length > 3 && (
+                                <p className="text-xs text-center text-slate-400 font-medium">+{product.variants.length - 3} more...</p>
+                              )}
+                            </div>
+                            <div className="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center">
+                              <span className="text-xs text-slate-400 font-medium">Base Price</span>
+                              <span className="text-lg font-black text-slate-400">₹{product.price}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-center mt-auto pt-4 border-t border-slate-50">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-400 font-medium tracking-tight">Price</span>
+                              <span className="text-xl font-black text-slate-900 tracking-tighter">₹{product.price}</span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className="text-xs text-slate-400 font-medium tracking-tight whitespace-nowrap">Stock Status</span>
+                              <span className={`text-xs font-bold ${product.stock > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                {product.stock > 0 ? `${product.stock} Units` : 'Out of Stock'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         ) : activeTab === 'customers' ? (
           <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white overflow-hidden rounded-2xl">
@@ -598,9 +759,23 @@ export default function AdminPage() {
 
         {/* Product Modal */}
         {showProductModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <Card className="w-full max-w-lg bg-white shadow-2xl rounded-3xl overflow-hidden border-0">
-              <CardHeader className="bg-slate-900 text-white py-8">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setShowProductModal(false)}
+          >
+            <Card 
+              className="w-full max-w-4xl max-h-[90vh] flex flex-col bg-white shadow-2xl rounded-3xl border-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CardHeader className="bg-slate-900 text-white py-8 relative shrink-0">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full"
+                  onClick={() => setShowProductModal(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
                 <CardTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
                   <div className="bg-teal-500/20 p-2 rounded-xl">
                     <Package className="h-6 w-6 text-teal-400" />
@@ -611,7 +786,7 @@ export default function AdminPage() {
                   {editingProduct ? `Updating ${editingProduct.name}` : 'Enter product details to add to catalog'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-8 overflow-y-auto">
                 <form onSubmit={handleProductSubmit} className="grid grid-cols-2 gap-6">
                   <div className="col-span-2 space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Product Name</label>
@@ -620,17 +795,6 @@ export default function AdminPage() {
                       onChange={(e) => setProductForm({...productForm, name: e.target.value})}
                       placeholder="e.g. KLITZO Stain Remover"
                       className="bg-slate-50 border-slate-200 rounded-xl h-12 focus:ring-teal-500"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Price (₹)</label>
-                    <Input 
-                      type="number"
-                      value={productForm.price}
-                      onChange={(e) => setProductForm({...productForm, price: e.target.value})}
-                      placeholder="0.00"
-                      className="bg-slate-50 border-slate-200 rounded-xl h-12"
                       required
                     />
                   </div>
@@ -645,35 +809,401 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Stock Amount</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Selling Price (Offer Price) ₹</label>
+                    <Input 
+                      type="number"
+                      value={productForm.price}
+                      onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                      placeholder="0.00"
+                      className="bg-slate-50 border-slate-200 rounded-xl h-12"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">MRP (Actual Price) ₹</label>
+                    <Input 
+                      type="number"
+                      value={productForm.originalPrice}
+                      onChange={(e) => setProductForm({...productForm, originalPrice: e.target.value})}
+                      placeholder="Optional"
+                      className="bg-slate-50 border-slate-200 rounded-xl h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Base Stock</label>
                     <Input 
                       type="number"
                       value={productForm.stock}
                       onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
                       placeholder="100"
                       className="bg-slate-50 border-slate-200 rounded-xl h-12"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Image URL</label>
-                    <Input 
-                      value={productForm.image}
-                      onChange={(e) => setProductForm({...productForm, image: e.target.value})}
-                      placeholder="https://..."
-                      className="bg-slate-50 border-slate-200 rounded-xl h-12"
                     />
                   </div>
                   <div className="col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Description</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Product Images (Drag to reorder - First image is cover)</label>
+                    <div className="flex flex-col gap-4">
+                      <Input 
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={async (e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            try {
+                              const newImages = [...productForm.images];
+                              for (let i = 0; i < e.target.files.length; i++) {
+                                const compressed = await compressImage(e.target.files[i]);
+                                newImages.push(compressed);
+                              }
+                              setProductForm({...productForm, images: newImages});
+                            } catch (err) {
+                              toast.error("Failed to process gallery images");
+                            }
+                          }
+                        }}
+                        className="bg-slate-50 border-slate-200 rounded-xl h-12 pt-2.5"
+                      />
+                      {productForm.images && productForm.images.length > 0 && (
+                        <div className="flex gap-3 overflow-x-auto pb-2">
+                          {productForm.images.map((img, idx) => (
+                            <div 
+                              key={idx} 
+                              draggable
+                              onDragStart={(e) => setDragItemIndex(idx)}
+                              onDragEnter={(e) => setDragOverItemIndex(idx)}
+                              onDragEnd={handleSort}
+                              onDragOver={(e) => e.preventDefault()}
+                              className={`relative w-20 h-20 rounded-lg bg-slate-100 flex-shrink-0 border-2 overflow-hidden group cursor-move ${idx === 0 ? "border-teal-500 shadow-sm" : "border-slate-200"}`}
+                            >
+                              <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-contain pointer-events-none" />
+                              {idx === 0 && (
+                                <div className="absolute bottom-0 left-0 right-0 bg-teal-500 text-white text-[9px] font-bold text-center py-0.5">COVER</div>
+                              )}
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const newImages = [...productForm.images];
+                                  newImages.splice(idx, 1);
+                                  setProductForm({...productForm, images: newImages});
+                                }}
+                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Short Description</label>
                     <textarea 
                       value={productForm.description}
                       onChange={(e) => setProductForm({...productForm, description: e.target.value})}
-                      className="w-full bg-slate-50 border-slate-200 rounded-xl p-4 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                      className="w-full bg-slate-50 border-slate-200 rounded-xl p-4 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
                       placeholder="Deep cleaning formula for..."
                     />
                   </div>
-                  <div className="col-span-2 flex gap-3 pt-4">
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Long Description</label>
+                    <textarea 
+                      value={productForm.longDescription}
+                      onChange={(e) => setProductForm({...productForm, longDescription: e.target.value})}
+                      className="w-full bg-slate-50 border-slate-200 rounded-xl p-4 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                      placeholder="Full detailed product description..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Features (comma separated)</label>
+                    <textarea 
+                      value={productForm.features}
+                      onChange={(e) => setProductForm({...productForm, features: e.target.value})}
+                      className="w-full bg-slate-50 border-slate-200 rounded-xl p-4 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+                      placeholder="Instant stain removal, Safe on hands..."
+                    />
+                  </div>
+                  {/* Specifications Section (Common) */}
+                  <div className="col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-sm font-bold text-slate-800">Common Specifications (Applies to all variants)</h4>
+                      <Button 
+                        type="button" 
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-2 border-teal-200 text-teal-700 hover:bg-teal-50"
+                        onClick={() => setProductForm({
+                          ...productForm, 
+                          specifications: [...(productForm.specifications || []), { key: "", value: "" }]
+                        })}
+                      >
+                        <Plus className="h-4 w-4" /> Add Spec
+                      </Button>
+                    </div>
+                    
+                    {(!productForm.specifications || productForm.specifications.length === 0) && (
+                      <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-sm text-slate-500">No common specifications added.</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2">
+                      {productForm.specifications?.map((spec, index) => (
+                        <div key={index} className="flex gap-3 items-start relative group">
+                          <div className="flex-1 space-y-1">
+                            <Input 
+                              value={spec.key} 
+                              onChange={(e) => {
+                                const newSpecs = [...productForm.specifications];
+                                newSpecs[index].key = e.target.value;
+                                setProductForm({...productForm, specifications: newSpecs});
+                              }}
+                              placeholder="Name (e.g. Brand)" className="h-10 text-sm bg-slate-50" 
+                            />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <Input 
+                              value={spec.value} 
+                              onChange={(e) => {
+                                const newSpecs = [...productForm.specifications];
+                                newSpecs[index].value = e.target.value;
+                                setProductForm({...productForm, specifications: newSpecs});
+                              }}
+                              placeholder="Value (e.g. Klitzo)" className="h-10 text-sm bg-slate-50" 
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-10 w-10 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl"
+                            onClick={() => {
+                              const newSpecs = [...productForm.specifications];
+                              newSpecs.splice(index, 1);
+                              setProductForm({...productForm, specifications: newSpecs});
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Variants Section */}
+                  <div className="col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-sm font-bold text-slate-800">Product Variants (SKUs)</h4>
+                      <Button 
+                        type="button" 
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-2 border-teal-200 text-teal-700 hover:bg-teal-50"
+                        onClick={() => setProductForm({
+                          ...productForm, 
+                          variants: [...(productForm.variants || []), { sku: "", size: "", price: "", images: [], stock: 0, specifications: [] }]
+                        })}
+                      >
+                        <Plus className="h-4 w-4" /> Add Variant
+                      </Button>
+                    </div>
+                    
+                    {(!productForm.variants || productForm.variants.length === 0) && (
+                      <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-sm text-slate-500">No variants added. The base product details will be used.</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                      {productForm.variants?.map((variant, index) => (
+                        <div key={index} className="bg-slate-50 p-4 rounded-xl relative group border border-slate-100">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="destructive"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                            onClick={() => {
+                              const newVariants = [...productForm.variants];
+                              newVariants.splice(index, 1);
+                              setProductForm({...productForm, variants: newVariants});
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-slate-500">SKU Code</label>
+                              <Input 
+                                value={variant.sku} 
+                                onChange={(e) => {
+                                  const newVariants = [...productForm.variants];
+                                  newVariants[index].sku = e.target.value;
+                                  setProductForm({...productForm, variants: newVariants});
+                                }}
+                                placeholder="e.g. KSR-300" className="h-9 text-sm bg-white" 
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-slate-500">Size / Volume *</label>
+                              <Input 
+                                value={variant.size} 
+                                onChange={(e) => {
+                                  const newVariants = [...productForm.variants];
+                                  newVariants[index].size = e.target.value;
+                                  setProductForm({...productForm, variants: newVariants});
+                                }}
+                                placeholder="e.g. 300ml" className="h-9 text-sm bg-white" required
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-slate-500">Price (₹) *</label>
+                              <Input 
+                                type="number"
+                                value={variant.price} 
+                                onChange={(e) => {
+                                  const newVariants = [...productForm.variants];
+                                  newVariants[index].price = e.target.value;
+                                  setProductForm({...productForm, variants: newVariants});
+                                }}
+                                placeholder="0.00" className="h-9 text-sm bg-white" required
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-slate-500">Stock</label>
+                              <Input 
+                                type="number"
+                                value={variant.stock} 
+                                onChange={(e) => {
+                                  const newVariants = [...productForm.variants];
+                                  newVariants[index].stock = parseInt(e.target.value) || 0;
+                                  setProductForm({...productForm, variants: newVariants});
+                                }}
+                                placeholder="100" className="h-9 text-sm bg-white" 
+                              />
+                            </div>
+                            <div className="col-span-2 space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-slate-500">Variant Images (Multiple) - First is cover</label>
+                              <div className="flex flex-col gap-3">
+                                <Input 
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={async (e) => {
+                                    if (e.target.files && e.target.files.length > 0) {
+                                      try {
+                                        const newVariants = [...productForm.variants];
+                                        const newImages = [...(newVariants[index].images || [])];
+                                        for (let i = 0; i < e.target.files.length; i++) {
+                                          const compressed = await compressImage(e.target.files[i]);
+                                          newImages.push(compressed);
+                                        }
+                                        newVariants[index].images = newImages;
+                                        setProductForm({...productForm, variants: newVariants});
+                                      } catch (err) {
+                                        toast.error("Failed to process image");
+                                      }
+                                    }
+                                  }}
+                                  className="h-9 text-sm bg-white pt-1.5"
+                                />
+                                {variant.images && variant.images.length > 0 && (
+                                  <div className="flex gap-2 overflow-x-auto pb-1">
+                                    {variant.images.map((img: string, imgIdx: number) => (
+                                      <div 
+                                        key={imgIdx} 
+                                        draggable
+                                        onDragStart={(e) => setVariantDragItem({variantIndex: index, imageIndex: imgIdx})}
+                                        onDragEnter={(e) => setVariantDragOverItem({variantIndex: index, imageIndex: imgIdx})}
+                                        onDragEnd={() => handleVariantSort(index)}
+                                        onDragOver={(e) => e.preventDefault()}
+                                        className={`relative w-12 h-12 rounded-md bg-white flex-shrink-0 border-2 overflow-hidden group cursor-move ${imgIdx === 0 ? "border-teal-500 shadow-sm" : "border-slate-200"}`}
+                                      >
+                                        <img src={img} alt={`Var ${imgIdx}`} className="w-full h-full object-contain pointer-events-none" />
+                                        {imgIdx === 0 && (
+                                          <div className="absolute bottom-0 left-0 right-0 bg-teal-500 text-white text-[7px] font-bold text-center py-[1px]">COVER</div>
+                                        )}
+                                        <button 
+                                          type="button"
+                                          onClick={() => {
+                                            const newVariants = [...productForm.variants];
+                                            newVariants[index].images.splice(imgIdx, 1);
+                                            setProductForm({...productForm, variants: newVariants});
+                                          }}
+                                          className="absolute top-0.5 right-0.5 bg-red-500 text-white p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                        >
+                                          <Trash2 className="w-2.5 h-2.5" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 pt-4 border-t border-slate-200">
+                            <div className="flex justify-between items-center mb-2">
+                              <h5 className="text-[10px] font-bold uppercase text-slate-500">Variant Specifications</h5>
+                              <Button 
+                                type="button" 
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 px-2 text-teal-600 text-[10px] hover:bg-teal-50"
+                                onClick={() => {
+                                  const newVariants = [...productForm.variants];
+                                  newVariants[index].specifications = [...(newVariants[index].specifications || []), { key: "", value: "" }];
+                                  setProductForm({...productForm, variants: newVariants});
+                                }}
+                              >
+                                <Plus className="h-3 w-3 mr-1" /> Add Spec
+                              </Button>
+                            </div>
+                            <div className="space-y-2">
+                              {variant.specifications?.map((spec: any, specIdx: number) => (
+                                <div key={specIdx} className="flex gap-2 items-center">
+                                  <Input 
+                                    value={spec.key} 
+                                    onChange={(e) => {
+                                      const newVariants = [...productForm.variants];
+                                      newVariants[index].specifications[specIdx].key = e.target.value;
+                                      setProductForm({...productForm, variants: newVariants});
+                                    }}
+                                    placeholder="Name (e.g. Weight)" className="h-8 text-xs bg-white" 
+                                  />
+                                  <Input 
+                                    value={spec.value} 
+                                    onChange={(e) => {
+                                      const newVariants = [...productForm.variants];
+                                      newVariants[index].specifications[specIdx].value = e.target.value;
+                                      setProductForm({...productForm, variants: newVariants});
+                                    }}
+                                    placeholder="Value (e.g. 500g)" className="h-8 text-xs bg-white" 
+                                  />
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"
+                                    onClick={() => {
+                                      const newVariants = [...productForm.variants];
+                                      newVariants[index].specifications.splice(specIdx, 1);
+                                      setProductForm({...productForm, variants: newVariants});
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                              {(!variant.specifications || variant.specifications.length === 0) && (
+                                <p className="text-[10px] text-slate-400 italic">No specifications added for this variant.</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 flex gap-3 pt-6 border-t border-slate-100">
                     <Button 
                       type="button" 
                       variant="outline" 

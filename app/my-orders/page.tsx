@@ -48,9 +48,9 @@ export default function MyOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-50 pb-20 pt-32 md:pt-40">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-30">
+      <div className="bg-white border-b border-slate-200 mb-8">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center text-slate-600 hover:text-teal-600 transition-colors">
             <ArrowLeft className="h-5 w-5 mr-2" />

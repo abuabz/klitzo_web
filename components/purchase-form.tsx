@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Script from "next/script"
 import { toast } from "sonner"
 
@@ -18,10 +18,11 @@ interface PurchaseFormProps {
     image: string
   }
   quantity: number
+  initialCashOnDelivery?: boolean
   onClose?: () => void
 }
 
-export default function PurchaseForm({ product, quantity, onClose }: PurchaseFormProps) {
+export default function PurchaseForm({ product, quantity, initialCashOnDelivery, onClose }: PurchaseFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -32,43 +33,55 @@ export default function PurchaseForm({ product, quantity, onClose }: PurchaseFor
     landmark: "",
     pincode: "",
     notes: "",
-    cashOnDelivery: false,
+    isPrepaid: false,
   })
-
+  const [postOffices, setPostOffices] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      const user = JSON.parse(storedUser)
-      setFormData(prev => ({
-        ...prev,
-        name: user.username || "",
-        phone: user.mobile || "",
-      }))
+  const handlePincodeChange = async (value: string) => {
+    handleInputChange("pincode", value)
+    if (value.length === 6) {
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${value}`)
+        const data = await res.json()
+        if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice) {
+          const fetchedPostOffices = data[0].PostOffice.map((po: any) => po.Name)
+          setPostOffices(fetchedPostOffices)
+          if (fetchedPostOffices.length > 0 && !fetchedPostOffices.includes(formData.post)) {
+            handleInputChange("post", fetchedPostOffices[0])
+          }
+          if (data[0].PostOffice[0].District) {
+            handleInputChange("district", data[0].PostOffice[0].District)
+          }
+        } else {
+          setPostOffices([])
+        }
+      } catch (err) {
+        console.error(err)
+        setPostOffices([])
+      }
+    } else {
+      setPostOffices([])
     }
-  }, [])
-
-  const getNumericPrice = (priceStr: string) => {
-    if (!priceStr) return 0
-    return Number.parseFloat(priceStr.replace(/[^0-9.]/g, "")) || 0
   }
 
+
   const handlePurchase = () => {
-    const basePrice = getNumericPrice(product.price) * quantity
-    const totalPrice = (basePrice + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)
+    const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+    const discount = formData.isPrepaid ? 50 : 0
+    const totalPrice = (basePrice - discount).toFixed(2)
 
     const message = `🛒 *KLITZO Product Order*
 
 📦 *Product Details:*
 • Product: ${product.name}
-• Price: ${product.price} each
+• Price: ₹${Number.parseFloat(product.price.replace(/[^\d.]/g, "")).toFixed(2)}
 • Quantity: ${quantity}
-• Cash on Delivery: ${formData.cashOnDelivery ? "Yes (+₹50)" : "No"}
+• Payment Mode: ${formData.isPrepaid ? "Prepaid (-₹50 Discount applied)" : "Standard (Pay on Delivery)"}
 • Total Amount: ₹${totalPrice}
 
 👤 *Customer Details:*
@@ -98,7 +111,7 @@ Thank you! 🙏`
   const handleRazorpayPayment = async () => {
     setIsProcessing(true)
     try {
-      const basePrice = getNumericPrice(product.price) * quantity
+      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
       const totalPrice = basePrice // No COD fee for online payment
 
       // 1. Create order on server
@@ -208,7 +221,7 @@ Thank you! 🙏`
     }
   }
 
-  // All new fields are required
+  // All new fields are required except landmark
   const isFormValid =
     formData.name.trim() !== "" &&
     formData.phone.trim() !== "" &&
@@ -216,7 +229,6 @@ Thank you! 🙏`
     formData.place.trim() !== "" &&
     formData.post.trim() !== "" &&
     formData.district.trim() !== "" &&
-    formData.landmark.trim() !== "" &&
     formData.pincode.trim() !== ""
 
   return (
@@ -227,7 +239,7 @@ Thank you! 🙏`
           <ShoppingCart className="h-6 w-6 text-teal-600" />
           Complete Your Order
         </CardTitle>
-        <p className="text-slate-600">Choose your preferred payment method</p>
+        <p className="text-slate-600">Fill in your details to proceed with WhatsApp order</p>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -243,8 +255,11 @@ Thank you! 🙏`
             <div className="flex-1">
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
-              <p className="text-lg font-bold text-teal-600">
-                Total: ₹{(getNumericPrice(product.price) * quantity + (formData.cashOnDelivery ? 50 : 0)).toFixed(2)}
+              {formData.isPrepaid && (
+                <p className="text-sm text-green-600 font-semibold mt-0.5">Prepaid Discount: -₹50</p>
+              )}
+              <p className="text-lg font-bold text-teal-600 mt-1">
+                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity - (formData.isPrepaid ? 50 : 0)).toFixed(2)}
               </p>
             </div>
           </div>
@@ -266,6 +281,7 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
                 className="mt-1"
+                autoComplete="name"
               />
             </div>
             <div>
@@ -276,7 +292,8 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 placeholder="+91 XXXXX XXXXX"
                 className="mt-1"
-                type="number"
+                type="tel"
+                autoComplete="tel"
               />
             </div>
           </div>
@@ -298,6 +315,20 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 placeholder="Address"
                 className="mt-1"
+                autoComplete="street-address"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pincode">Pin code *</Label>
+              <Input
+                id="pincode"
+                value={formData.pincode}
+                onChange={(e) => handlePincodeChange(e.target.value)}
+                placeholder="e.g., 680001"
+                className="mt-1"
+                type="number"
+                autoComplete="postal-code"
               />
             </div>
 
@@ -313,14 +344,26 @@ Thank you! 🙏`
             </div>
 
             <div>
-              <Label htmlFor="post">Post *</Label>
-              <Input
-                id="post"
-                value={formData.post}
-                onChange={(e) => handleInputChange("post", e.target.value)}
-                placeholder="Post Office"
-                className="mt-1"
-              />
+              <Label htmlFor="post">Post Office *</Label>
+              {postOffices.length > 0 ? (
+                <select
+                  id="post"
+                  value={formData.post}
+                  onChange={(e) => handleInputChange("post", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 mt-1"
+                >
+                  <option value="">Select Post Office</option>
+                  {postOffices.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              ) : (
+                <Input
+                  id="post"
+                  value={formData.post}
+                  onChange={(e) => handleInputChange("post", e.target.value)}
+                  placeholder="Post Office"
+                  className="mt-1"
+                />
+              )}
             </div>
 
             <div>
@@ -331,29 +374,18 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("district", e.target.value)}
                 placeholder="District"
                 className="mt-1"
+                autoComplete="address-level2"
               />
             </div>
 
-            <div>
-              <Label htmlFor="landmark">Landmark *</Label>
+            <div className="md:col-span-2">
+              <Label htmlFor="landmark">Landmark (Optional)</Label>
               <Input
                 id="landmark"
                 value={formData.landmark}
                 onChange={(e) => handleInputChange("landmark", e.target.value)}
                 placeholder="Nearby landmark"
                 className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="pincode">Pin code *</Label>
-              <Input
-                id="pincode"
-                value={formData.pincode}
-                onChange={(e) => handleInputChange("pincode", e.target.value)}
-                placeholder="e.g., 680001"
-                className="mt-1"
-                type="number"
               />
             </div>
           </div>
@@ -370,16 +402,23 @@ Thank you! 🙏`
           </div>
         </div>
 
-        {/* Cash on Delivery */}
-        <div className="flex items-center space-x-2">
+        {/* Prepaid Option */}
+        <div className={`p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-3 ${formData.isPrepaid ? "border-green-500 bg-green-50 shadow-md" : "border-slate-200 bg-white hover:border-green-300"}`} onClick={() => handleInputChange("isPrepaid", !formData.isPrepaid)}>
           <Checkbox
-            id="cashOnDelivery"
-            checked={formData.cashOnDelivery}
-            onCheckedChange={(checked) => handleInputChange("cashOnDelivery", !!checked)}
+            id="isPrepaid"
+            checked={formData.isPrepaid}
+            onCheckedChange={(checked) => handleInputChange("isPrepaid", !!checked)}
+            className="mt-1 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
           />
-          <Label htmlFor="cashOnDelivery" className="text-sm font-medium">
-            Cash on Delivery (+₹50)
-          </Label>
+          <div className="flex-1">
+            <Label htmlFor="isPrepaid" className="text-base font-bold text-green-700 cursor-pointer flex flex-wrap items-center gap-2">
+              Pay Prepaid & Save ₹50!
+              <span className="bg-green-100 text-green-800 text-[10px] uppercase px-2 py-0.5 rounded-full font-bold border border-green-200">Recommended</span>
+            </Label>
+            <p className="text-sm text-slate-600 mt-1 cursor-pointer">
+              Get an instant ₹50 discount on your order by choosing to pay prepaid. We will contact you with payment details.
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -387,7 +426,7 @@ Thank you! 🙏`
           <Button
             onClick={handleRazorpayPayment}
             disabled={!isFormValid || isProcessing}
-            className="flex-1 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="flex-1 bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isProcessing ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -396,28 +435,17 @@ Thank you! 🙏`
             )}
             Pay Online (Prepaid)
           </Button>
-
+          
           <Button
             onClick={handlePurchase}
             disabled={!isFormValid || isProcessing}
             variant="outline"
-            className="flex-1 border-2 border-slate-300 text-slate-700 hover:bg-slate-50 py-6 text-lg rounded-xl transition-all duration-300 disabled:opacity-50"
+            className="flex-1 border-2 border-slate-300 text-slate-700 hover:bg-slate-50 py-3 text-lg rounded-full transition-all duration-300 disabled:opacity-50"
           >
             <MessageCircle className="mr-2 h-5 w-5" />
-            Order on WhatsApp
+            Order via WhatsApp
           </Button>
         </div>
-
-        {onClose && (
-          <div className="flex justify-center">
-            <button
-              onClick={onClose}
-              className="text-slate-500 hover:text-slate-700 text-sm font-medium underline"
-            >
-              Cancel Order
-            </button>
-          </div>
-        )}
 
         <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
           <p>🔒 Your information is secure and will only be used to process your order.</p>

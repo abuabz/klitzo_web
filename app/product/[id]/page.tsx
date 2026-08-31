@@ -3,92 +3,48 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Menu, X, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, User, ShoppingBag } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Sparkles, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import PurchaseForm from "@/components/purchase-form"
-import { toast } from "sonner"
-import { AuthModal } from "@/components/auth-modal"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
-export default function ProductDetailPage() {
+
+export default function ProductPage() {
   const params = useParams()
-  const router = useRouter()
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "register">("login")
   const productId = Number.parseInt(params.id as string)
 
   const [isVisible, setIsVisible] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showPurchaseForm, setShowPurchaseForm] = useState(false)
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    setIsVisible(true)
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    setUser(null)
-    toast.success("Logged out successfully")
-    router.refresh()
-  }
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "prepaid">("cod")
 
   const [product, setProduct] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedVariant, setSelectedVariant] = useState<any>(null)
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true)
-        const res = await fetch(`/api/products?id=${productId}`)
-        const data = await res.json()
-        if (data && !data.error) {
-          setProduct(data)
+    setIsVisible(true)
+    fetch(`/api/products?id=${productId}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Not found")
+        return res.json()
+      })
+      .then(data => {
+        setProduct(data)
+        if (data.variants && data.variants.length > 0) {
+            setSelectedVariant(data.variants[0])
         }
-      } catch (error) {
-        console.error("Error fetching product:", error)
-        toast.error("Failed to load product details")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (!isNaN(productId)) {
-      fetchProduct()
-    } else {
-      setLoading(false)
-    }
+      })
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false))
   }, [productId])
-  
-  const getNumericPrice = (priceStr: string) => {
-    if (!priceStr) return 0
-    return Number.parseFloat(priceStr.replace(/[^0-9.]/g, "")) || 0
-  }
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-600 font-medium">Loading product details...</p>
-        </div>
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div></div>
   }
 
   if (!product) {
@@ -104,12 +60,8 @@ export default function ProductDetailPage() {
     )
   }
 
+
   const handlePurchase = () => {
-    if (!user) {
-      setAuthMode("login")
-      setIsAuthModalOpen(true)
-      return
-    }
     setShowPurchaseForm(true)
   }
 
@@ -121,9 +73,9 @@ export default function ProductDetailPage() {
             <PurchaseForm
               product={{
                 id: product.id,
-                name: product.name,
-                price: product.price,
-                image: (product.images && product.images.length > 0) ? product.images[0] : (product.image || "/placeholder.svg"),
+                name: product.name + (selectedVariant ? ` - ${selectedVariant.size}` : ''),
+                price: selectedVariant?.price || product.price,
+                image: selectedVariant?.image || product.images?.[0] || product.image || "/placeholder.svg",
               }}
               quantity={quantity}
               onClose={() => setShowPurchaseForm(false)}
@@ -132,161 +84,8 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/">
-                <img src="/klitzo-logo.png" alt="KLITZO Logo" className="h-10 w-auto cursor-pointer" />
-              </Link>
-            </div>
-
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link href="/products" className="text-teal-600 px-3 py-2 text-sm font-medium">
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 text-sm font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/products">
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 whitespace-nowrap">
-                  Shop Now
-                </Button>
-              </Link>
-
-              {!user ? (
-                <button
-                  onClick={() => {
-                    setAuthMode("login")
-                    setIsAuthModalOpen(true)
-                  }}
-                  className="text-slate-700 hover:text-teal-600 px-3 py-2 transition-colors duration-300 cursor-pointer"
-                  title="Login"
-                >
-                  <User className="h-5 w-5" />
-                </button>
-              ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="focus:outline-none">
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
-                      <Avatar className="h-7 w-7 border border-teal-200">
-                        <AvatarFallback className="bg-teal-600 text-white text-[10px]">
-                          {(user.username || user.identifier).charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-teal-700 text-xs font-semibold">{user.username || user.identifier}</span>
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 mt-2 rounded-xl shadow-2xl border-slate-100 p-2 overflow-hidden" align="end">
-                    <DropdownMenuLabel className="px-2 py-1.5 text-xs text-slate-400 font-medium uppercase tracking-wider">My Account</DropdownMenuLabel>
-                    <DropdownMenuItem className="rounded-lg focus:bg-teal-50 focus:text-teal-700 cursor-pointer py-2.5">
-                      <Link href="/my-orders" className="flex items-center w-full">
-                        <ShoppingBag className="mr-3 h-4 w-4" />
-                        <span>My Orders</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
-                    <DropdownMenuItem 
-                      onClick={handleLogout}
-                      className="rounded-lg focus:bg-red-50 focus:text-red-600 text-red-500 cursor-pointer py-2.5"
-                    >
-                      <div className="flex items-center w-full">
-                        <X className="mr-3 h-4 w-4" />
-                        <span>Log out</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-slate-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-300"
-              >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-
-          {isMobileMenuOpen && (
-            <div className="md:hidden backdrop-blur-md bg-white/20 border-t border-white/20 rounded-b-lg mt-2">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link
-                  href="/"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Home
-                </Link>
-                <Link href="/products" className="text-teal-600 block px-3 py-2 text-base font-medium">
-                  Products
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                >
-                  Contact
-                </Link>
-                {!user ? (
-                  <button
-                    onClick={() => {
-                      setAuthMode("login")
-                      setIsAuthModalOpen(true)
-                    }}
-                    className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left flex items-center gap-2 cursor-pointer"
-                  >
-                    <User className="h-5 w-5" /> Login
-                  </button>
-                ) : (
-                  <>
-                    <Link
-                      href="/my-orders"
-                      className="text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300"
-                    >
-                      My Orders
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="text-red-500 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left"
-                    >
-                      Log out
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <section className="pt-24 pb-6 px-4 bg-slate-50">
+      {/* Product Details Section */}
+      <section className="pt-40 pb-6 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center space-x-2 text-sm text-slate-600">
             <Link href="/" className="hover:text-teal-600 transition-colors">
@@ -316,31 +115,39 @@ export default function ProductDetailPage() {
               className={`transform transition-all duration-1000 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"}`}
             >
               <div className="space-y-4">
-                <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
-                  <img
-                    src={(product.images && product.images[selectedImage]) || (product.image || "/placeholder.svg")}
-                    alt={product.name}
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-                <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-                  {(product.images || []).map((image: string, index: number) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedImage === index
-                        ? "border-teal-500 shadow-lg"
-                        : "border-slate-200 hover:border-slate-300"
-                        }`}
-                    >
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-full h-full object-contain p-2"
-                      />
-                    </button>
-                  ))}
-                </div>
+                {(() => {
+                  const displayImages = selectedVariant?.images?.length > 0 ? selectedVariant.images : (product.images || []);
+                  
+                  return (
+                    <>
+                      <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
+                        <img
+                          src={(selectedImage === -1 ? selectedVariant?.image : (displayImages[selectedImage])) || selectedVariant?.image || product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+                        {displayImages.map((image: string, index: number) => (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedImage(index)}
+                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedImage === index
+                              ? "border-teal-500 shadow-lg"
+                              : "border-slate-200 hover:border-slate-300"
+                              }`}
+                          >
+                            <img
+                              src={image || "/placeholder.svg"}
+                              alt={`${product.name} ${index + 1}`}
+                              className="w-full h-full object-contain p-2"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
 
@@ -352,30 +159,87 @@ export default function ProductDetailPage() {
                   {product.inStock && <Badge className="bg-green-100 text-green-800">In Stock</Badge>}
                 </div>
 
+                {product.variants && product.variants.length > 0 && (
+                  <div className="space-y-3 pb-2 border-b border-slate-100 mb-4">
+                    <h3 className="text-lg text-slate-800">
+                      Size: <span className="font-bold">{selectedVariant?.size || "Standard"}</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {product.variants.map((variant: any, idx: number) => {
+                        const isSelected = selectedVariant?.sku === variant.sku || selectedVariant?.size === variant.size
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => {
+                              setSelectedVariant(variant)
+                              if (variant.images && variant.images.length > 0) {
+                                setSelectedImage(0);
+                              } else if (variant.image) {
+                                const imgIdx = product.images?.indexOf(variant.image)
+                                if (imgIdx !== -1 && imgIdx !== undefined) {
+                                    setSelectedImage(imgIdx)
+                                } else {
+                                    setSelectedImage(-1)
+                                }
+                              } else {
+                                setSelectedImage(0); // Default to global cover if no variant image
+                              }
+                            }}
+                            className={`border-2 rounded-xl p-3 cursor-pointer transition-all duration-200 bg-white hover:shadow-md ${
+                              isSelected ? "border-blue-600 shadow-sm" : "border-slate-200 hover:border-slate-300"
+                            } flex flex-col min-w-[140px]`}
+                          >
+                            <div className="h-16 w-full mb-2 flex items-center justify-center bg-transparent rounded-lg">
+                              <img
+                                src={variant.images?.[0] || variant.image || product.images?.[0] || product.image || "/placeholder.svg"}
+                                alt={variant.size}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
+                            <div className="text-sm font-semibold text-slate-800">
+                              {variant.size || variant.sku}
+                            </div>
+                            <div className="text-sm font-bold text-slate-800 mt-1">₹{variant.price}</div>
+                            {variant.originalPrice && (
+                              <div className="text-xs text-slate-400 line-through">₹{variant.originalPrice}</div>
+                            )}
+                            {variant.stock > 0 ? (
+                              <div className="text-xs text-green-600 font-medium mt-1">In stock</div>
+                            ) : (
+                              <div className="text-xs text-red-500 font-medium mt-1">Out of stock</div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
 
-                  <div className="flex items-center flex-wrap gap-2 sm:gap-4">
-                    <span className="text-3xl font-bold text-teal-600">{product.price}</span>
-                    {product.originalPrice && (
-                      <span className="text-xl text-slate-400 line-through">{product.originalPrice}</span>
-                    )}
-                    {product.originalPrice && (
-                      <Badge className="bg-red-100 text-red-800">
-                        Save ₹
-                        {(
-                          getNumericPrice(product.originalPrice) - getNumericPrice(product.price)
-                        ).toFixed(2)}
-                      </Badge>
-                    )}
-                    {/* @ts-ignore */}
-                    {product.specialOffer && (
-                      <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
-                        Special Offer: {product.specialOffer}
-                      </Badge>
-                    )}
-                  </div>
+                <div className="flex items-center flex-wrap gap-2 sm:gap-4">
+                  <span className="text-3xl font-bold text-teal-600">
+                    ₹{Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")).toFixed(2)}
+                  </span>
+                  {(selectedVariant?.originalPrice || product.originalPrice) && (
+                    <span className="text-xl text-slate-400 line-through">₹{selectedVariant?.originalPrice || product.originalPrice}</span>
+                  )}
+                  {(selectedVariant?.originalPrice || product.originalPrice) && (
+                    <Badge className="bg-red-100 text-red-800">
+                      Save ₹
+                      {(
+                        Number.parseFloat(String(selectedVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, "")) - Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, ""))
+                      ).toFixed(2)}
+                    </Badge>
+                  )}
+                  {product.specialOffer && (
+                    <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
+                      Special Offer: {product.specialOffer}
+                    </Badge>
+                  )}
+                </div>
 
-                <p className="text-lg text-slate-600 leading-relaxed">{product.description}</p>
+                <p className="text-lg text-slate-600 leading-relaxed pt-2">{product.description}</p>
 
                 <div className="space-y-3">
                   <h3 className="text-xl font-semibold text-slate-800">Key Features:</h3>
@@ -409,6 +273,8 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
+
+
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       onClick={handlePurchase}
@@ -416,7 +282,8 @@ export default function ProductDetailPage() {
                       className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       <ShoppingCart className="mr-2 h-5 w-5" />
-                      Buy Now - ₹{(getNumericPrice(product.price) * quantity).toFixed(2)}
+                      Buy Now - ₹
+                      {(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
                     </Button>
                     {/* <Button
                       variant="outline"
@@ -452,13 +319,13 @@ export default function ProductDetailPage() {
                         <span className="font-medium  text-sm ">100% Money-Back Guarantee within 5-Days</span>
                       </div>
                       <div className="flex items-center text-teal-800 bg-blue-50 p-3 rounded-lg">
-                        <Clock className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">Free Shipping on prepaid orders</span>
+                        <Truck className="h-5 w-5 mr-2" />
+                        <span className="font-medium text-sm ">All India Free Delivery</span>
                       </div>
-                      <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
+                      {/* <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
                         <ShoppingCart className="h-5 w-5 mr-2" />
                         <span className="font-medium text-sm ">₹50 COD Fee for Cash on Delivery</span>
-                      </div>
+                      </div> */}
                     </div>
                   )}
                 </div>
@@ -470,129 +337,108 @@ export default function ProductDetailPage() {
 
       <section className="py-8 md:py-12 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto">
-          {/* Full Width Description Section */}
-          <div className="mb-8">
-            <Card className="p-6 md:p-10 border-0 shadow-sm bg-white overflow-hidden relative">
-              <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-teal-500 to-blue-600"></div>
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                Product Description
-              </h3>
-              <div className="grid md:grid-cols-3 gap-8 md:gap-12">
-                <div className="md:col-span-2">
-                  <p className="text-slate-600 leading-relaxed text-lg text-justify mb-8">
-                    {product.longDescription}
-                  </p>
-                </div>
-                <div className="bg-slate-50 rounded-2xl p-6">
-                  <h4 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-teal-600" />
-                    Key Highlights
-                  </h4>
-                  <div className="space-y-3">
-                    {(product.features || []).map((feature: string, index: number) => (
-                      <div key={index} className="flex items-start">
-                        <div className="mt-1.5 mr-3">
-                           <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
-                        </div>
-                        <span className="text-slate-700 text-sm font-medium">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Secondary Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
-            <Card className="p-6 border-0 shadow-sm bg-white">
-              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100 flex items-center gap-2">
-                Specifications
-              </h3>
-              <div className="space-y-4">
-                {Object.entries(product.specifications || {}).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-b-0 group">
-                    <span className="text-sm font-semibold text-slate-500 group-hover:text-teal-600 transition-colors uppercase tracking-wider text-[10px]">{key}</span>
-                    <span className="text-sm font-bold text-slate-700">{String(value)}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-sm bg-white">
-              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">How to Use</h3>
-              <div className="space-y-4">
-                {(product.howToUse || []).map((step: string, index: number) => (
-                  <div key={index} className="flex gap-4 items-start group">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold group-hover:bg-teal-600 group-hover:text-white transition-all duration-300">
-                      {index + 1}
-                    </div>
-                    <p className="text-slate-600 text-sm leading-relaxed">{step}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-sm bg-white">
-              <h3 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">Safety & Usage</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
+              <p className="text-slate-600 leading-relaxed mb-6 text-justify">{product.longDescription}</p>
               <div className="space-y-3">
-                {(product.safetyAndUsageNotes || []).map((note: string, index: number) => (
-                  <div key={index} className="flex items-start gap-3 bg-red-50/30 p-3 rounded-xl border border-red-100/20">
-                    <div className="h-1.5 w-1.5 rounded-full bg-red-400 mt-2 flex-shrink-0"></div>
-                    <p className="text-slate-600 text-sm italic">{note}</p>
+                <h4 className="text-lg font-semibold text-slate-800">All Features:</h4>
+                {(product.features || []).map((feature: string, index: number) => (
+                  <div key={index} className="flex items-start">
+                    <Sparkles className="h-5 w-5 text-teal-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-700">{feature}</span>
                   </div>
                 ))}
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Specifications</h3>
+              <div className="space-y-4">
+                {(() => {
+                  const parseSpecs = (specs: any): Record<string, string> => {
+                    if (!specs) return {};
+                    if (Array.isArray(specs)) {
+                      return specs.reduce((acc, spec) => {
+                        const key = spec.key || spec.name;
+                        if (key) acc[key] = String(spec.value || '');
+                        return acc;
+                      }, {});
+                    }
+                    if (typeof specs === 'object') {
+                      return Object.fromEntries(Object.entries(specs).map(([k, v]) => [k, String(v)]));
+                    }
+                    if (typeof specs === 'string') {
+                      try {
+                        const parsed = JSON.parse(specs);
+                        return Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, String(v)]));
+                      } catch (e) {
+                        return { "Raw Data": specs };
+                      }
+                    }
+                    return {};
+                  };
+
+                  const commonSpecs = parseSpecs(product.specifications);
+                  const variantSpecs = parseSpecs(selectedVariant?.specifications);
+                  const combinedSpecs = { ...commonSpecs, ...variantSpecs };
+                  const entries = Object.entries(combinedSpecs);
+
+                  if (entries.length === 0) {
+                    return <div className="text-slate-500 italic">No specifications available.</div>;
+                  }
+
+                  return entries.map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-2 border-b border-slate-200 last:border-b-0">
+                      <span className="font-medium text-slate-700">{key}:</span>
+                      <span className="text-teal-600">{String(value)}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </Card>
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">How to Use</h3>
+              <div className="space-y-2 text-slate-600">
+                <ol className="list-decimal pl-5 space-y-1">
+                  <li>Shake the bottle well before use.</li>
+                  <li>Spray or apply directly onto the surface to be cleaned.</li>
+                  <li>Wait for 2-3 minutes to allow the formula to penetrate the stains.</li>
+                  <li>Scrub gently if needed, then wipe clean with a cloth or rinse with water.</li>
+                </ol>
               </div>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            <Card className="p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 border-0 text-white shadow-xl lg:col-span-1">
-              <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                Application Guide
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {(product.applicationGuide || []).map((app: string, index: number) => (
-                  <div key={index} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl hover:bg-white/10 transition-colors border border-white/5">
-                    <div className="p-2 rounded-lg bg-teal-500/20">
-                      <Sparkles className="h-4 w-4 text-teal-400" />
-                    </div>
-                    <span className="text-slate-200 text-sm font-medium">{app}</span>
-                  </div>
-                ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-8">
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Safety & Usage Notes</h3>
+              <div className="space-y-2 text-slate-600">
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Keep out of reach of children and pets.</li>
+                  <li>Avoid contact with eyes. In case of contact, rinse thoroughly with plenty of water.</li>
+                  <li>Do not mix with other cleaning chemicals or acids.</li>
+                  <li>Store in a cool, dry place away from direct sunlight.</li>
+                </ul>
               </div>
             </Card>
-            
-            {/* Trust Badges in the remaining slot */}
-            <div className="flex flex-col gap-4">
-                <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm flex items-center gap-6 border border-slate-100">
-                    <div className="p-4 bg-green-50 rounded-2xl">
-                        <LucideFolderSync className="h-8 w-8 text-green-600" />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-slate-800 text-lg">Money-Back Guarantee</h4>
-                        <p className="text-slate-500 text-sm">Full refund if you are not satisfied within 5 days.</p>
-                    </div>
-                </div>
-                <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm flex items-center gap-6 border border-slate-100">
-                    <div className="p-4 bg-blue-50 rounded-2xl">
-                        <Clock className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-slate-800 text-lg">Fast Free Shipping</h4>
-                        <p className="text-slate-500 text-sm">On all prepaid orders across India.</p>
-                    </div>
-                </div>
-            </div>
+
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Application Guide</h3>
+              <div className="space-y-2 text-slate-600">
+                <ul className="list-none space-y-1">
+                  <li><span className="text-teal-500 mr-2">•</span> Ideal for ceramic tiles, bathroom fittings, and floors.</li>
+                  <li><span className="text-teal-500 mr-2">•</span> Safe to use on glass, stainless steel, and sealed surfaces.</li>
+                  <li><span className="text-teal-500 mr-2">•</span> Always test on a small, inconspicuous area first.</li>
+                  <li><span className="text-teal-500 mr-2">•</span> For tough stains, leave the solution on for up to 5 minutes before scrubbing.</li>
+                </ul>
+              </div>
+            </Card>
+
+
           </div>
         </div>
       </section>
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-        initialMode={authMode}
-        onSuccess={(newUser) => setUser(newUser)}
-      />
     </div>
   )
 }
