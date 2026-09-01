@@ -131,9 +131,6 @@ export default function Header() {
                 </button>
               )}
 
-              <Link href="/cart" className="text-slate-700 hover:text-teal-600 p-2 transition-colors duration-300 cursor-pointer" title="Cart">
-                <ShoppingCart className="h-5 w-5" />
-              </Link>
 
               <Link href="/products">
                 <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">

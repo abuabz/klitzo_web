@@ -117,6 +117,23 @@ export default function AdminPage() {
     });
   };
 
+  const uploadImageAndGetUrl = async (file: File): Promise<string> => {
+    try {
+      const base64Image = await compressImage(file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64Image }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Upload failed");
+      return data.url;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
   const handleSort = () => {
     if (dragItemIndex === null || dragOverItemIndex === null) return;
     const newImages = [...productForm.images];
@@ -510,7 +527,39 @@ export default function AdminPage() {
           display: none !important;
         }
       `}</style>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Mobile Bottom Nav */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 flex justify-around p-2 pb-safe">
+        <button 
+          onClick={() => setActiveTab("orders")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'orders' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <ShoppingBag className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Orders</span>
+        </button>
+        <button 
+          onClick={() => setActiveTab("products")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'products' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <Package className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Products</span>
+        </button>
+        <button 
+          onClick={() => setActiveTab("customers")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'customers' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <Users className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Customers</span>
+        </button>
+        <button 
+          onClick={handleLogout}
+          className="flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors text-red-400 hover:bg-red-50"
+        >
+          <LogOut className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Logout</span>
+        </button>
+      </div>
+
       {/* Sidebar Nav */}
       <div className="fixed left-0 top-0 h-full w-64 bg-slate-900 text-white p-6 hidden lg:block border-r border-slate-800 shadow-xl z-30">
         <div className="flex items-center gap-3 mb-10 pb-6 border-b border-slate-800">
@@ -550,7 +599,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <main className="lg:ml-64 p-4 md:p-8 min-h-screen">
+      <main className="lg:ml-64 p-4 md:p-8 min-h-screen pb-24 lg:pb-8 flex-1">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -558,12 +607,12 @@ export default function AdminPage() {
             </h1>
             <p className="text-slate-500">Manage your business operations and data</p>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="relative group">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto">
+             <div className="relative group flex-grow sm:flex-grow-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                 <Input 
                   placeholder="Search globally..." 
-                  className="pl-10 h-10 w-64 bg-white border-slate-200 rounded-full focus:ring-teal-500"
+                  className="pl-10 h-10 w-full sm:w-64 bg-white border-slate-200 rounded-full focus:ring-teal-500"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -890,8 +939,8 @@ export default function AdminPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-8 overflow-y-auto">
-                <form onSubmit={handleProductSubmit} className="grid grid-cols-2 gap-6">
-                  <div className="col-span-2 space-y-2">
+                <form onSubmit={handleProductSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Product Name</label>
                     <Input 
                       value={productForm.name}
@@ -904,12 +953,18 @@ export default function AdminPage() {
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Category</label>
                     <Input 
+                      list="categories-list"
                       value={productForm.category}
                       onChange={(e) => setProductForm({...productForm, category: e.target.value})}
                       placeholder="e.g. Cleaning"
                       className="bg-slate-50 border-slate-200 rounded-xl h-12"
                       required
                     />
+                    <datalist id="categories-list">
+                      {Array.from(new Set(products.map(p => p.category).filter(Boolean))).map(cat => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Selling Price (Offer Price) ₹</label>
@@ -942,7 +997,7 @@ export default function AdminPage() {
                       className="bg-slate-50 border-slate-200 rounded-xl h-12"
                     />
                   </div>
-                  <div className="col-span-2 space-y-2">
+                  <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Product Images (Drag to reorder - First image is cover)</label>
                     <div className="flex flex-col gap-4">
                       <Input 
@@ -954,8 +1009,8 @@ export default function AdminPage() {
                             try {
                               const newImages = [...productForm.images];
                               for (let i = 0; i < e.target.files.length; i++) {
-                                const compressed = await compressImage(e.target.files[i]);
-                                newImages.push(compressed);
+                                const uploadedUrl = await uploadImageAndGetUrl(e.target.files[i]);
+                                newImages.push(uploadedUrl);
                               }
                               setProductForm({...productForm, images: newImages});
                             } catch (err) {
@@ -998,8 +1053,8 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
-                  <div className="col-span-2 space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Short Description</label>
+                  <div className="col-span-1 md:col-span-2 space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Small Description (For Product Cards)</label>
                     <textarea 
                       value={productForm.description}
                       onChange={(e) => setProductForm({...productForm, description: e.target.value})}
@@ -1007,7 +1062,7 @@ export default function AdminPage() {
                       placeholder="Deep cleaning formula for..."
                     />
                   </div>
-                  <div className="col-span-2 space-y-2">
+                  <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Long Description</label>
                     <textarea 
                       value={productForm.longDescription}
@@ -1026,7 +1081,7 @@ export default function AdminPage() {
                     />
                   </div>
                   {/* Specifications Section (Common) */}
-                  <div className="col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                  <div className="col-span-1 md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex justify-between items-center">
                       <h4 className="text-sm font-bold text-slate-800">Common Specifications (Applies to all variants)</h4>
                       <Button 
@@ -1093,7 +1148,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* Variants Section */}
-                  <div className="col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                  <div className="col-span-1 md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex justify-between items-center">
                       <h4 className="text-sm font-bold text-slate-800">Product Variants (SKUs)</h4>
                       <Button 
@@ -1183,7 +1238,7 @@ export default function AdminPage() {
                                 placeholder="100" className="h-9 text-sm bg-white" 
                               />
                             </div>
-                            <div className="col-span-2 space-y-1">
+                            <div className="col-span-1 md:col-span-2 space-y-1">
                               <label className="text-[10px] font-bold uppercase text-slate-500">Variant Images (Multiple) - First is cover</label>
                               <div className="flex flex-col gap-3">
                                 <Input 
@@ -1196,8 +1251,8 @@ export default function AdminPage() {
                                         const newVariants = [...productForm.variants];
                                         const newImages = [...(newVariants[index].images || [])];
                                         for (let i = 0; i < e.target.files.length; i++) {
-                                          const compressed = await compressImage(e.target.files[i]);
-                                          newImages.push(compressed);
+                                          const uploadedUrl = await uploadImageAndGetUrl(e.target.files[i]);
+                                          newImages.push(uploadedUrl);
                                         }
                                         newVariants[index].images = newImages;
                                         setProductForm({...productForm, variants: newVariants});
@@ -1306,7 +1361,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="col-span-2 flex gap-3 pt-6 border-t border-slate-100">
+                  <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100">
                     <Button 
                       type="button" 
                       variant="outline" 

@@ -144,7 +144,7 @@ export default function KlitzoLanding() {
                               <h3 className="text-sm sm:text-base font-bold text-slate-800 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2 min-h-[2.5rem] leading-snug">
                                 {product.name}
                               </h3>
-                              <p className="text-slate-500 text-xs mb-3 line-clamp-2">
+                              <p className="text-slate-500 text-xs mb-3 line-clamp-2 min-h-[2rem]">
                                 {product.description}
                               </p>
 
@@ -161,11 +161,11 @@ export default function KlitzoLanding() {
                             <div className="flex flex-col gap-3 mt-auto pt-2 border-t border-slate-100">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Badge className="bg-slate-800 text-white text-sm px-3 py-1 shadow-sm">
-                                  {product.price}
+                                  {String(product.price).includes('₹') ? product.price : `₹${product.price}`}
                                 </Badge>
                                 {product.originalPrice && (
                                   <span className="text-slate-400 line-through text-xs font-medium">
-                                    {product.originalPrice}
+                                    {String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`}
                                   </span>
                                 )}
                               </div>
@@ -222,11 +222,11 @@ export default function KlitzoLanding() {
                         <div className="flex flex-col gap-2 mt-auto pt-1 border-t border-slate-100">
                           <div className="flex items-center gap-1 flex-wrap">
                             <span className="text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded">
-                              {product.price}
+                              {String(product.price).includes('₹') ? product.price : `₹${product.price}`}
                             </span>
                             {product.originalPrice && (
                               <span className="text-[9px] text-slate-400 line-through font-medium">
-                                {product.originalPrice}
+                                {String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`}
                               </span>
                             )}
                           </div>
@@ -321,8 +321,8 @@ export default function KlitzoLanding() {
                               </h3>
 
                               <div className="flex items-center justify-center gap-2 sm:gap-3 w-full my-1">
-                                <span className="text-base sm:text-lg lg:text-xl font-extrabold text-teal-600">{product.price}</span>
-                                <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice}</span>
+                                <span className="text-base sm:text-lg lg:text-xl font-extrabold text-teal-600">{String(product.price).includes('₹') ? product.price : `₹${product.price}`}</span>
+                                <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice ? (String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`) : ''}</span>
                               </div>
 
                               <Link href={`/product/${product.id}`} className="w-full mt-auto block">

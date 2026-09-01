@@ -139,7 +139,7 @@ export default function ProductsPage() {
                   <h3 className="text-base font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition-colors line-clamp-1">
                     {product.name}
                   </h3>
-                  <p className="text-slate-600 text-xs mb-3 line-clamp-2">{product.description}</p>
+                  <p className="text-slate-600 text-xs mb-3 line-clamp-2 min-h-[2rem]">{product.description}</p>
 
                   <div className="space-y-1 mb-3">
                     {product.features.slice(0, 2).map((feature, idx) => (
@@ -153,10 +153,10 @@ export default function ProductsPage() {
                   <div className="flex flex-col gap-3 mt-auto pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Badge className="bg-slate-800 text-white px-3 py-1 text-sm shadow-sm">
-                        {product.price}
+                        {String(product.price).includes('₹') ? product.price : `₹${product.price}`}
                       </Badge>
                       {product.originalPrice && (
-                        <span className="text-slate-400 line-through text-xs font-medium">{product.originalPrice}</span>
+                        <span className="text-slate-400 line-through text-xs font-medium">{String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`}</span>
                       )}
                     </div>
                     <Link href={`/product/${product.id}`} className="block w-full">
