@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2, ShoppingBag } from "lucide-react"
-import { useState } from "react"
+import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2, ShoppingBag, X } from "lucide-react"
+import { useState, useEffect } from "react"
 import Script from "next/script"
 import { toast } from "sonner"
 
@@ -37,6 +37,26 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   })
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+
+  // Auto-fill logged in user info
+  useEffect(() => {
+    try {
+      const savedUserStr = localStorage.getItem("user");
+      if (savedUserStr) {
+        const savedUser = JSON.parse(savedUserStr);
+        if (savedUser) {
+          setFormData(prev => ({
+            ...prev,
+            name: savedUser.username || savedUser.name || prev.name,
+            phone: savedUser.mobile || prev.phone,
+          }));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse user from local storage", e);
+    }
+  }, []);
 
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -100,12 +120,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       }
 
       toast.success("Order placed successfully!");
-      
-      // Open my-orders in a new tab
-      window.open("/my-orders", "_blank");
-      if (onClose) {
-        onClose()
-      }
+      setIsSuccess(true);
     } catch (error) {
       console.error(error);
       toast.error("Failed to process order. Please try again.");
@@ -167,37 +182,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
 
           if (verifyData.success) {
             toast.success("Payment successful!")
-            // Construct message for WhatsApp after successful payment
-            const message = `🛒 *KLITZO Paid Order*
-
-✅ *Payment Status: PAID*
-🆔 *Payment ID: ${response.razorpay_payment_id}*
-
-📦 *Product Details:*
-• Product: ${product.name}
-• Price: ${product.price} each
-• Quantity: ${quantity}
-• Total Amount: ₹${totalPrice.toFixed(2)}
-
-👤 *Customer Details:*
-• Name: ${formData.name}
-• Phone: ${formData.phone}
-
-📍 *Delivery Address:*
-• Address: ${formData.address}
-• Place: ${formData.place}
-• Post: ${formData.post}
-• District: ${formData.district}
-• Landmark: ${formData.landmark}
-• PIN Code: ${formData.pincode}
-
-${formData.notes ? `📝 *Additional Notes:*\n${formData.notes}\n\n` : ""}Payment has been completed online. Please process the delivery.
-
-Thank you! 🙏`
-
-            const whatsappUrl = `https://wa.me/918111813853?text=${encodeURIComponent(message)}`
-            window.open(whatsappUrl, "_blank")
-            if (onClose) onClose()
+            setIsSuccess(true)
           } else {
             toast.error("Payment verification failed. Please contact support.")
           }
@@ -237,10 +222,59 @@ Thank you! 🙏`
     formData.district.trim() !== "" &&
     formData.pincode.trim() !== ""
 
+  if (isSuccess) {
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 6);
+    const dateString = deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    
+    return (
+      <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-2xl">
+        <CardHeader className="text-center relative bg-gradient-to-b from-teal-50 to-white pb-8 pt-12 border-b border-teal-100">
+          {onClose && (
+            <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-4 top-4 text-teal-700 hover:bg-teal-100">
+              <X className="h-5 w-5" />
+            </Button>
+          )}
+          <div className="mx-auto w-24 h-24 bg-teal-500 text-white flex items-center justify-center rounded-full mb-6 ring-8 ring-teal-50 shadow-lg shadow-teal-200">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <CardTitle className="text-4xl font-black text-slate-800 tracking-tight">
+            Order Confirmed!
+          </CardTitle>
+          <p className="text-teal-700 font-medium mt-3 text-lg">Thank you for your purchase.</p>
+        </CardHeader>
+        <CardContent className="space-y-8 pt-10 pb-12 px-8 text-center bg-white">
+          <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-blue-500"></div>
+            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Expected Delivery</h3>
+            <p className="text-2xl font-black text-slate-800">{dateString}</p>
+          </div>
+          
+          <Button 
+            className="w-full bg-slate-900 hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
+            onClick={() => {
+               window.open("/my-orders", "_blank");
+               if (onClose) onClose();
+            }}
+          >
+            Track My Order
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
-      <CardHeader className="text-center">
+      <CardHeader className="text-center relative">
+        {onClose && (
+          <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+            <X className="h-5 w-5" />
+          </Button>
+        )}
         <CardTitle className="text-2xl font-bold text-slate-800 flex items-center justify-center gap-2">
           <ShoppingCart className="h-6 w-6 text-teal-600" />
           Complete Your Order
@@ -342,6 +376,7 @@ Thank you! 🙏`
               <Label htmlFor="place">Place *</Label>
               <Input
                 id="place"
+                autoComplete="address-level2"
                 value={formData.place}
                 onChange={(e) => handleInputChange("place", e.target.value)}
                 placeholder="Village / Town / Area"
@@ -380,7 +415,7 @@ Thank you! 🙏`
                 onChange={(e) => handleInputChange("district", e.target.value)}
                 placeholder="District"
                 className="mt-1"
-                autoComplete="address-level2"
+                autoComplete="address-level1"
               />
             </div>
 

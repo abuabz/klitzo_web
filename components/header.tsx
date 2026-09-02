@@ -73,9 +73,11 @@ export default function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className={`bg-gradient-to-r from-teal-600 to-blue-600 text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center gap-2 shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
-        <Truck className="h-4 w-4 sm:h-5 sm:w-5" />
-        All India Free Delivery !
+      <div className={`bg-gradient-to-r from-teal-600 via-blue-500 to-teal-600 bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
+        <div className="flex items-center gap-2 animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+          <Truck className="h-4 w-4 sm:h-5 sm:w-5 animate-bounce" style={{ animationDuration: '2s' }} />
+          <span className="uppercase tracking-widest text-xs sm:text-sm">All India Free Delivery</span>
+        </div>
       </div>
 
       {/* Navigation */}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
@@ -20,11 +20,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'klitzo', url: 'https://klitzo.com' }],
   creator: 'klitzo',
   publisher: 'klitzo',
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
   icons: {
     icon: '/klitzo-logoletter.png',
     shortcut: '//klitzo-logoletter.png',
@@ -59,7 +54,16 @@ export const metadata: Metadata = {
     creator: '@klitzo',
     images: ['/klitzo-logoletter.png'],
   },
-}
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+};
 
 import { GoogleProvider } from '@/components/google-provider'
 

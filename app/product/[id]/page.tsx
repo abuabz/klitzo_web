@@ -68,8 +68,8 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen bg-white">
       {showPurchaseForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99] p-4">
-          <div className="max-h-[90vh] overflow-y-auto ">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99] p-4" onClick={() => setShowPurchaseForm(false)}>
+          <div className="max-h-[90vh] overflow-y-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
             <PurchaseForm
               product={{
                 id: product.id,
@@ -322,10 +322,10 @@ export default function ProductPage() {
                         <Truck className="h-5 w-5 mr-2" />
                         <span className="font-medium text-sm ">All India Free Delivery</span>
                       </div>
-                      {/* <div className="flex items-center text-teal-800 bg-yellow-50 p-3 rounded-lg">
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">₹50 COD Fee for Cash on Delivery</span>
-                      </div> */}
+                      <div className="flex items-center text-amber-800 bg-amber-50 p-3 rounded-lg">
+                        <Clock className="h-5 w-5 mr-2" />
+                        <span className="font-medium text-sm ">Delivery within 7 days</span>
+                      </div>
                     </div>
                   )}
                 </div>
