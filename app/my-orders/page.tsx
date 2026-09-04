@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2 } from "lucide-react"
+import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2, Copy } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -231,6 +232,34 @@ export default function MyOrdersPage() {
                        </div>
                     </div>
                   </div>
+
+                  {order.trackingId && (
+                    <div className="mx-6 mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 shrink-0">
+                          <Truck className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-teal-800 uppercase tracking-wider mb-0.5">India Post Tracking ID</p>
+                          <p className="text-sm font-medium text-slate-700">{order.trackingId}</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="border-teal-200 text-teal-700 hover:bg-teal-100 shrink-0"
+                        onClick={() => {
+                          navigator.clipboard.writeText(order.trackingId);
+                          toast.success("Tracking ID copied! Redirecting to India Post...");
+                          setTimeout(() => {
+                            window.open("https://www.indiapost.gov.in/#trackandtrace", "_blank");
+                          }, 1000);
+                        }}
+                      >
+                        <Copy className="h-4 w-4 mr-2" /> Copy & Track
+                      </Button>
+                    </div>
+                  )}
                   
                   <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <span className="text-xs text-slate-400 font-medium">{order.razorpayPaymentId ? `Payment ID: ${order.razorpayPaymentId}` : "Payment Mode: Cash on Delivery"}</span>

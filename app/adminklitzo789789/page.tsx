@@ -54,6 +54,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("orders")
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
   const [showProductModal, setShowProductModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<any>(null)
   const [productForm, setProductForm] = useState({
@@ -223,6 +224,26 @@ export default function AdminPage() {
     localStorage.removeItem("user")
     setIsAdmin(false)
     router.push("/")
+  }
+
+  const updateTrackingId = async (orderId: string, trackingId: string) => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+    try {
+      const res = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, trackingId, adminEmail: user.email }),
+      })
+      if (res.ok) {
+        toast.success(`Tracking ID updated`)
+        fetchData()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || "Failed to update tracking ID")
+      }
+    } catch (error) {
+      toast.error("Error updating tracking ID")
+    }
   }
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
@@ -769,6 +790,24 @@ export default function AdminPage() {
                                 </div>
                               </div>
                             )}
+                            <div className="space-y-2">
+                              <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><Truck className="h-3 w-3" /> Tracking Information</h4>
+                              <div className="text-sm text-slate-700 bg-blue-50 p-3 rounded-xl border border-blue-100 flex items-center gap-2">
+                                <Input 
+                                  placeholder="e.g. India Post XY123..." 
+                                  value={trackingInputs[order._id] !== undefined ? trackingInputs[order._id] : (order.trackingId || '')}
+                                  onChange={(e) => setTrackingInputs(prev => ({ ...prev, [order._id]: e.target.value }))}
+                                  className="h-8 text-sm bg-white"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  className="h-8 shrink-0 bg-blue-600 hover:bg-blue-700 text-white"
+                                  onClick={() => updateTrackingId(order._id, trackingInputs[order._id] !== undefined ? trackingInputs[order._id] : (order.trackingId || ''))}
+                                >
+                                  Save
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                       </TableRow>

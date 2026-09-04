@@ -34,8 +34,14 @@ const OrderSchema = new mongoose.Schema(
     },
     notes: String,
     quantity: { type: Number, default: 1 },
+    trackingId: String,
   },
   { timestamps: true }
 );
+
+// Clear the model from mongoose if it doesn't have trackingId to handle hot reloads
+if (mongoose.models.Order && !mongoose.models.Order.schema.paths.trackingId) {
+  delete mongoose.models.Order;
+}
 
 export default mongoose.models.Order || mongoose.model("Order", OrderSchema);

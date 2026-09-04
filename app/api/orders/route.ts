@@ -81,9 +81,9 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { orderId, status, adminEmail } = await request.json();
+    const { orderId, status, trackingId, adminEmail } = await request.json();
 
-    if (!orderId || !status || !adminEmail) {
+    if (!orderId || !adminEmail) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -95,7 +95,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+    const updateData: any = {};
+    if (status !== undefined) updateData.status = status;
+    if (trackingId !== undefined) updateData.trackingId = trackingId;
+
+    const order = await Order.findByIdAndUpdate(orderId, updateData, { new: true });
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
