@@ -35,6 +35,7 @@ const OrderSchema = new mongoose.Schema(
     notes: String,
     quantity: { type: Number, default: 1 },
     trackingId: String,
+    isPrinted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

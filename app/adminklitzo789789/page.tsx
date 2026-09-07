@@ -31,7 +31,9 @@ import {
   MapPin,
   Phone,
   MessageCircle,
-  Upload
+  Upload,
+  Settings as SettingsIcon,
+  Printer
 } from "lucide-react"
 
 import {
@@ -70,6 +72,16 @@ export default function AdminPage() {
   const [uploadingExcel, setUploadingExcel] = useState(false)
   const [uploadSummary, setUploadSummary] = useState<any>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+  const [globalSettings, setGlobalSettings] = useState<any>({
+    fromName: "",
+    fromAddress: "",
+    fromMobile: "",
+    customerId: "",
+    contractId: ""
+  })
+  const [savingSettings, setSavingSettings] = useState(false)
+
   const [productForm, setProductForm] = useState({
     name: "",
     price: "",
@@ -170,6 +182,21 @@ export default function AdminPage() {
     setVariantDragOverItem(null);
   };
 
+  const fetchSettings = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      if (user.email) {
+        const res = await fetch(`/api/admin/settings?adminEmail=${user.email}`)
+        if (res.ok) {
+          const data = await res.json()
+          setGlobalSettings(data)
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch settings", e)
+    }
+  }
+
   const fetchData = async () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}")
     if (!user.isAdmin) return
@@ -203,6 +230,7 @@ export default function AdminPage() {
     if (user.isAdmin) {
       setIsAdmin(true)
       fetchData()
+      fetchSettings()
     }
   }, [])
 
@@ -272,6 +300,53 @@ export default function AdminPage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
       }
+    }
+  }
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true)
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...globalSettings, adminEmail: user.email }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success("Settings saved successfully!")
+      } else {
+        toast.error(data.error || "Failed to save settings")
+      }
+    } catch (e) {
+      toast.error("Error saving settings")
+    } finally {
+      setSavingSettings(false)
+    }
+  }
+
+  const handlePrintSelected = () => {
+    if (selectedOrders.length === 0) return
+    window.open(`/adminklitzo789789/print?ids=${selectedOrders.join(",")}`, "_blank")
+    // Also mark them as printed
+    markOrdersAsPrinted(selectedOrders)
+  }
+
+  const markOrdersAsPrinted = async (ids: string[]) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const res = await fetch("/api/orders/mark-printed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderIds: ids, adminEmail: user.email }),
+      })
+      if (res.ok) {
+        setOrders(orders.map(o => ids.includes(o._id) ? { ...o, isPrinted: true } : o))
+        setSelectedOrders([])
+        toast.success("Orders marked as printed")
+      }
+    } catch (e) {
+      console.error("Failed to mark as printed", e)
     }
   }
 
@@ -622,6 +697,13 @@ export default function AdminPage() {
           <span className="text-[10px] font-bold">Customers</span>
         </button>
         <button 
+          onClick={() => setActiveTab("settings")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'settings' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <SettingsIcon className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Settings</span>
+        </button>
+        <button 
           onClick={handleLogout}
           className="flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors text-red-400 hover:bg-red-50"
         >
@@ -655,6 +737,12 @@ export default function AdminPage() {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'customers' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
             <Users className="h-5 w-5" /> Customers List
+          </button>
+          <button 
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'settings' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+          >
+            <SettingsIcon className="h-5 w-5" /> Print Settings
           </button>
         </nav>
 
@@ -739,7 +827,21 @@ export default function AdminPage() {
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
-                    <TableHead className="font-bold text-slate-800 py-6">Order ID</TableHead>
+                    <TableHead className="w-[50px] py-6 px-4">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                        checked={orders.length > 0 && selectedOrders.length === orders.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedOrders(orders.map(o => o._id))
+                          } else {
+                            setSelectedOrders([])
+                          }
+                        }}
+                      />
+                    </TableHead>
+                    <TableHead className="font-bold text-slate-800">Order ID</TableHead>
                     <TableHead className="font-bold text-slate-800">Customer</TableHead>
                     <TableHead className="font-bold text-slate-800">Product</TableHead>
                     <TableHead className="font-bold text-slate-800">Payment</TableHead>
@@ -761,9 +863,30 @@ export default function AdminPage() {
                       }`}
                       onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)}
                     >
+                      <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                        <input 
+                          type="checkbox" 
+                          className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                          checked={selectedOrders.includes(order._id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedOrders([...selectedOrders, order._id])
+                            } else {
+                              setSelectedOrders(selectedOrders.filter(id => id !== order._id))
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell className="py-6">
-                        <span className="font-mono text-xs text-slate-400 group-hover:text-teal-600 transition-colors font-bold tracking-tighter">
-                          #{order.razorpayOrderId?.slice(-8) || order._id.slice(-6)}
+                        <span className="flex flex-col gap-1">
+                          <span className="font-mono text-xs text-slate-400 group-hover:text-teal-600 transition-colors font-bold tracking-tighter">
+                            #{order.razorpayOrderId?.slice(-8) || order._id.slice(-6)}
+                          </span>
+                          {order.isPrinted && (
+                            <Badge variant="outline" className="w-max px-1.5 py-0 text-[9px] bg-slate-100 text-slate-500 border-slate-200 uppercase flex items-center gap-1">
+                              <Printer className="w-3 h-3" /> Printed
+                            </Badge>
+                          )}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -801,9 +924,18 @@ export default function AdminPage() {
                               <ChevronDown className="h-3 w-3 opacity-50" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-lg border-slate-100">
-                            <DropdownMenuLabel className="text-xs text-slate-500 uppercase tracking-wider font-bold">Update Status</DropdownMenuLabel>
+                          <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
+                            <DropdownMenuLabel className="text-xs font-black text-slate-400 uppercase tracking-wider px-2">Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-slate-100" />
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                window.open(`/adminklitzo789789/print?ids=${order._id}`, "_blank")
+                                markOrdersAsPrinted([order._id])
+                              }}
+                              className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-50 font-medium text-slate-600 flex items-center gap-2"
+                            >
+                              <Printer className="h-4 w-4" /> Print Label
+                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => updateOrderStatus(order._id, "Paid")}
                               className="cursor-pointer text-teal-600 hover:text-teal-700 hover:bg-teal-50 focus:text-teal-700 focus:bg-teal-50 rounded-lg py-2 my-1"
@@ -1028,6 +1160,51 @@ export default function AdminPage() {
               </Table>
             </CardContent>
           </Card>
+        ) : activeTab === 'settings' ? (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                  <Printer className="w-5 h-5 text-teal-600" />
+                  Print Settings
+                </CardTitle>
+                <CardDescription>
+                  Configure the default labels that will be printed for bulk orders.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">From Name</label>
+                  <Input value={globalSettings.fromName} onChange={(e) => setGlobalSettings({...globalSettings, fromName: e.target.value})} placeholder="e.g. KLITZO" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">From Address</label>
+                  <Input value={globalSettings.fromAddress} onChange={(e) => setGlobalSettings({...globalSettings, fromAddress: e.target.value})} placeholder="e.g. AL JASEERA TRADE CITY..." />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700">From Mobile</label>
+                  <Input value={globalSettings.fromMobile} onChange={(e) => setGlobalSettings({...globalSettings, fromMobile: e.target.value})} placeholder="Mobile Number" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">Customer ID</label>
+                    <Input value={globalSettings.customerId} onChange={(e) => setGlobalSettings({...globalSettings, customerId: e.target.value})} placeholder="e.g. 1683565443" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">Contract ID</label>
+                    <Input value={globalSettings.contractId} onChange={(e) => setGlobalSettings({...globalSettings, contractId: e.target.value})} placeholder="e.g. 41132043" />
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleSaveSettings}
+                  disabled={savingSettings}
+                  className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
+                >
+                  {savingSettings ? "Saving..." : "Save Settings"}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         ) : null}
 
         {/* Product Modal */}
@@ -1505,6 +1682,107 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      {/* Upload Summary Dialog */}
+      <Dialog open={!!uploadSummary} onOpenChange={(open) => !open && setUploadSummary(null)}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Upload Summary</DialogTitle>
+            <DialogDescription>
+              {uploadSummary?.updatedCount} orders were successfully matched and updated.
+            </DialogDescription>
+          </DialogHeader>
+
+          {uploadSummary?.pincodeMismatches?.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-bold uppercase text-amber-600 mb-2 tracking-wider flex items-center gap-2">
+                <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
+                  {uploadSummary.pincodeMismatches.length}
+                </Badge>
+                Pincode Mismatches (Updated)
+              </h3>
+              <p className="text-xs text-slate-500 mb-2">These orders matched by name, but the pincode differed. The tracking ID was still applied, but please double-check them.</p>
+              <div className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer Name</TableHead>
+                      <TableHead>Tracking Code</TableHead>
+                      <TableHead>File Pincode</TableHead>
+                      <TableHead>DB Pincode</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {uploadSummary.pincodeMismatches.map((m: any, i: number) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium text-slate-800">{m.receiverName}</TableCell>
+                        <TableCell className="font-mono text-xs">{m.trackingCode}</TableCell>
+                        <TableCell className="text-red-500 line-through">{m.filePin}</TableCell>
+                        <TableCell className="text-green-600">{m.dbPin}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {uploadSummary?.unmatched?.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-sm font-bold uppercase text-red-600 mb-2 tracking-wider flex items-center gap-2">
+                <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                  {uploadSummary.unmatched.length}
+                </Badge>
+                Unmatched Rows (Skipped)
+              </h3>
+              <p className="text-xs text-slate-500 mb-2">These rows could not be matched with any active order and were skipped.</p>
+              <div className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer Name</TableHead>
+                      <TableHead>Tracking Code</TableHead>
+                      <TableHead>Pincode</TableHead>
+                      <TableHead>Reason</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {uploadSummary.unmatched.map((u: any, i: number) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium text-slate-800">{u.receiverName}</TableCell>
+                        <TableCell className="font-mono text-xs">{u.trackingCode}</TableCell>
+                        <TableCell>{u.destPin}</TableCell>
+                        <TableCell className="text-xs text-red-500">{u.reason}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="mt-6">
+            <Button onClick={() => setUploadSummary(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sticky Bulk Action Bar */}
+      {selectedOrders.length > 0 && activeTab === 'orders' && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-6 z-50 animate-in slide-in-from-bottom-10 border border-slate-700">
+          <span className="font-medium text-sm">
+            <span className="text-teal-400 font-bold">{selectedOrders.length}</span> orders selected
+          </span>
+          <div className="w-px h-6 bg-slate-700" />
+          <Button 
+            onClick={handlePrintSelected}
+            className="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-full h-9 px-6 flex items-center gap-2"
+          >
+            <Printer className="w-4 h-4" />
+            Print Selected
+          </Button>
+        </div>
+      )}
       </div>
     </>
   )
