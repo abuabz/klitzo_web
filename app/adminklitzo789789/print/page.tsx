@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 
-export default function PrintPage() {
+function PrintContent() {
   const searchParams = useSearchParams()
   const idsParam = searchParams.get("ids")
   const ids = idsParam ? idsParam.split(",") : []
@@ -177,5 +177,13 @@ export default function PrintPage() {
         </div>
       ))}
     </>
+  )
+}
+
+export default function PrintPage() {
+  return (
+    <Suspense fallback={<div className="p-10 font-mono text-center">Loading printing interface...</div>}>
+      <PrintContent />
+    </Suspense>
   )
 }
