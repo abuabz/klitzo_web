@@ -30,7 +30,8 @@ import {
   Download,
   MapPin,
   Phone,
-  MessageCircle
+  MessageCircle,
+  Upload
 } from "lucide-react"
 
 import {
@@ -41,6 +42,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
+} from "@/components/ui/dialog"
 
 export default function AdminPage() {
   const [mounted, setMounted] = useState(false)
@@ -57,6 +67,9 @@ export default function AdminPage() {
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
   const [showProductModal, setShowProductModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [uploadingExcel, setUploadingExcel] = useState(false)
+  const [uploadSummary, setUploadSummary] = useState<any>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [productForm, setProductForm] = useState({
     name: "",
     price: "",
@@ -224,6 +237,42 @@ export default function AdminPage() {
     localStorage.removeItem("user")
     setIsAdmin(false)
     router.push("/")
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingExcel(true)
+    const toastId = toast.loading("Uploading and processing Excel file...")
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("adminEmail", user.email)
+
+    try {
+      const res = await fetch("/api/orders/import-tracking", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        setUploadSummary(data)
+        fetchData()
+        toast.success(`Successfully added tracking IDs to ${data.updatedCount} orders!`, { id: toastId })
+      } else {
+        toast.error(data.error || "Failed to upload file", { id: toastId })
+      }
+    } catch (error) {
+      toast.error("Error processing file upload", { id: toastId })
+    } finally {
+      setUploadingExcel(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
   }
 
   const updateTrackingId = async (orderId: string, trackingId: string) => {
@@ -641,11 +690,30 @@ export default function AdminPage() {
              <Button 
               onClick={fetchData} 
               variant="outline" 
-      size="icon" 
+              size="icon" 
               className="rounded-full hover:bg-teal-50"
              >
                <RefreshCw className={`h-4 w-4 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
              </Button>
+             {activeTab === 'orders' && (
+               <>
+                 <input 
+                   type="file" 
+                   accept=".xls,.xlsx" 
+                   className="hidden" 
+                   ref={fileInputRef} 
+                   onChange={handleFileUpload} 
+                 />
+                 <Button 
+                   onClick={() => fileInputRef.current?.click()} 
+                   disabled={uploadingExcel}
+                   className="rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                 >
+                   {uploadingExcel ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                   {uploadingExcel ? "Uploading..." : "Upload Post Office Excel"}
+                 </Button>
+               </>
+             )}
              {activeTab === 'products' && (
                <Button 
                  onClick={() => openProductModal()}
@@ -674,6 +742,7 @@ export default function AdminPage() {
                     <TableHead className="font-bold text-slate-800 py-6">Order ID</TableHead>
                     <TableHead className="font-bold text-slate-800">Customer</TableHead>
                     <TableHead className="font-bold text-slate-800">Product</TableHead>
+                    <TableHead className="font-bold text-slate-800">Payment</TableHead>
                     <TableHead className="font-bold text-slate-800">Amount</TableHead>
                     <TableHead className="font-bold text-slate-800">Status</TableHead>
                     <TableHead className="font-bold text-slate-800 text-right">Actions</TableHead>
@@ -683,7 +752,13 @@ export default function AdminPage() {
                   {orders.map((order) => (
                     <React.Fragment key={order._id}>
                     <TableRow 
-                      className="group border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors"
+                      className={`group border-slate-50 cursor-pointer transition-colors ${
+                        order.status === 'completed' 
+                          ? 'bg-green-50/60 hover:bg-green-100/60' 
+                          : order.trackingId 
+                            ? 'bg-blue-50/60 hover:bg-blue-100/60' 
+                            : 'hover:bg-slate-50'
+                      }`}
                       onClick={() => setExpandedOrderId(expandedOrderId === order._id ? null : order._id)}
                     >
                       <TableCell className="py-6">
@@ -698,6 +773,13 @@ export default function AdminPage() {
                         </div>
                       </TableCell>
                       <TableCell className="font-medium text-slate-600">{order.productName}</TableCell>
+                      <TableCell>
+                        {order.razorpayPaymentId ? (
+                          <Badge variant="outline" className="border-teal-200 text-teal-700 bg-teal-50">Prepaid</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-amber-200 text-amber-700 bg-amber-50">COD</Badge>
+                        )}
+                      </TableCell>
                       <TableCell className="font-black text-slate-900">₹{order.amount}</TableCell>
                       <TableCell>
                         <Badge className={`${getStatusColor(order.status)} border rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
