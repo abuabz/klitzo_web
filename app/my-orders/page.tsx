@@ -156,15 +156,32 @@ export default function MyOrdersPage() {
                         </div>
                       </div>
 
-                      <div>
+                      <div className="flex flex-col h-full">
                         <p className="text-sm font-semibold text-slate-800 mb-3 flex items-center">
-                          <CreditCard className="h-4 w-4 mr-2 text-teal-600" /> Delivery To
+                          <Truck className="h-4 w-4 mr-2 text-teal-600" /> Delivery To
                         </p>
-                        <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl italic">
+                        <div className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl italic mb-3 flex-1">
                           {order.shippingAddress?.name}, {order.shippingAddress?.phone} <br />
                           {order.shippingAddress?.address}, {order.shippingAddress?.place} <br />
                           {order.shippingAddress?.district}, {order.shippingAddress?.pincode}
                         </div>
+                        {order.status.toLowerCase() !== 'completed' && order.status.toLowerCase() !== 'failed' && (
+                          <div className="flex items-center gap-2 text-sm text-slate-700 bg-teal-50 p-3 rounded-xl border border-teal-100">
+                            <Calendar className="h-4 w-4 text-teal-600 shrink-0" />
+                            <span>Expected Delivery: <strong>
+                              {(() => {
+                                const deliveryDate = new Date(order.createdAt);
+                                deliveryDate.setDate(deliveryDate.getDate() + 6);
+                                return deliveryDate.toLocaleDateString('en-IN', {
+                                  weekday: 'long',
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                });
+                              })()}
+                            </strong></span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
