@@ -93,7 +93,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   const handlePurchase = async () => {
     setIsProcessing(true);
     try {
-      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity;
+      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity;
       const discount = formData.isPrepaid ? 50 : 0;
       const totalPrice = (basePrice - discount).toFixed(2);
 
@@ -132,7 +132,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   const handleRazorpayPayment = async () => {
     setIsProcessing(true)
     try {
-      const basePrice = Number.parseFloat(product.price.slice(1)) * quantity
+      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity
       const totalPrice = basePrice // No COD fee for online payment
 
       // 1. Create order on server
@@ -299,7 +299,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
                 <p className="text-sm text-green-600 font-semibold mt-0.5">Prepaid Discount: -₹50</p>
               )}
               <p className="text-lg font-bold text-teal-600 mt-1">
-                Total: ₹{(Number.parseFloat(product.price.slice(1)) * quantity - (formData.isPrepaid ? 50 : 0)).toFixed(2)}
+                Total: ₹{(Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity - (formData.isPrepaid ? 50 : 0)).toFixed(2)}
               </p>
             </div>
           </div>
