@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import PurchaseForm from "@/components/purchase-form"
+import { AuthModal } from "@/components/auth-modal"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
@@ -20,6 +21,7 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showPurchaseForm, setShowPurchaseForm] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "prepaid">("cod")
 
   const [product, setProduct] = useState<any>(null)
@@ -62,11 +64,25 @@ export default function ProductPage() {
 
 
   const handlePurchase = () => {
+    const storedUser = localStorage.getItem("user")
+    if (!storedUser) {
+      setShowAuthModal(true)
+      return
+    }
     setShowPurchaseForm(true)
   }
 
   return (
     <div className="min-h-screen bg-white">
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        onSuccess={() => {
+          setShowAuthModal(false)
+          setShowPurchaseForm(true)
+        }}
+      />
+
       {showPurchaseForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99] p-4" onClick={() => setShowPurchaseForm(false)}>
           <div className="max-h-[90vh] overflow-y-auto w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
