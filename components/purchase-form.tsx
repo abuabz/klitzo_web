@@ -223,9 +223,13 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     formData.pincode.trim() !== ""
 
   if (isSuccess) {
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 6);
-    const dateString = deliveryDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 3);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 6);
+    
+    const formatOpts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    const dateString = `${startDate.toLocaleDateString('en-IN', formatOpts)} to ${endDate.toLocaleDateString('en-IN', { ...formatOpts, year: 'numeric' })}`;
     
     return (
       <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-2xl">
@@ -248,7 +252,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         <CardContent className="space-y-8 pt-10 pb-12 px-8 text-center bg-white">
           <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-400 to-blue-500"></div>
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Expected Delivery</h3>
+            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Delivery within 3 to 6 days</h3>
             <p className="text-2xl font-black text-slate-800">{dateString}</p>
           </div>
           

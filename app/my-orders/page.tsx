@@ -168,16 +168,15 @@ export default function MyOrdersPage() {
                         {order.status.toLowerCase() !== 'completed' && order.status.toLowerCase() !== 'failed' && (
                           <div className="flex items-center gap-2 text-sm text-slate-700 bg-teal-50 p-3 rounded-xl border border-teal-100">
                             <Calendar className="h-4 w-4 text-teal-600 shrink-0" />
-                            <span>Expected Delivery: <strong>
+                            <span>Delivery within 3 to 6 days: <strong>
                               {(() => {
-                                const deliveryDate = new Date(order.createdAt);
-                                deliveryDate.setDate(deliveryDate.getDate() + 6);
-                                return deliveryDate.toLocaleDateString('en-IN', {
-                                  weekday: 'long',
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric'
-                                });
+                                const startDate = new Date(order.createdAt);
+                                startDate.setDate(startDate.getDate() + 3);
+                                const endDate = new Date(order.createdAt);
+                                endDate.setDate(endDate.getDate() + 6);
+                                
+                                const formatOpts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+                                return `${startDate.toLocaleDateString('en-IN', formatOpts)} to ${endDate.toLocaleDateString('en-IN', { ...formatOpts, year: 'numeric' })}`;
                               })()}
                             </strong></span>
                           </div>
