@@ -29,8 +29,22 @@ export default function Header() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login")
 
   useEffect(() => {
+    let lastScrollY = window.scrollY
+    
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40)
+      if (window.scrollY > 40) {
+        if (window.scrollY > lastScrollY) {
+          // Scrolling down
+          setIsScrolled(true)
+        } else {
+          // Scrolling up
+          setIsScrolled(false)
+        }
+      } else {
+        // At the top
+        setIsScrolled(false)
+      }
+      lastScrollY = window.scrollY
     }
     window.addEventListener("scroll", handleScroll)
     
@@ -73,7 +87,7 @@ export default function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className={`bg-gradient-to-r from-teal-600 via-blue-500 to-teal-600 bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
+      <div className={`print:hidden bg-gradient-to-r from-teal-600 via-blue-500 to-teal-600 bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] text-white text-center py-2 px-4 fixed top-0 w-full z-[60] text-sm sm:text-base font-bold tracking-wide flex justify-center items-center shadow-md transition-transform duration-300 ${isScrolled ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="flex items-center gap-2 animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
           <Truck className="h-4 w-4 sm:h-5 sm:w-5 animate-bounce" style={{ animationDuration: '2s' }} />
           <span className="uppercase tracking-widest text-xs sm:text-sm">All India Free Delivery</span>
@@ -81,7 +95,7 @@ export default function Header() {
       </div>
 
       {/* Navigation */}
-      <nav className={`fixed left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full transition-all duration-300 ${isScrolled ? "top-0 mt-4" : "top-10 md:top-10 mt-2 sm:mt-4"}`}>
+      <nav className={`print:hidden fixed left-0 right-0 z-50 backdrop-blur-md bg-black/10 border-b border-white/20 shadow-lg m-4 rounded-sm md:rounded-full transition-all duration-300 ${isScrolled ? "top-0 mt-4" : "top-10 md:top-10 mt-2 sm:mt-4"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
