@@ -248,11 +248,7 @@ export default function ProductPage() {
                       ).toFixed(2)}
                     </Badge>
                   )}
-                  {product.specialOffer && (
-                    <Badge className="bg-yellow-100 text-yellow-800 animate-pulse">
-                      Special Offer: {product.specialOffer}
-                    </Badge>
-                  )}
+
                 </div>
 
                 <p className="text-lg text-slate-600 leading-relaxed pt-2">{product.description}</p>

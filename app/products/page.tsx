@@ -122,12 +122,7 @@ export default function ProductsPage() {
                       ).toFixed(2)}
                     </Badge>
                   )}
-                  {/* @ts-ignore */}
-                  {product.specialOffer && (
-                    <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-bold shadow-md z-10">
-                      PREPAID: {product.specialOffer}
-                    </Badge>
-                  )}
+
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <Link href={`/product/${product.id}`}>
                     <Button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 scale-75 group-hover:scale-90">

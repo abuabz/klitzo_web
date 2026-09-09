@@ -126,11 +126,7 @@ export default function KlitzoLanding() {
                                 SALE
                               </Badge>
                             )}
-                            {product.specialOffer && (
-                              <Badge className="absolute top-4 right-4 bg-yellow-400 text-black text-[10px] font-bold shadow-md z-10 border border-yellow-500">
-                                PREPAID: {product.specialOffer}
-                              </Badge>
-                            )}
+
                             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
                               <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg shadow-teal-500/30">
@@ -205,11 +201,7 @@ export default function KlitzoLanding() {
                             SALE
                           </Badge>
                         )}
-                        {product.specialOffer && (
-                          <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] font-bold shadow-md z-10 border border-yellow-500">
-                            PREPAID: {product.specialOffer}
-                          </Badge>
-                        )}
+
                       </div>
 
                       <CardContent className="p-3 flex flex-col flex-grow justify-between gap-2">
@@ -302,11 +294,7 @@ export default function KlitzoLanding() {
                           <Card className="group bg-white/95 backdrop-blur-xl border-0 py-0 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 rounded-2xl overflow-hidden h-full flex flex-col gap-0">
                             {/* Product Image */}
                             <div className="relative bg-gradient-to-b from-teal-50/50 to-blue-50/30 h-36 sm:h-48 overflow-hidden flex-shrink-0 p-3 sm:p-5">
-                              {product.specialOffer && (
-                                <Badge className="absolute top-2 right-2 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold shadow-md z-10 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-sm sm:rounded-md border border-yellow-500">
-                                  PREPAID: {product.specialOffer}
-                                </Badge>
-                              )}
+
                               <img
                                 src={product.image}
                                 alt={product.name}
