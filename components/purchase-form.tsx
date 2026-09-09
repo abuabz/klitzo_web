@@ -227,10 +227,10 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     startDate.setDate(startDate.getDate() + 3);
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 6);
-    
+
     const formatOpts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
     const dateString = `${startDate.toLocaleDateString('en-IN', formatOpts)} to ${endDate.toLocaleDateString('en-IN', { ...formatOpts, year: 'numeric' })}`;
-    
+
     return (
       <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-2xl">
         <CardHeader className="text-center relative bg-gradient-to-b from-teal-50 to-white pb-8 pt-12 border-b border-teal-100">
@@ -255,12 +255,12 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Delivery within 3 to 6 days</h3>
             <p className="text-2xl font-black text-slate-800">{dateString}</p>
           </div>
-          
-          <Button 
+
+          <Button
             className="w-full bg-slate-900 hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
             onClick={() => {
-               window.open("/my-orders", "_blank");
-               if (onClose) onClose();
+              window.open("/my-orders", "_blank");
+              if (onClose) onClose();
             }}
           >
             Track My Order
