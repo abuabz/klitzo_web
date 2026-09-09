@@ -38,7 +38,7 @@ export default function ProductPage() {
       .then(data => {
         setProduct(data)
         if (data.variants && data.variants.length > 0) {
-            setSelectedVariant(data.variants[0])
+          setSelectedVariant(data.variants[0])
         }
       })
       .catch(err => console.error(err))
@@ -74,9 +74,9 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
         onSuccess={() => {
           setShowAuthModal(false)
           setShowPurchaseForm(true)
@@ -133,7 +133,7 @@ export default function ProductPage() {
               <div className="space-y-4">
                 {(() => {
                   const displayImages = selectedVariant?.images?.length > 0 ? selectedVariant.images : (product.images || []);
-                  
+
                   return (
                     <>
                       <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
@@ -184,8 +184,8 @@ export default function ProductPage() {
                       {product.variants.map((variant: any, idx: number) => {
                         const isSelected = selectedVariant?.sku === variant.sku || selectedVariant?.size === variant.size
                         return (
-                          <div 
-                            key={idx} 
+                          <div
+                            key={idx}
                             onClick={() => {
                               setSelectedVariant(variant)
                               if (variant.images && variant.images.length > 0) {
@@ -193,17 +193,16 @@ export default function ProductPage() {
                               } else if (variant.image) {
                                 const imgIdx = product.images?.indexOf(variant.image)
                                 if (imgIdx !== -1 && imgIdx !== undefined) {
-                                    setSelectedImage(imgIdx)
+                                  setSelectedImage(imgIdx)
                                 } else {
-                                    setSelectedImage(-1)
+                                  setSelectedImage(-1)
                                 }
                               } else {
                                 setSelectedImage(0); // Default to global cover if no variant image
                               }
                             }}
-                            className={`border-2 rounded-xl p-3 cursor-pointer transition-all duration-200 bg-white hover:shadow-md ${
-                              isSelected ? "border-blue-600 shadow-sm" : "border-slate-200 hover:border-slate-300"
-                            } flex flex-col min-w-[140px]`}
+                            className={`border-2 rounded-xl p-3 cursor-pointer transition-all duration-200 bg-white hover:shadow-md ${isSelected ? "border-blue-600 shadow-sm" : "border-slate-200 hover:border-slate-300"
+                              } flex flex-col min-w-[140px]`}
                           >
                             <div className="h-16 w-full mb-2 flex items-center justify-center bg-transparent rounded-lg">
                               <img
@@ -336,7 +335,7 @@ export default function ProductPage() {
                       </div>
                       <div className="flex items-center text-amber-800 bg-amber-50 p-3 rounded-lg">
                         <Clock className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">Delivery within 7 days</span>
+                        <span className="font-medium text-sm ">Delivery within 3 to 6 days</span>
                       </div>
                     </div>
                   )}
