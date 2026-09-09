@@ -363,7 +363,7 @@ export default function KlitzoLanding() {
                     <span className="text-teal-400 font-semibold text-xs sm:text-sm">Save ₹949</span>
                   </div>
                 </div>
-                <Link href="/product/8" className="inline-block mt-4 w-full sm:w-auto">
+                <Link href="/product/6" className="inline-block mt-4 w-full sm:w-auto">
                   <Button size="lg" className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white rounded-full py-6 px-8 sm:px-10 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 font-bold text-base sm:text-lg w-full group">
                     <ShoppingCart className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6 group-hover:scale-110 transition-transform" />
                     Grab the Deal Now
