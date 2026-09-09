@@ -117,9 +117,9 @@ export default function InvoicePage() {
               </div>
               <div className="text-left md:text-right print:text-right space-y-1 print:space-y-1 text-sm print:text-sm">
                 <p className="text-xl font-bold print:text-xl text-white mb-2">Klitzo India</p>
-                <p className="text-slate-400 print:text-slate-300">Industrial Area, MG Road</p>
-                <p className="text-slate-400 print:text-slate-300">Thrissur, Kerala - 680001</p>
-                <p className="text-slate-400 print:text-slate-300">contact@klitzo.com</p>
+                <p className="text-slate-400 print:text-slate-300">Inkel City, Malappuram</p>
+                <p className="text-slate-400 print:text-slate-300">Kerala, India - 676519</p>
+                <p className="text-slate-400 print:text-slate-300">klitzo.info@gmail.com</p>
                 <p className="text-white font-bold mt-2 hover:text-white print:mt-2">+91 8111813853</p>
               </div>
             </div>
@@ -161,7 +161,7 @@ export default function InvoicePage() {
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 print:mb-2 print:text-[9px]">Summary</h3>
                 <div className="space-y-4 print:space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500 print:text-[10px]">Subtotal</span>
+                    <span className="text-slate-500 print:text-[10px]">Sub total</span>
                     <span className="font-bold text-slate-800 print:text-[10px]">₹{order.amount}</span>
                   </div>
                   <div className="flex justify-between items-center text-teal-600 font-bold text-xl pt-4 border-t border-slate-200 print:pt-2 print:text-sm">
@@ -212,7 +212,7 @@ export default function InvoicePage() {
 
             {/* Footer */}
             <div className="mt-8 pt-8 border-t border-slate-100 print:mt-4 print:pt-4 invoice-footer">
-              
+
               {/* Terms and Conditions Section Moved to Bottom */}
               <div className="mb-8 print:mb-4">
                 <h4 className="font-bold text-slate-800 text-sm mb-2 print:text-[10px] print:mb-1">Terms & Conditions</h4>
