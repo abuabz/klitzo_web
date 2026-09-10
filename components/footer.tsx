@@ -92,16 +92,6 @@ export default function Footer() {
                     Contact
                   </Link>
                 </li>
-                <li>
-                  <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-300 hover:text-teal-400 transition-colors duration-300">
-                    Support
-                  </a>
-                </li>
               </ul>
             </div>
 
@@ -212,7 +202,7 @@ export default function Footer() {
           <div className="border-t border-slate-700 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-slate-400 text-sm">© 2024 KLITZO. All rights reserved. | Cleaning Made Simple</p>
-              <div className="flex space-x-6 text-sm">
+              {/* <div className="flex space-x-6 text-sm">
                 <a href="#" className="text-slate-400 hover:text-teal-400 transition-colors duration-300">
                   Privacy Policy
                 </a>
@@ -222,7 +212,7 @@ export default function Footer() {
                 <a href="#" className="text-slate-400 hover:text-teal-400 transition-colors duration-300">
                   Cookie Policy
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
