@@ -171,11 +171,11 @@ export default function Header() {
                     <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors max-w-[150px]">
                       <Avatar className="h-7 w-7 border border-teal-200 shrink-0">
                         <AvatarFallback className="bg-teal-600 text-white text-[10px]">
-                          {(user.username || user.identifier).charAt(0).toUpperCase()}
+                          {(user.username || user.identifier || user.mobile || "U").charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-teal-700 text-xs font-semibold truncate">
-                        {(user.username || user.identifier).split(' ')[0]}
+                        {(user.username || user.identifier || user.mobile || "User").split(' ')[0]}
                       </span>
                     </div>
                   </DropdownMenuTrigger>

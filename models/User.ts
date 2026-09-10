@@ -4,12 +4,14 @@ const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "Please provide a username"],
+      required: false,
+      sparse: true,
       unique: true,
     },
     email: {
       type: String,
-      required: [true, "Please provide an email"],
+      required: false,
+      sparse: true,
       unique: true,
     },
     mobile: {
@@ -34,8 +36,8 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Clear the model from mongoose if it doesn't have authProvider to handle hot reloads
-if (mongoose.models.User && !mongoose.models.User.schema.paths.authProvider) {
+// Clear the model from mongoose to handle hot reloads during development
+if (mongoose.models.User) {
   delete mongoose.models.User;
 }
 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Mail, Phone, Lock, ArrowRight, Loader2, LogIn, Sparkles, CheckCircle2 } from "lucide-react"
+import { User, Mail, Phone, Lock, ArrowRight, Loader2, LogIn, Sparkles, CheckCircle2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { GoogleLogin } from "@react-oauth/google"
@@ -34,11 +34,14 @@ export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess
   })
 
   const [registerData, setRegisterData] = useState({
-    username: "",
-    email: "",
     mobile: "",
     password: "",
+    confirmPassword: "",
   })
+
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value })
@@ -83,6 +86,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess
     
     if (!/^\d{10}$/.test(registerData.mobile)) {
       toast.error("Mobile number must be exactly 10 digits")
+      return
+    }
+
+    if (registerData.password !== registerData.confirmPassword) {
+      toast.error("Passwords do not match")
       return
     }
 
@@ -153,16 +161,16 @@ export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-slate-100/80 p-1 rounded-xl sm:rounded-2xl h-10 sm:h-12 mb-4 sm:mb-8">
                 <TabsTrigger
-                  value="login"
-                  className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm transition-all duration-300 font-semibold"
-                >
-                  <LogIn className="h-4 w-4 mr-2" /> Login
-                </TabsTrigger>
-                <TabsTrigger
                   value="register"
                   className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm transition-all duration-300 font-semibold"
                 >
                   <User className="h-4 w-4 mr-2" /> Register
+                </TabsTrigger>
+                <TabsTrigger
+                  value="login"
+                  className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm transition-all duration-300 font-semibold"
+                >
+                  <LogIn className="h-4 w-4 mr-2" /> Login
                 </TabsTrigger>
               </TabsList>
 
@@ -199,17 +207,24 @@ export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess
                       <button type="button" className="text-[10px] sm:text-xs font-semibold text-teal-600 hover:text-teal-700 transition-colors">Forgot?</button>
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-3 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                      <Lock className="absolute left-4 top-3 sm:top-4 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                       <Input
                         id="password"
                         name="password"
-                        type="password"
+                        type={showLoginPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="pl-12 h-10 sm:h-12 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm sm:text-base"
+                        className="pl-12 pr-12 h-10 sm:h-12 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm sm:text-base"
                         required
                         value={loginData.password}
                         onChange={handleLoginChange}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-4 top-3 sm:top-4 text-slate-400 hover:text-teal-500 transition-colors focus:outline-none"
+                      >
+                        {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
 
@@ -224,76 +239,72 @@ export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess
               </TabsContent>
 
               <TabsContent value="register" className="mt-0">
-                <form onSubmit={handleRegister} className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="username" className="text-slate-700 font-bold ml-1 text-[11px] sm:text-sm">Username</Label>
-                      <div className="relative group">
-                        <User className="absolute left-4 top-2.5 sm:top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                        <Input
-                          id="username"
-                          name="username"
-                          placeholder="johndoe"
-                          className="pl-12 h-9 sm:h-11 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm"
-                          required
-                          value={registerData.username}
-                          onChange={handleRegisterChange}
-                        />
-                      </div>
+                <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile" className="text-slate-700 font-bold ml-1 text-sm">Mobile Number</Label>
+                    <div className="relative group">
+                      <Phone className="absolute left-4 top-3 sm:top-4 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                      <Input
+                        id="mobile"
+                        name="mobile"
+                        type="tel"
+                        pattern="\d{10}"
+                        title="Mobile number must be exactly 10 digits"
+                        maxLength={10}
+                        placeholder="9876543210"
+                        className="pl-12 h-10 sm:h-12 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm sm:text-base"
+                        required
+                        value={registerData.mobile}
+                        onChange={handleRegisterChange}
+                      />
                     </div>
+                  </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="email" className="text-slate-700 font-bold ml-1 text-[11px] sm:text-sm">Email</Label>
-                      <div className="relative group">
-                        <Mail className="absolute left-4 top-2.5 sm:top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="your@email.com"
-                          className="pl-12 h-9 sm:h-11 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm"
-                          required
-                          value={registerData.email}
-                          onChange={handleRegisterChange}
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-password" className="text-slate-700 font-bold ml-1 text-sm">Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-3 sm:top-4 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                      <Input
+                        id="reg-password"
+                        name="password"
+                        type={showRegisterPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pl-12 pr-12 h-10 sm:h-12 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm sm:text-base"
+                        required
+                        value={registerData.password}
+                        onChange={handleRegisterChange}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                        className="absolute right-4 top-3 sm:top-4 text-slate-400 hover:text-teal-500 transition-colors focus:outline-none"
+                      >
+                        {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
+                  </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="mobile" className="text-slate-700 font-bold ml-1 text-[11px] sm:text-sm">Mobile Number</Label>
-                      <div className="relative group">
-                        <Phone className="absolute left-4 top-2.5 sm:top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                        <Input
-                          id="mobile"
-                          name="mobile"
-                          type="tel"
-                          pattern="\d{10}"
-                          title="Mobile number must be exactly 10 digits"
-                          maxLength={10}
-                          placeholder="9876543210"
-                          className="pl-12 h-9 sm:h-11 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm"
-                          required
-                          value={registerData.mobile}
-                          onChange={handleRegisterChange}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <Label htmlFor="reg-password" className="text-slate-700 font-bold ml-1 text-[11px] sm:text-sm">Password</Label>
-                      <div className="relative group">
-                        <Lock className="absolute left-4 top-2.5 sm:top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                        <Input
-                          id="reg-password"
-                          name="password"
-                          type="password"
-                          placeholder="••••••••"
-                          className="pl-12 h-9 sm:h-11 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm"
-                          required
-                          value={registerData.password}
-                          onChange={handleRegisterChange}
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password" className="text-slate-700 font-bold ml-1 text-sm">Confirm Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-3 sm:top-4 h-4 w-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                      <Input
+                        id="confirm-password"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="pl-12 pr-12 h-10 sm:h-12 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm sm:text-base"
+                        required
+                        value={registerData.confirmPassword}
+                        onChange={handleRegisterChange}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-3 sm:top-4 text-slate-400 hover:text-teal-500 transition-colors focus:outline-none"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
 
