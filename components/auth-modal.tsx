@@ -19,7 +19,7 @@ interface AuthModalProps {
   onSuccess?: (user: any) => void
 }
 
-export function AuthModal({ isOpen, onClose, initialMode = "login", onSuccess }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, initialMode = "register", onSuccess }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<string>(initialMode)
   const [isPending, setIsPending] = useState(false)
   const router = useRouter()
@@ -80,6 +80,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "login", onSuccess }:
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!/^\d{10}$/.test(registerData.mobile)) {
+      toast.error("Mobile number must be exactly 10 digits")
+      return
+    }
+
     setIsPending(true)
 
     try {
@@ -261,6 +267,9 @@ export function AuthModal({ isOpen, onClose, initialMode = "login", onSuccess }:
                           id="mobile"
                           name="mobile"
                           type="tel"
+                          pattern="\d{10}"
+                          title="Mobile number must be exactly 10 digits"
+                          maxLength={10}
                           placeholder="9876543210"
                           className="pl-12 h-9 sm:h-11 bg-slate-50 border-slate-200 rounded-xl sm:rounded-2xl focus:bg-white focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all text-sm"
                           required
