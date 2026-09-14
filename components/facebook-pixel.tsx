@@ -2,9 +2,9 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-export default function FacebookPixel() {
+function FacebookPixelContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isLoaded, setIsLoaded] = useState(false);
@@ -47,5 +47,13 @@ export default function FacebookPixel() {
         />
       </noscript>
     </>
+  );
+}
+
+export default function FacebookPixel() {
+  return (
+    <Suspense fallback={null}>
+      <FacebookPixelContent />
+    </Suspense>
   );
 }
