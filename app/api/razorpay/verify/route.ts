@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
         await Order.create({
           userId,
           userEmail: orderDetails.user?.email,
-          userMobile: orderDetails.user?.mobile,
-          userName: orderDetails.user?.username,
+          userMobile: orderDetails.user?.mobile || orderDetails.shippingAddress?.phone,
+          userName: orderDetails.user?.username || orderDetails.shippingAddress?.name,
           productId: orderDetails.productId,
           productName: orderDetails.productName,
           productImage: orderDetails.productImage,

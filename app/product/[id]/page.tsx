@@ -64,11 +64,6 @@ export default function ProductPage() {
 
 
   const handlePurchase = () => {
-    const storedUser = localStorage.getItem("user")
-    if (!storedUser) {
-      setShowAuthModal(true)
-      return
-    }
     setShowPurchaseForm(true)
   }
 

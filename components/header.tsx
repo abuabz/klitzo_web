@@ -136,15 +136,12 @@ export default function Header() {
                   )}
                 </Link>
               ) : (
-                <button 
-                  onClick={() => {
-                    setAuthMode("login")
-                    setIsAuthModalOpen(true)
-                  }}
+                <Link 
+                  href="/my-orders"
                   className="text-slate-700 hover:text-teal-600 text-sm font-medium transition-colors duration-300 cursor-pointer"
                 >
-                  My Orders
-                </button>
+                  Track Order
+                </Link>
               )}
 
 
@@ -252,15 +249,13 @@ export default function Header() {
                     )}
                   </Link>
                 ) : (
-                  <button
-                    onClick={() => {
-                      setAuthMode("login")
-                      setIsAuthModalOpen(true)
-                    }}
+                  <Link
+                    href="/my-orders"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="text-slate-700 hover:text-teal-600 block px-3 py-2 text-base font-medium transition-colors duration-300 w-full text-left cursor-pointer"
                   >
-                    My Orders
-                  </button>
+                    Track Order
+                  </Link>
                 )}
                 
                 {user && (

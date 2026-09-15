@@ -1,5 +1,8 @@
 "use client"
 
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -13,37 +16,103 @@ export default function MyOrdersPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [isGuest, setIsGuest] = useState(false)
+  const [guestMobile, setGuestMobile] = useState("")
+  const [hasSearched, setHasSearched] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
     if (!storedUser) {
-      router.push("/login")
+      setIsGuest(true)
+      setLoading(false)
       return
     }
     const parsedUser = JSON.parse(storedUser)
     setUser(parsedUser)
-    fetchOrders(parsedUser.email)
+    fetchOrders(parsedUser.email || parsedUser.mobile, parsedUser.email ? 'email' : 'mobile')
   }, [])
 
-  const fetchOrders = async (email: string) => {
+  const fetchOrders = async (query: string, type: 'email' | 'mobile' = 'email') => {
+    setLoading(true)
     try {
-      const res = await fetch(`/api/orders?email=${email}`)
+      const res = await fetch(`/api/orders?${type}=${query}`)
       const data = await res.json()
       if (Array.isArray(data)) {
         setOrders(data)
       }
     } catch (error) {
       console.error("Error fetching orders:", error)
+      toast.error("Failed to fetch orders.")
     } finally {
       setLoading(false)
+      setHasSearched(true)
     }
+  }
+
+  const handleGuestSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!guestMobile || guestMobile.length < 10) {
+      toast.error("Please enter a valid mobile number")
+      return
+    }
+    fetchOrders(guestMobile, 'mobile')
   }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+      </div>
+    )
+  }
+
+  if (isGuest && !hasSearched) {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-20 pt-32 md:pt-40">
+        <div className="bg-white border-b border-slate-200 mb-8">
+          <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <Link href="/" className="flex items-center text-slate-600 hover:text-teal-600 transition-colors">
+              <ArrowLeft className="h-5 w-5 mr-2" />
+              <span className="font-medium">Back to Shop</span>
+            </Link>
+            <h1 className="text-xl font-bold text-slate-800">Track Order</h1>
+            <div className="w-24"></div>
+          </div>
+        </div>
+        <div className="max-w-md mx-auto px-4 py-8">
+          <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-xl">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold text-slate-800">Track Your Order</CardTitle>
+              <CardDescription>Enter the mobile number you used during checkout</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleGuestSearch} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mobile">Mobile Number</Label>
+                  <Input
+                    id="mobile"
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    value={guestMobile}
+                    onChange={(e) => setGuestMobile(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                  Track Orders
+                </Button>
+                <div className="text-center mt-4 pt-4 border-t border-slate-100">
+                  <p className="text-sm text-slate-500 mb-2">Have an account?</p>
+                  <Link href="/login">
+                    <Button variant="outline" className="w-full text-teal-600 border-teal-200 hover:bg-teal-50" type="button">
+                      Login
+                    </Button>
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }

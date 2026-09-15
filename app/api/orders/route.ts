@@ -26,11 +26,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    const mobile = searchParams.get("mobile");
+
+    if (!email && !mobile) {
+      return NextResponse.json({ error: "Email or Mobile is required" }, { status: 400 });
     }
 
-    const orders = await Order.find({ userEmail: email }).sort({ createdAt: -1 });
+    const query: any = {};
+    if (email) query.userEmail = email;
+    if (mobile) query.userMobile = mobile;
+
+    // Use $or to find orders matching either if both are provided somehow
+    const filter = (email && mobile) ? { $or: [{ userEmail: email }, { userMobile: mobile }] } : query;
+    const orders = await Order.find(filter).sort({ createdAt: -1 });
 
     return NextResponse.json(orders);
   } catch (error: any) {
@@ -57,8 +65,8 @@ export async function POST(request: NextRequest) {
     const order = await Order.create({
       userId,
       userEmail: data.user?.email,
-      userMobile: data.user?.mobile,
-      userName: data.user?.username,
+      userMobile: data.user?.mobile || data.shippingAddress?.phone,
+      userName: data.user?.username || data.shippingAddress?.name,
       productId: data.productId,
       productName: data.productName,
       productImage: data.productImage,
