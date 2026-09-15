@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
+import User from "@/models/User";
 import Order from "@/models/Order";
 
 export async function GET(request: NextRequest) {
@@ -122,4 +123,36 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
-import User from "@/models/User";
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    const adminEmail = searchParams.get("adminEmail");
+
+    if (!id || !adminEmail) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const user = await User.findOne({ email: adminEmail });
+    if (!user || !user.isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const deletedOrder = await Order.findByIdAndDelete(id);
+    
+    if (!deletedOrder) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Order deleted successfully" }, { status: 200 });
+  } catch (error: any) {
+    console.error("Error deleting order:", error);
+    return NextResponse.json(
+      { error: error.message || "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

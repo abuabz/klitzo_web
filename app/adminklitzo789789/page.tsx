@@ -65,6 +65,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("orders")
   const [searchQuery, setSearchQuery] = useState("")
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
   const [showProductModal, setShowProductModal] = useState(false)
@@ -389,6 +390,24 @@ export default function AdminPage() {
     }
   }
 
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this order? This action cannot be undone.")) return;
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+    try {
+      const res = await fetch(`/api/orders?id=${orderId}&adminEmail=${user.email}`, {
+        method: "DELETE",
+      })
+      if (res.ok) {
+        toast.success("Order deleted successfully")
+        fetchData()
+      } else {
+        toast.error("Failed to delete order")
+      }
+    } catch (error) {
+      toast.error("Error deleting order")
+    }
+  }
+
   const deleteProduct = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return
     const user = JSON.parse(localStorage.getItem("user") || "{}")
@@ -683,6 +702,13 @@ export default function AdminPage() {
           <span className="text-[10px] font-bold">Orders</span>
         </button>
         <button 
+          onClick={() => setActiveTab("cancelled-orders")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'cancelled-orders' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <X className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Cancelled</span>
+        </button>
+        <button 
           onClick={() => setActiveTab("products")}
           className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'products' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
         >
@@ -727,6 +753,12 @@ export default function AdminPage() {
             <ShoppingBag className="h-5 w-5" /> Orders Management
           </button>
           <button 
+            onClick={() => setActiveTab("cancelled-orders")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'cancelled-orders' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+          >
+            <X className="h-5 w-5" /> Cancelled Orders
+          </button>
+          <button 
             onClick={() => setActiveTab("products")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'products' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
@@ -761,7 +793,7 @@ export default function AdminPage() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'products' ? 'Product Inventory' : 'Customer Database'}
+              {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'cancelled-orders' ? 'Cancelled Orders' : activeTab === 'products' ? 'Product Inventory' : 'Customer Database'}
             </h1>
             <p className="text-slate-500">Manage your business operations and data</p>
           </div>
@@ -783,7 +815,7 @@ export default function AdminPage() {
              >
                <RefreshCw className={`h-4 w-4 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
              </Button>
-             {activeTab === 'orders' && (
+             {(activeTab === 'orders' || activeTab === 'cancelled-orders') && (
                <>
                  <input 
                    type="file" 
@@ -821,7 +853,25 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {activeTab === 'orders' ? (
+        {(activeTab === 'orders' || activeTab === 'cancelled-orders') ? (() => {
+          const displayedOrders = orders.filter(o => {
+            const matchesTab = activeTab === 'cancelled-orders' 
+              ? (o.status === 'Cancelled' || o.status === 'cancelled') 
+              : (o.status !== 'Cancelled' && o.status !== 'cancelled');
+            if (!matchesTab) return false;
+            
+            if (!searchQuery) return true;
+            const query = searchQuery.toLowerCase();
+            return (
+              (o.shippingAddress?.name || '').toLowerCase().includes(query) ||
+              (o.userEmail || '').toLowerCase().includes(query) ||
+              (o.shippingAddress?.phone || '').toLowerCase().includes(query) ||
+              (o.productName || '').toLowerCase().includes(query) ||
+              (o._id || '').toLowerCase().includes(query) ||
+              (o.razorpayOrderId || '').toLowerCase().includes(query)
+            );
+          });
+          return (
           <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white overflow-hidden rounded-2xl">
             <CardContent className="p-0">
               <Table>
@@ -831,10 +881,10 @@ export default function AdminPage() {
                       <input 
                         type="checkbox" 
                         className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
-                        checked={orders.length > 0 && selectedOrders.length === orders.length}
+                        checked={displayedOrders.length > 0 && selectedOrders.length === displayedOrders.length}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedOrders(orders.map(o => o._id))
+                            setSelectedOrders(displayedOrders.map(o => o._id))
                           } else {
                             setSelectedOrders([])
                           }
@@ -851,7 +901,7 @@ export default function AdminPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
+                  {displayedOrders.map((order) => (
                     <React.Fragment key={order._id}>
                     <TableRow 
                       className={`group border-slate-50 cursor-pointer transition-colors ${
@@ -957,6 +1007,24 @@ export default function AdminPage() {
                               <CheckCircle className="mr-2 h-4 w-4" />
                               <span>Finish</span>
                             </DropdownMenuItem>
+                            {order.status !== 'Cancelled' && order.status !== 'cancelled' && (
+                              <DropdownMenuItem 
+                                onClick={() => setOrderToCancel(order._id)}
+                                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 rounded-lg py-2 my-1"
+                              >
+                                <X className="mr-2 h-4 w-4" />
+                                <span>Cancel Order</span>
+                              </DropdownMenuItem>
+                            )}
+                            {(order.status === 'Cancelled' || order.status === 'cancelled') && (
+                              <DropdownMenuItem 
+                                onClick={() => deleteOrder(order._id)}
+                                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50 rounded-lg py-2 my-1 font-bold"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete Order</span>
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -1028,7 +1096,7 @@ export default function AdminPage() {
                     )}
                     </React.Fragment>
                   ))}
-                  {orders.length === 0 && (
+                  {displayedOrders.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-20 bg-slate-50/20">
                          <div className="flex flex-col items-center gap-2">
@@ -1042,9 +1110,10 @@ export default function AdminPage() {
               </Table>
             </CardContent>
           </Card>
-        ) : activeTab === 'products' ? (
+          );
+        })() : activeTab === 'products' ? (
           <div className="space-y-12">
-            {Object.entries(products.reduce((acc, p) => {
+            {Object.entries(products.filter(p => !searchQuery || (p.name || '').toLowerCase().includes(searchQuery.toLowerCase())).reduce((acc, p) => {
               const cat = p.category || 'Uncategorized';
               if (!acc[cat]) acc[cat] = [];
               acc[cat].push(p);
@@ -1141,7 +1210,7 @@ export default function AdminPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((u) => (
+                  {users.filter(u => !searchQuery || (u.username || '').toLowerCase().includes(searchQuery.toLowerCase()) || (u.email || '').toLowerCase().includes(searchQuery.toLowerCase()) || (u.mobile || '').toLowerCase().includes(searchQuery.toLowerCase())).map((u) => (
                     <TableRow key={u._id} className="border-slate-50">
                       <TableCell className="py-6 font-bold text-slate-800">{u.username}</TableCell>
                       <TableCell className="text-slate-600">{u.email}</TableCell>
@@ -1784,6 +1853,40 @@ export default function AdminPage() {
         </div>
       )}
       </div>
+
+      <Dialog open={!!orderToCancel} onOpenChange={(open) => !open && setOrderToCancel(null)}>
+        <DialogContent className="sm:max-w-md bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-slate-900">Cancel Order</DialogTitle>
+            <DialogDescription className="text-slate-500 mt-2">
+              Are you sure you want to cancel this order? This action will mark the order as cancelled and move it to the Cancelled Orders tab.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3 sm:justify-start mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOrderToCancel(null)}
+              className="flex-1"
+            >
+              Go Back
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              className="flex-1 bg-red-600 hover:bg-red-700"
+              onClick={() => {
+                if (orderToCancel) {
+                  updateOrderStatus(orderToCancel, "Cancelled");
+                  setOrderToCancel(null);
+                }
+              }}
+            >
+              Yes, Cancel Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

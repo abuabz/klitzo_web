@@ -283,7 +283,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
           <ShoppingCart className="h-6 w-6 text-teal-600" />
           Complete Your Order
         </CardTitle>
-        <p className="text-slate-600">Fill in your details to proceed with WhatsApp order</p>
+        <p className="text-slate-600">Fill in your details to proceed with the order</p>
       </CardHeader>
 
       <CardContent className="space-y-6">
