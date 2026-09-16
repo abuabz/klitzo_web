@@ -3,10 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
+
   const startDate = new Date();
   startDate.setDate(startDate.getDate() + 3);
   const endDate = new Date();
@@ -31,6 +35,9 @@ export default function PaymentSuccessPage() {
             Order Confirmed!
           </CardTitle>
           <p className="text-teal-700 font-medium mt-3 text-lg">Thank you for your purchase.</p>
+          {orderId && (
+            <p className="text-slate-500 font-bold mt-2">Order ID: #{orderId.slice(-6).toUpperCase()}</p>
+          )}
         </CardHeader>
         <CardContent className="space-y-8 pt-10 pb-12 px-8 text-center bg-white">
           <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
@@ -50,5 +57,13 @@ export default function PaymentSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center">Loading...</div>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

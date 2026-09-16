@@ -54,12 +54,23 @@ export async function GET(request: NextRequest) {
             { userEmail: searchRegex },
             { 'shippingAddress.phone': searchRegex },
             { productName: searchRegex },
-            { razorpayOrderId: searchRegex }
+            { razorpayOrderId: searchRegex },
           ];
 
-          // If the search term is a valid ObjectId, allow searching by _id
+          // If the search term is a valid ObjectId, allow exact searching by _id
           if (/^[0-9a-fA-F]{24}$/.test(search)) {
              searchQueries.push({ _id: search });
+          } else {
+             // Allow partial matching on the _id string
+             searchQueries.push({ 
+               $expr: { 
+                 $regexMatch: { 
+                   input: { $toString: "$_id" }, 
+                   regex: search, 
+                   options: "i" 
+                 } 
+               } 
+             });
           }
 
           if (query.$and) {

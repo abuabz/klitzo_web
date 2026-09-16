@@ -38,6 +38,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string | null>(null)
 
   // Auto-fill logged in user info
   useEffect(() => {
@@ -117,6 +118,11 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
 
       if (!response.ok) {
         throw new Error("Failed to save order to database");
+      }
+      
+      const data = await response.json();
+      if (data.order && data.order._id) {
+        setConfirmedOrderId(data.order._id);
       }
 
       toast.success("Order placed successfully!");
@@ -253,7 +259,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   // All new fields are required except landmark
   const isFormValid =
     formData.name.trim() !== "" &&
-    formData.phone.trim() !== "" &&
+    /^\d{10}$/.test(formData.phone.replace(/\D/g, "")) &&
     formData.address.trim() !== "" &&
     formData.place.trim() !== "" &&
     formData.post.trim() !== "" &&
@@ -286,6 +292,9 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
             Order Confirmed!
           </CardTitle>
           <p className="text-teal-700 font-medium mt-3 text-lg">Thank you for your purchase.</p>
+          {confirmedOrderId && (
+            <p className="text-slate-500 font-bold mt-2">Order ID: #{confirmedOrderId.slice(-6).toUpperCase()}</p>
+          )}
         </CardHeader>
         <CardContent className="space-y-8 pt-10 pb-12 px-8 text-center bg-white">
           <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
@@ -368,8 +377,12 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="+91 XXXXX XXXXX"
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  if (val.length <= 10) handleInputChange("phone", val);
+                }}
+                placeholder="10 digit mobile number"
+                maxLength={10}
                 className="mt-1"
                 type="tel"
                 autoComplete="tel"

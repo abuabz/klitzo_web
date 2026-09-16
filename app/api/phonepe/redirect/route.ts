@@ -27,13 +27,14 @@ export async function GET(req: NextRequest) {
     if (response.state === 'COMPLETED') {
       await connectDB();
       // Update order status to Paid
-      await Order.findOneAndUpdate(
+      const order = await Order.findOneAndUpdate(
         { razorpayOrderId: transactionId },
-        { status: "Paid", razorpayPaymentId: response.providerReferenceId || "PhonePe" } 
+        { status: "Paid", razorpayPaymentId: response.providerReferenceId || "PhonePe" },
+        { new: true }
       );
       
       // Redirect to success page
-      return NextResponse.redirect(`${baseUrl}/payment-success`, 303);
+      return NextResponse.redirect(`${baseUrl}/payment-success${order ? `?orderId=${order._id}` : ''}`, 303);
     } else {
       // Payment Failed or Pending
       return NextResponse.redirect(`${baseUrl}/?error=Payment_Failed`, 303);
