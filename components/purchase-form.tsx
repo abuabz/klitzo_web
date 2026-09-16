@@ -33,7 +33,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     landmark: "",
     pincode: "",
     notes: "",
-    isPrepaid: false,
+    isPrepaid: true, // Default to prepaid
   })
   const [postOffices, setPostOffices] = useState<string[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
@@ -129,6 +129,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     }
   }
 
+  /* --- Razorpay Integration Commented Out as requested ---
   const handleRazorpayPayment = async () => {
     setIsProcessing(true)
     try {
@@ -209,6 +210,43 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       toast.error("Something went wrong. Please try again.")
     } finally {
       setIsProcessing(false)
+    }
+  }
+  */
+
+  const handlePhonePePayment = async () => {
+    setIsProcessing(true);
+    try {
+      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity;
+      const totalPrice = basePrice;
+
+      const response = await fetch("/api/phonepe/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          productName: product.name,
+          productImage: product.image,
+          amount: totalPrice,
+          quantity: quantity,
+          shippingAddress: { ...formData },
+          user: JSON.parse(localStorage.getItem("user") || "{}")
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        // Redirect to PhonePe payment page
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error || "Failed to initiate payment");
+        setIsProcessing(false);
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again.");
+      setIsProcessing(false);
     }
   }
 
@@ -299,11 +337,8 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
             <div className="flex-1">
               <h4 className="font-medium text-slate-800">{product.name}</h4>
               <p className="text-slate-600">Quantity: {quantity}</p>
-              {formData.isPrepaid && (
-                <p className="text-sm text-green-600 font-semibold mt-0.5">Prepaid Discount: -₹50</p>
-              )}
               <p className="text-lg font-bold text-teal-600 mt-1">
-                Total: ₹{(Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity - (formData.isPrepaid ? 50 : 0)).toFixed(2)}
+                Total: ₹{(Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
               </p>
             </div>
           </div>
@@ -447,28 +482,70 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
           </div>
         </div>
 
-        {/* Prepaid Option - Hidden per user request */}
-        <div className={`hidden p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer items-start space-x-3 ${formData.isPrepaid ? "border-green-500 bg-green-50 shadow-md" : "border-slate-200 bg-white hover:border-green-300"}`} onClick={() => handleInputChange("isPrepaid", !formData.isPrepaid)}>
-          <Checkbox
-            id="isPrepaid"
-            checked={formData.isPrepaid}
-            onCheckedChange={(checked) => handleInputChange("isPrepaid", !!checked)}
-            className="mt-1 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-          />
-          <div className="flex-1">
-            <Label htmlFor="isPrepaid" className="text-base font-bold text-green-700 cursor-pointer flex flex-wrap items-center gap-2">
-              Pay Prepaid & Save ₹50!
-              <span className="bg-green-100 text-green-800 text-[10px] uppercase px-2 py-0.5 rounded-full font-bold border border-green-200">Recommended</span>
-            </Label>
-            <p className="text-sm text-slate-600 mt-1 cursor-pointer">
-              Get an instant ₹50 discount on your order by choosing to pay prepaid. We will contact you with payment details.
-            </p>
+        {/* Payment Method Option */}
+        <div className="space-y-3">
+          <Label className="text-base font-semibold text-slate-800">Payment Method</Label>
+          <div className="grid gap-3">
+            {/* Prepaid Option */}
+            <label 
+              className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
+                formData.isPrepaid 
+                  ? "border-purple-500 bg-purple-50 ring-1 ring-purple-500" 
+                  : "border-slate-200 bg-white hover:border-purple-200 hover:bg-slate-50"
+              }`}
+            >
+              <div className="flex items-center justify-center h-5">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="prepaid"
+                  checked={formData.isPrepaid}
+                  onChange={() => handleInputChange("isPrepaid", true)}
+                  className="w-5 h-5 text-purple-600 bg-white border-gray-300 focus:ring-purple-500 cursor-pointer"
+                />
+              </div>
+              <div className="ml-4 flex-1">
+                <span className="block text-base font-bold text-slate-900">UPI, Wallets or Cards</span>
+                <span className="block text-sm text-purple-700 font-medium mt-0.5">Secure payment via PhonePe</span>
+              </div>
+              <div className="ml-3 hidden sm:block">
+                <CreditCard className={`h-7 w-7 ${formData.isPrepaid ? 'text-purple-600' : 'text-slate-400'}`} />
+              </div>
+            </label>
+
+            {/* COD Option */}
+            <label 
+              className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
+                !formData.isPrepaid 
+                  ? "border-teal-500 bg-teal-50 ring-1 ring-teal-500" 
+                  : "border-slate-200 bg-white hover:border-teal-200 hover:bg-slate-50"
+              }`}
+            >
+              <div className="flex items-center justify-center h-5">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cod"
+                  checked={!formData.isPrepaid}
+                  onChange={() => handleInputChange("isPrepaid", false)}
+                  className="w-5 h-5 text-teal-600 bg-white border-gray-300 focus:ring-teal-500 cursor-pointer"
+                />
+              </div>
+              <div className="ml-4 flex-1">
+                <span className="block text-base font-bold text-slate-900">Cash on Delivery</span>
+                <span className="block text-sm text-slate-500 mt-0.5">Pay when you receive the product</span>
+              </div>
+              <div className="ml-3 hidden sm:block">
+                <ShoppingBag className={`h-7 w-7 ${!formData.isPrepaid ? 'text-teal-600' : 'text-slate-400'}`} />
+              </div>
+            </label>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-          {/* Razorpay Button - Hidden per user request */}
+          {/* Razorpay Button - Commented out */}
+          {/* 
           <Button
             onClick={handleRazorpayPayment}
             disabled={!isFormValid || isProcessing}
@@ -481,24 +558,41 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
             )}
             Pay Online (Prepaid)
           </Button>
+          */}
 
-          <Button
-            onClick={handlePurchase}
-            disabled={!isFormValid || isProcessing}
-            className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-3 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:transform-none"
-          >
-            {isProcessing ? (
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            ) : (
-              <ShoppingBag className="mr-2 h-5 w-5" />
-            )}
-            Complete Order
-          </Button>
+          {formData.isPrepaid ? (
+            <Button
+              onClick={handlePhonePePayment}
+              disabled={!isFormValid || isProcessing}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 font-bold flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <CreditCard className="h-6 w-6" />
+              )}
+              Pay Securely via PhonePe
+            </Button>
+          ) : (
+            <Button
+              onClick={handlePurchase}
+              disabled={!isFormValid || isProcessing}
+              className="w-full bg-gradient-to-r from-teal-500 to-teal-700 hover:from-teal-600 hover:to-teal-800 text-white py-6 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 font-bold flex items-center justify-center gap-2"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <ShoppingBag className="h-6 w-6" />
+              )}
+              Complete COD Order
+            </Button>
+          )}
         </div>
 
-        <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
+        <div className="text-center text-sm text-slate-500 bg-slate-50 p-4 rounded-lg mt-4">
           <p>🔒 Your information is secure and will only be used to process your order.</p>
-          <p>🚚 Payment will be collected upon delivery.</p>
+          {!formData.isPrepaid && <p>🚚 Payment will be collected upon delivery.</p>}
+          {formData.isPrepaid && <p>⚡ You will be redirected to PhonePe for secure payment.</p>}
         </div>
       </CardContent>
     </Card>
