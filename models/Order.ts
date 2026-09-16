@@ -20,6 +20,11 @@ const OrderSchema = new mongoose.Schema(
       enum: ["pending", "paid", "shipping", "completed", "failed"],
       default: "pending",
     },
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "Prepaid"],
+      default: "COD",
+    },
     razorpayOrderId: String,
     razorpayPaymentId: String,
     shippingAddress: {

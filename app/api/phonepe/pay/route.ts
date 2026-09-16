@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       amount: data.amount,
       quantity: data.quantity,
       status: "pending", // Payment pending
+      paymentMethod: "Prepaid",
       shippingAddress: data.shippingAddress,
       notes: data.notes,
       razorpayOrderId: transactionId // Repurposing this field to store PhonePe transactionId

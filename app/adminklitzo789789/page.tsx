@@ -65,6 +65,8 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("orders")
   const [searchQuery, setSearchQuery] = useState("")
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({})
@@ -204,10 +206,6 @@ export default function AdminPage() {
 
     try {
       setLoading(true)
-      // Fetch Orders
-      const orderRes = await fetch(`/api/orders?all=true&email=${user.email}`)
-      const orderData = await orderRes.json()
-      if (Array.isArray(orderData)) setOrders(orderData)
 
       // Fetch Products
       const productRes = await fetch(`/api/products`)
@@ -224,6 +222,40 @@ export default function AdminPage() {
       setLoading(false)
     }
   }
+
+  const fetchOrders = async (currentPage = 1, currentTab = activeTab, currentSearch = searchQuery) => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+    if (!user.isAdmin || !user.email) return
+
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/orders?all=true&email=${user.email}&page=${currentPage}&limit=20&tab=${currentTab}&search=${encodeURIComponent(currentSearch)}`)
+      const data = await res.json()
+      if (data.orders) {
+        setOrders(data.orders)
+        setTotalPages(data.totalPages || 1)
+      } else if (Array.isArray(data)) {
+        setOrders(data)
+        setTotalPages(1)
+      }
+    } catch (e) {
+      toast.error("Failed to fetch orders")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const timer = setTimeout(() => {
+      fetchOrders(page, activeTab, searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [page, activeTab, searchQuery, isAdmin]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
 
   useEffect(() => {
     setMounted(true)
@@ -252,6 +284,7 @@ export default function AdminPage() {
         setIsAdmin(true)
         toast.success("Welcome, Admin")
         fetchData()
+        fetchOrders()
       } else {
         toast.error("Invalid admin credentials")
       }
@@ -709,6 +742,13 @@ export default function AdminPage() {
           <span className="text-[10px] font-bold">Cancelled</span>
         </button>
         <button 
+          onClick={() => setActiveTab("abandoned-orders")}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'abandoned-orders' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <Clock className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Failed</span>
+        </button>
+        <button 
           onClick={() => setActiveTab("products")}
           className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'products' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
         >
@@ -759,6 +799,12 @@ export default function AdminPage() {
             <X className="h-5 w-5" /> Cancelled Orders
           </button>
           <button 
+            onClick={() => setActiveTab("abandoned-orders")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'abandoned-orders' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+          >
+            <Clock className="h-5 w-5" /> Failed Prepaid
+          </button>
+          <button 
             onClick={() => setActiveTab("products")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'products' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
@@ -793,7 +839,7 @@ export default function AdminPage() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'cancelled-orders' ? 'Cancelled Orders' : activeTab === 'products' ? 'Product Inventory' : 'Customer Database'}
+              {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'cancelled-orders' ? 'Cancelled Orders' : activeTab === 'abandoned-orders' ? 'Failed Prepaid Orders' : activeTab === 'products' ? 'Product Inventory' : 'Customer Database'}
             </h1>
             <p className="text-slate-500">Manage your business operations and data</p>
           </div>
@@ -804,18 +850,24 @@ export default function AdminPage() {
                   placeholder="Search globally..." 
                   className="pl-10 h-10 w-full sm:w-64 bg-white border-slate-200 rounded-full focus:ring-teal-500"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setPage(1)
+                  }}
                 />
              </div>
              <Button 
-              onClick={fetchData} 
+              onClick={() => {
+                fetchData();
+                fetchOrders();
+              }} 
               variant="outline" 
               size="icon" 
               className="rounded-full hover:bg-teal-50"
              >
                <RefreshCw className={`h-4 w-4 text-slate-600 ${loading ? 'animate-spin' : ''}`} />
              </Button>
-             {(activeTab === 'orders' || activeTab === 'cancelled-orders') && (
+             {(activeTab === 'orders' || activeTab === 'cancelled-orders' || activeTab === 'abandoned-orders') && (
                <>
                  <input 
                    type="file" 
@@ -853,27 +905,11 @@ export default function AdminPage() {
           </div>
         </header>
 
-        {(activeTab === 'orders' || activeTab === 'cancelled-orders') ? (() => {
-          const displayedOrders = orders.filter(o => {
-            const matchesTab = activeTab === 'cancelled-orders' 
-              ? (o.status === 'Cancelled' || o.status === 'cancelled') 
-              : (o.status !== 'Cancelled' && o.status !== 'cancelled');
-            if (!matchesTab) return false;
-            
-            if (!searchQuery) return true;
-            const query = searchQuery.toLowerCase();
-            return (
-              (o.shippingAddress?.name || '').toLowerCase().includes(query) ||
-              (o.userEmail || '').toLowerCase().includes(query) ||
-              (o.shippingAddress?.phone || '').toLowerCase().includes(query) ||
-              (o.productName || '').toLowerCase().includes(query) ||
-              (o._id || '').toLowerCase().includes(query) ||
-              (o.razorpayOrderId || '').toLowerCase().includes(query)
-            );
-          });
+        {(activeTab === 'orders' || activeTab === 'cancelled-orders' || activeTab === 'abandoned-orders') ? (() => {
+          const displayedOrders = orders;
           return (
-          <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white overflow-hidden rounded-2xl">
-            <CardContent className="p-0">
+          <Card className="border-0 shadow-xl shadow-slate-200/50 bg-white overflow-hidden rounded-2xl flex flex-col">
+            <CardContent className="p-0 flex-1 overflow-auto">
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="hover:bg-transparent border-slate-100">
@@ -942,7 +978,7 @@ export default function AdminPage() {
                       <TableCell>
                         <div className="flex flex-col">
                            <span className="font-bold text-slate-800">{order.shippingAddress?.name}</span>
-                           <span className="text-xs text-slate-400">{order.userEmail}</span>
+                           <span className="text-xs text-slate-400">{order.shippingAddress?.phone || order.userMobile}</span>
                         </div>
                       </TableCell>
                       <TableCell className="font-medium text-slate-600">{order.productName}</TableCell>
@@ -1109,6 +1145,31 @@ export default function AdminPage() {
                 </TableBody>
               </Table>
             </CardContent>
+            {totalPages > 1 && (
+              <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <span className="text-sm text-slate-500 font-medium">Page {page} of {totalPages}</span>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="h-8 border-slate-200"
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="h-8 border-slate-200"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
           );
         })() : activeTab === 'products' ? (

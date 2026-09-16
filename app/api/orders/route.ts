@@ -18,12 +18,69 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(order);
     }
 
-    // Admin can fetch all orders
+    // Admin can fetch orders with pagination and filtering
     if (all === "true" && email) {
       const user = await User.findOne({ email });
       if (user && user.isAdmin) {
-        const orders = await Order.find({}).sort({ createdAt: -1 });
-        return NextResponse.json(orders);
+        const page = parseInt(searchParams.get("page") || "1", 10);
+        const limit = parseInt(searchParams.get("limit") || "20", 10);
+        const tab = searchParams.get("tab") || "orders";
+        const search = searchParams.get("search") || "";
+
+        let query: any = {};
+
+        // Filter based on active tab
+        if (tab === 'cancelled-orders') {
+          query.status = { $in: ['Cancelled', 'cancelled'] };
+        } else if (tab === 'abandoned-orders') {
+          query.paymentMethod = 'Prepaid';
+          query.status = { $in: ['pending', 'failed'] };
+        } else if (tab === 'orders') {
+          // Normal active orders (not cancelled, not abandoned prepaid)
+          query.$and = [
+            { status: { $nin: ['Cancelled', 'cancelled'] } },
+            { $or: [
+                { paymentMethod: { $ne: 'Prepaid' } },
+                { status: { $nin: ['pending', 'failed'] } }
+            ]}
+          ];
+        }
+
+        // Apply search globally over multiple fields
+        if (search) {
+          const searchRegex = new RegExp(search, 'i');
+          const searchQueries: any[] = [
+            { 'shippingAddress.name': searchRegex },
+            { userEmail: searchRegex },
+            { 'shippingAddress.phone': searchRegex },
+            { productName: searchRegex },
+            { razorpayOrderId: searchRegex }
+          ];
+
+          // If the search term is a valid ObjectId, allow searching by _id
+          if (/^[0-9a-fA-F]{24}$/.test(search)) {
+             searchQueries.push({ _id: search });
+          }
+
+          if (query.$and) {
+            query.$and.push({ $or: searchQueries });
+          } else {
+            query.$or = searchQueries;
+          }
+        }
+
+        const total = await Order.countDocuments(query);
+        const orders = await Order.find(query)
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit);
+
+        return NextResponse.json({ 
+          orders, 
+          total, 
+          page, 
+          totalPages: Math.ceil(total / limit) || 1 
+        });
       }
     }
 
@@ -74,6 +131,7 @@ export async function POST(request: NextRequest) {
       amount: data.amount,
       quantity: data.quantity,
       status: data.status || "pending",
+      paymentMethod: "COD",
       shippingAddress: data.shippingAddress,
       notes: data.notes
     });

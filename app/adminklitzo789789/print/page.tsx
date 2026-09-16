@@ -21,17 +21,16 @@ function PrintContent() {
       }
 
       try {
-        const [ordersRes, settingsRes] = await Promise.all([
-          fetch(`/api/orders?all=true&email=${user.email}`),
+        const ordersPromises = ids.map(id => fetch(`/api/orders?id=${id}`).then(r => r.json()))
+        
+        const [ordersData, settingsRes] = await Promise.all([
+          Promise.all(ordersPromises),
           fetch(`/api/admin/settings?adminEmail=${user.email}`)
         ])
 
-        if (ordersRes.ok && settingsRes.ok) {
-          const ordersData = await ordersRes.json()
+        if (settingsRes.ok) {
           const settingsData = await settingsRes.json()
-
-          const filteredOrders = ordersData.filter((o: any) => ids.includes(o._id))
-          setOrders(filteredOrders)
+          setOrders(ordersData.filter(o => o && !o.error))
           setSettings(settingsData)
         }
       } catch (error) {
@@ -124,7 +123,7 @@ function PrintContent() {
 
               {/* COD / Amount */}
               <div className="text-center font-black text-[18px] text-black mb-5 uppercase leading-none">
-                CASH ON DELIVERY :- RS {order.amount}
+                {(order.paymentMethod === 'Prepaid' || order.razorpayPaymentId) ? 'PREPAID' : `CASH ON DELIVERY :- RS ${order.amount}`}
               </div>
 
               {/* IDs */}
