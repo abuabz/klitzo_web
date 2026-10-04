@@ -54,10 +54,19 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
           }));
         }
       }
+      
+      const savedForm = sessionStorage.getItem(`purchaseFormData_${product.id}`);
+      if (savedForm) {
+        setFormData(prev => ({...prev, ...JSON.parse(savedForm)}));
+      }
     } catch (e) {
-      console.error("Failed to parse user from local storage", e);
+      console.error("Failed to parse from storage", e);
     }
-  }, []);
+  }, [product.id]);
+
+  useEffect(() => {
+    sessionStorage.setItem(`purchaseFormData_${product.id}`, JSON.stringify(formData));
+  }, [formData, product.id]);
 
   // Handle BFCache when user clicks back button from payment gateway
   useEffect(() => {
@@ -290,7 +299,11 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       <Card className="w-full max-w-2xl mx-auto overflow-hidden shadow-2xl">
         <CardHeader className="text-center relative bg-gradient-to-b from-teal-50 to-white pb-8 pt-12 border-b border-teal-100">
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-4 top-4 text-teal-700 hover:bg-teal-100">
+            <Button variant="ghost" size="icon" onClick={() => {
+              sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
+              sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+              onClose();
+            }} className="absolute right-4 top-4 text-teal-700 hover:bg-teal-100">
               <X className="h-5 w-5" />
             </Button>
           )}
@@ -333,7 +346,11 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <CardHeader className="text-center relative">
         {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+          <Button variant="ghost" size="icon" onClick={() => {
+            sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
+            sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+            onClose();
+          }} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
           </Button>
         )}

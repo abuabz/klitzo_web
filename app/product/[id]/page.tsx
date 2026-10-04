@@ -30,6 +30,9 @@ export default function ProductPage() {
 
   useEffect(() => {
     setIsVisible(true)
+    if (typeof window !== "undefined" && sessionStorage.getItem(`purchaseFormOpen_${productId}`) === 'true') {
+      setShowPurchaseForm(true)
+    }
     fetch(`/api/products?id=${productId}`)
       .then(res => {
         if (!res.ok) throw new Error("Not found")
@@ -44,6 +47,16 @@ export default function ProductPage() {
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
   }, [productId])
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (showPurchaseForm) {
+        sessionStorage.setItem(`purchaseFormOpen_${productId}`, 'true')
+      } else {
+        sessionStorage.removeItem(`purchaseFormOpen_${productId}`)
+      }
+    }
+  }, [showPurchaseForm, productId])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div></div>
