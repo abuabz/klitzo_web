@@ -59,6 +59,17 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
     }
   }, []);
 
+  // Handle BFCache when user clicks back button from payment gateway
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setIsProcessing(false);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
