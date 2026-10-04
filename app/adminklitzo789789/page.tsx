@@ -33,7 +33,8 @@ import {
   MessageCircle,
   Upload,
   Settings as SettingsIcon,
-  Printer
+  Printer,
+  Calendar
 } from "lucide-react"
 
 import {
@@ -65,6 +66,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("orders")
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedMonth, setSelectedMonth] = useState("")
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null)
@@ -223,13 +225,13 @@ export default function AdminPage() {
     }
   }
 
-  const fetchOrders = async (currentPage = 1, currentTab = activeTab, currentSearch = searchQuery) => {
+  const fetchOrders = async (currentPage = 1, currentTab = activeTab, currentSearch = searchQuery, currentMonth = selectedMonth) => {
     const user = JSON.parse(localStorage.getItem("user") || "{}")
     if (!user.isAdmin || !user.email) return
 
     try {
       setLoading(true)
-      const res = await fetch(`/api/orders?all=true&email=${user.email}&page=${currentPage}&limit=20&tab=${currentTab}&search=${encodeURIComponent(currentSearch)}`)
+      const res = await fetch(`/api/orders?all=true&email=${user.email}&page=${currentPage}&limit=20&tab=${currentTab}&search=${encodeURIComponent(currentSearch)}&month=${currentMonth}`)
       const data = await res.json()
       if (data.orders) {
         setOrders(data.orders)
@@ -248,10 +250,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (!isAdmin) return;
     const timer = setTimeout(() => {
-      fetchOrders(page, activeTab, searchQuery);
+      fetchOrders(page, activeTab, searchQuery, selectedMonth);
     }, 500);
     return () => clearTimeout(timer);
-  }, [page, activeTab, searchQuery, isAdmin]);
+  }, [page, activeTab, searchQuery, selectedMonth, isAdmin]);
 
   useEffect(() => {
     setPage(1);
@@ -856,6 +858,28 @@ export default function AdminPage() {
                   }}
                 />
              </div>
+             {(activeTab === 'orders' || activeTab === 'cancelled-orders' || activeTab === 'abandoned-orders') && (
+               <div className="relative">
+                 <select
+                   value={selectedMonth}
+                   onChange={(e) => {
+                     setSelectedMonth(e.target.value)
+                     setPage(1)
+                   }}
+                   className="h-10 pl-4 pr-10 rounded-full border-slate-200 text-slate-600 appearance-none bg-white hover:bg-teal-50 hover:border-teal-200 transition-colors cursor-pointer outline-none focus:ring-2 focus:ring-teal-500/20"
+                 >
+                   <option value="">All Months</option>
+                   {Array.from({ length: 12 }).map((_, i) => {
+                     const d = new Date();
+                     d.setMonth(d.getMonth() - i);
+                     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                     const label = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+                     return <option key={value} value={value}>{label}</option>
+                   })}
+                 </select>
+                 <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+               </div>
+             )}
              <Button 
               onClick={() => {
                 fetchData();
@@ -928,6 +952,7 @@ export default function AdminPage() {
                       />
                     </TableHead>
                     <TableHead className="font-bold text-slate-800">Order ID</TableHead>
+                    <TableHead className="font-bold text-slate-800">Date</TableHead>
                     <TableHead className="font-bold text-slate-800">Customer</TableHead>
                     <TableHead className="font-bold text-slate-800">Product</TableHead>
                     <TableHead className="font-bold text-slate-800">Payment</TableHead>
@@ -974,6 +999,12 @@ export default function AdminPage() {
                             </Badge>
                           )}
                         </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                           <span className="font-medium text-slate-700">{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                           <span className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
@@ -1067,7 +1098,7 @@ export default function AdminPage() {
                     </TableRow>
                     {expandedOrderId === order._id && (
                       <TableRow className="bg-slate-50/50">
-                        <TableCell colSpan={6} className="p-0 border-b-0">
+                        <TableCell colSpan={8} className="p-0 border-b-0">
                           <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-top-2">
                             <div className="space-y-2">
                               <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><MapPin className="h-3 w-3" /> Delivery Address</h4>
@@ -1938,7 +1969,7 @@ export default function AdminPage() {
               className="flex-1 bg-red-600 hover:bg-red-700"
               onClick={() => {
                 if (orderToCancel) {
-                  updateOrderStatus(orderToCancel, "Cancelled");
+                  updateOrderStatus(orderToCancel, "cancelled");
                   setOrderToCancel(null);
                 }
               }}

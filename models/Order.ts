@@ -17,7 +17,7 @@ const OrderSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     status: {
       type: String,
-      enum: ["pending", "paid", "shipping", "completed", "failed"],
+      enum: ["pending", "paid", "shipping", "completed", "failed", "cancelled"],
       default: "pending",
     },
     paymentMethod: {
@@ -45,9 +45,9 @@ const OrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Clear the model from mongoose if it doesn't have trackingId to handle hot reloads
-if (mongoose.models.Order && !mongoose.models.Order.schema.paths.trackingId) {
+// Always clear the model from mongoose to handle hot reloads with schema changes
+if (mongoose.models.Order) {
   delete mongoose.models.Order;
 }
 
-export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
+export default mongoose.model("Order", OrderSchema);

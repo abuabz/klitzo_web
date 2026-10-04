@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2, Copy } from "lucide-react"
+import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2, Copy, XCircle } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -19,6 +19,7 @@ export default function MyOrdersPage() {
   const [isGuest, setIsGuest] = useState(false)
   const [guestMobile, setGuestMobile] = useState("")
   const [hasSearched, setHasSearched] = useState(false)
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -57,6 +58,42 @@ export default function MyOrdersPage() {
       return
     }
     fetchOrders(guestMobile, 'mobile')
+  }
+
+  const handleCancelOrder = async (orderId: string) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    
+    setCancellingOrderId(orderId);
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          customerCancel: true,
+          customerEmail: user?.email,
+          customerMobile: guestMobile || user?.mobile
+        }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.error || "Failed to cancel order");
+      } else {
+        toast.success("Order cancelled successfully");
+        if (isGuest && guestMobile) {
+          fetchOrders(guestMobile, 'mobile');
+        } else if (user?.email) {
+          fetchOrders(user.email, 'email');
+        }
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+    } finally {
+      setCancellingOrderId(null);
+    }
   }
 
   if (loading) {
@@ -176,14 +213,14 @@ export default function MyOrdersPage() {
                           order.status.toLowerCase() === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                           order.status.toLowerCase() === 'shipping' ? 'bg-blue-50 text-blue-700 border-blue-100' :
                           order.status.toLowerCase() === 'paid' ? 'bg-teal-50 text-teal-700 border-teal-100' :
-                          order.status.toLowerCase() === 'failed' ? 'bg-red-50 text-red-700 border-red-100' :
+                          ['failed', 'cancelled'].includes(order.status.toLowerCase()) ? 'bg-red-50 text-red-700 border-red-100' :
                           'bg-amber-50 text-amber-700 border-amber-100'
                         } px-3 py-1 flex items-center gap-1 border`}>
                           <div className={`w-1.5 h-1.5 rounded-full ${
                              order.status.toLowerCase() === 'completed' ? 'bg-emerald-500' :
                              order.status.toLowerCase() === 'shipping' ? 'bg-blue-500' :
                              order.status.toLowerCase() === 'paid' ? 'bg-teal-500' :
-                             order.status.toLowerCase() === 'failed' ? 'bg-red-500' :
+                             ['failed', 'cancelled'].includes(order.status.toLowerCase()) ? 'bg-red-500' :
                              'bg-amber-500 animate-pulse'
                           }`}></div>
                           {order.status.toUpperCase()}
@@ -196,6 +233,18 @@ export default function MyOrdersPage() {
                             year: 'numeric'
                           })}
                         </div>
+                        {['pending', 'paid'].includes(order.status.toLowerCase()) && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 h-8 rounded-full"
+                            onClick={() => handleCancelOrder(order._id)}
+                            disabled={cancellingOrderId === order._id}
+                          >
+                            {cancellingOrderId === order._id ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <XCircle className="h-4 w-4 mr-1" />}
+                            Cancel
+                          </Button>
+                        )}
                       </div>
                     </div>
 
@@ -234,7 +283,7 @@ export default function MyOrdersPage() {
                           {order.shippingAddress?.address}, {order.shippingAddress?.place} <br />
                           {order.shippingAddress?.district}, {order.shippingAddress?.pincode}
                         </div>
-                        {order.status.toLowerCase() !== 'completed' && order.status.toLowerCase() !== 'failed' && (
+                        {order.status.toLowerCase() !== 'completed' && order.status.toLowerCase() !== 'failed' && order.status.toLowerCase() !== 'cancelled' && (
                           <div className="flex items-center gap-2 text-sm text-slate-700 bg-teal-50 p-3 rounded-xl border border-teal-100">
                             <Calendar className="h-4 w-4 text-teal-600 shrink-0" />
                             <span>Delivery within 3 to 6 days: <strong>
@@ -260,7 +309,7 @@ export default function MyOrdersPage() {
                           <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0 hidden sm:block"></div>
                           
                           {/* Active Progress Line */}
-                          {order.status.toLowerCase() !== 'failed' && (
+                          {order.status.toLowerCase() !== 'failed' && order.status.toLowerCase() !== 'cancelled' && (
                             <div 
                               className="absolute top-1/2 left-0 h-0.5 bg-teal-500 -translate-y-1/2 z-0 transition-all duration-700 hidden sm:block"
                               style={{ 
@@ -286,8 +335,8 @@ export default function MyOrdersPage() {
                           ]).map((step, idx) => {
                             const Icon = step.icon;
                             const statusMap: Record<string, number> = order.razorpayPaymentId 
-                              ? { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1 }
-                              : { 'pending': 0, 'shipping': 1, 'completed': 2, 'paid': 3, 'failed': -1 };
+                              ? { 'pending': 0, 'paid': 1, 'shipping': 2, 'completed': 3, 'failed': -1, 'cancelled': -1 }
+                              : { 'pending': 0, 'shipping': 1, 'completed': 2, 'paid': 3, 'failed': -1, 'cancelled': -1 };
                             
                             const currentStatusIdx = statusMap[order.status.toLowerCase()] ?? 0;
                             const isActive = idx <= currentStatusIdx;

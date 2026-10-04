@@ -26,8 +26,18 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get("limit") || "20", 10);
         const tab = searchParams.get("tab") || "orders";
         const search = searchParams.get("search") || "";
+        const month = searchParams.get("month") || "";
 
         let query: any = {};
+
+        if (month) {
+          const [yearStr, monthStr] = month.split("-");
+          const year = parseInt(yearStr, 10);
+          const m = parseInt(monthStr, 10);
+          const startDate = new Date(year, m - 1, 1);
+          const endDate = new Date(year, m, 1);
+          query.createdAt = { $gte: startDate, $lt: endDate };
+        }
 
         // Filter based on active tab
         if (tab === 'cancelled-orders') {
@@ -159,13 +169,37 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { orderId, status, trackingId, adminEmail } = await request.json();
+    const { orderId, status, trackingId, adminEmail, customerCancel, customerEmail, customerMobile } = await request.json();
 
-    if (!orderId || !adminEmail) {
+    if (!orderId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     await connectDB();
+
+    if (customerCancel) {
+      const order = await Order.findById(orderId);
+      if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      
+      const isOwner = (customerEmail && order.userEmail === customerEmail) || 
+                      (customerMobile && order.userMobile === customerMobile) ||
+                      (customerMobile && order.shippingAddress?.phone === customerMobile);
+                      
+      if (!isOwner) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      
+      const currentStatus = order.status.toLowerCase();
+      if (['pending', 'paid'].includes(currentStatus)) {
+        order.status = "cancelled";
+        await order.save();
+        return NextResponse.json({ message: "Order cancelled successfully", order });
+      } else {
+        return NextResponse.json({ error: "Order cannot be cancelled at this stage" }, { status: 400 });
+      }
+    }
+
+    if (!adminEmail) {
+      return NextResponse.json({ error: "Missing admin email" }, { status: 400 });
+    }
 
     // Verify admin
     const user = await User.findOne({ email: adminEmail });
@@ -174,7 +208,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updateData: any = {};
-    if (status !== undefined) updateData.status = status;
+    if (status !== undefined) updateData.status = status.toLowerCase();
     if (trackingId !== undefined) updateData.trackingId = trackingId;
 
     const order = await Order.findByIdAndUpdate(orderId, updateData, { new: true });
