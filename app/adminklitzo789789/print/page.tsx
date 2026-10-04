@@ -87,7 +87,7 @@ function PrintContent() {
         .label-cell {
           border-right: 1px dashed rgba(0, 0, 0, 0.2);
           border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
-          padding: 8mm 12mm;
+          padding: 6mm 10mm;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
@@ -117,12 +117,12 @@ function PrintContent() {
             <div key={order._id} className="label-cell">
 
               {/* Header */}
-              <div className="flex items-center justify-center mb-3 mt-4 leading-none">
-                <img src="/klitzo-logo.png" alt="Klitzo" className="h-12 w-auto object-contain grayscale" />
+              <div className="flex items-center justify-center mb-2 leading-none">
+                <img src="/klitzo-logo.png" alt="Klitzo" className="h-10 w-auto object-contain grayscale" />
               </div>
 
               {/* COD / Amount */}
-              <div className="text-center font-black text-[18px] text-black mb-5 uppercase leading-none">
+              <div className="text-center font-black text-[16px] text-black mb-4 uppercase leading-none">
                 {(order.paymentMethod === 'Prepaid' || order.razorpayPaymentId) ? 'PREPAID' : `CASH ON DELIVERY :- RS ${order.amount}`}
               </div>
 
@@ -135,16 +135,16 @@ function PrintContent() {
               </div>
 
               {/* Product */}
-              <div className="text-[14px] leading-tight mb-6 uppercase flex flex-col">
+              <div className="text-[13px] leading-tight mb-4 uppercase flex flex-col">
                 <span>PRODUCT NAME:-</span>
-                <span className="font-bold text-[12px] italic mt-1 truncate text-slate-700">{order.productName}</span>
+                <span className="font-bold text-[11px] italic mt-1 text-slate-700 leading-[1.3] line-clamp-2 pr-4">{order.productName}</span>
               </div>
 
-              <div className="flex flex-col gap-6 flex-grow pl-2">
+              <div className="flex flex-col gap-3 flex-grow pl-2">
                 {/* From Block */}
-                <div className="flex gap-4">
-                  <div className="font-bold text-[15px] w-12">From</div>
-                  <div className="flex-1 text-[15px] leading-[1.4] text-slate-900">
+                <div className="flex gap-3">
+                  <div className="font-bold text-[13px] w-10">From</div>
+                  <div className="flex-1 text-[13px] leading-[1.3] text-slate-900">
                     <div>{settings?.fromName || 'Klitzo'}</div>
                     <div className="whitespace-pre-line">{settings?.fromAddress?.replace(/, /g, ',\n')}</div>
                     <div>Mob: {settings?.fromMobile}</div>
@@ -152,11 +152,11 @@ function PrintContent() {
                 </div>
 
                 {/* To Block */}
-                <div className="flex gap-4 mt-2">
-                  <div className="font-bold text-[15px] w-12">To</div>
-                  <div className="flex-1 text-[15px] leading-[1.4] text-slate-900">
+                <div className="flex gap-3 mt-1">
+                  <div className="font-bold text-[13px] w-10">To</div>
+                  <div className="flex-1 text-[13px] leading-[1.3] text-slate-900">
                     <div>{order.shippingAddress?.name || order.userName}</div>
-                    <div className="whitespace-pre-wrap pr-8">{order.shippingAddress?.address}</div>
+                    <div className="whitespace-pre-wrap pr-4">{order.shippingAddress?.address}</div>
                     <div>
                       {order.shippingAddress?.place} {order.shippingAddress?.post}
                     </div>
