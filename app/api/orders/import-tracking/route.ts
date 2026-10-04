@@ -61,11 +61,14 @@ export async function POST(request: NextRequest) {
 
       if (!trackingCode || !receiverName) continue;
 
-      // Exact match: Name + Pincode
-      const exactMatches = activeOrders.filter(o => 
-        (o.shippingAddress?.name || "").trim().toLowerCase() === receiverName.toLowerCase() &&
-        (o.shippingAddress?.pincode || "").trim() === destPin
-      );
+      // Partial name match + Pincode
+      const exactMatches = activeOrders.filter(o => {
+        const dbName = (o.shippingAddress?.name || "").trim().toLowerCase();
+        const excelName = receiverName.toLowerCase();
+        const isNameMatch = dbName && excelName && (dbName.includes(excelName) || excelName.includes(dbName));
+        const isPinMatch = (o.shippingAddress?.pincode || "").trim() === destPin;
+        return isNameMatch && isPinMatch;
+      });
 
       if (exactMatches.length === 1) {
         const orderToUpdate = exactMatches[0];
@@ -76,10 +79,12 @@ export async function POST(request: NextRequest) {
         await orderToUpdate.save();
         updatedCount++;
       } else {
-        // Fallback: Match by name only
-        const nameMatches = activeOrders.filter(o => 
-          (o.shippingAddress?.name || "").trim().toLowerCase() === receiverName.toLowerCase()
-        );
+        // Fallback: Match by partial name only
+        const nameMatches = activeOrders.filter(o => {
+          const dbName = (o.shippingAddress?.name || "").trim().toLowerCase();
+          const excelName = receiverName.toLowerCase();
+          return dbName && excelName && (dbName.includes(excelName) || excelName.includes(dbName));
+        });
 
         if (nameMatches.length === 1) {
           const orderToUpdate = nameMatches[0];
