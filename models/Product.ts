@@ -16,6 +16,8 @@ const ProductSchema = new mongoose.Schema(
     safetyAndUsageNotes: [{ type: String }],
     applicationGuide: [{ type: String }],
     howToUse: [{ type: String }],
+    includedProductIds: [{ type: Number }],
+    suggestedProductIds: [{ type: Number }],
     rating: { type: Number, default: 0 },
     reviews: { type: Number, default: 0 },
     inStock: { type: Boolean, default: true },
@@ -38,5 +40,9 @@ const ProductSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+if (mongoose.models.Product) {
+  delete mongoose.models.Product;
+}
 
 export default mongoose.models.Product || mongoose.model("Product", ProductSchema);

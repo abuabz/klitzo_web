@@ -449,6 +449,7 @@
       "Allow to dry completely before use.",
       "No rinsing required."
     ],
+    "includedProductIds": [5, 6],
     "rating": 4.9,
     "reviews": 87,
     "inStock": true,

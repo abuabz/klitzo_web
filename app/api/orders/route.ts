@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
         const tab = searchParams.get("tab") || "orders";
         const search = searchParams.get("search") || "";
         const month = searchParams.get("month") || "";
+        const printStatus = searchParams.get("printStatus"); // 'new' | 'printed' | 'all'
 
         let query: any = {};
 
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
         } else if (tab === 'abandoned-orders') {
           query.paymentMethod = 'Prepaid';
           query.status = { $in: ['pending', 'failed'] };
-        } else if (tab === 'orders') {
+        } else if (tab === 'orders' || tab === 'printed-orders' || tab === 'new-orders') {
           // Normal active orders (not cancelled, not abandoned prepaid)
           query.$and = [
             { status: { $nin: ['Cancelled', 'cancelled'] } },
@@ -54,6 +55,14 @@ export async function GET(request: NextRequest) {
                 { status: { $nin: ['pending', 'failed'] } }
             ]}
           ];
+
+          const effectivePrintStatus = printStatus || (tab === 'printed-orders' ? 'printed' : tab === 'new-orders' ? 'new' : null);
+
+          if (effectivePrintStatus === 'new') {
+            query.$and.push({ isPrinted: { $ne: true } });
+          } else if (effectivePrintStatus === 'printed') {
+            query.$and.push({ isPrinted: true });
+          }
         }
 
         // Apply search globally over multiple fields
@@ -90,17 +99,42 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        const total = await Order.countDocuments(query);
-        const orders = await Order.find(query)
-          .sort({ createdAt: -1 })
-          .skip((page - 1) * limit)
-          .limit(limit);
+        const countsBaseQuery: any = {
+          $and: [
+            { status: { $nin: ['Cancelled', 'cancelled'] } },
+            { $or: [
+                { paymentMethod: { $ne: 'Prepaid' } },
+                { status: { $nin: ['pending', 'failed'] } }
+            ]}
+          ]
+        };
+
+        if (month) {
+          const [yearStr, monthStr] = month.split("-");
+          const year = parseInt(yearStr, 10);
+          const m = parseInt(monthStr, 10);
+          const startDate = new Date(year, m - 1, 1);
+          const endDate = new Date(year, m, 1);
+          countsBaseQuery.createdAt = { $gte: startDate, $lt: endDate };
+        }
+
+        const [total, orders, newOrdersCount, printedOrdersCount] = await Promise.all([
+          Order.countDocuments(query),
+          Order.find(query)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit),
+          Order.countDocuments({ ...countsBaseQuery, isPrinted: { $ne: true } }),
+          Order.countDocuments({ ...countsBaseQuery, isPrinted: true }),
+        ]);
 
         return NextResponse.json({ 
           orders, 
           total, 
           page, 
-          totalPages: Math.ceil(total / limit) || 1 
+          totalPages: Math.ceil(total / limit) || 1,
+          newOrdersCount,
+          printedOrdersCount
         });
       }
     }

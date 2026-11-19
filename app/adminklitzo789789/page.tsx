@@ -34,7 +34,8 @@ import {
   Upload,
   Settings as SettingsIcon,
   Printer,
-  Calendar
+  Calendar,
+  Sparkles
 } from "lucide-react"
 
 import {
@@ -65,6 +66,8 @@ export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("orders")
+  const [orderSubTab, setOrderSubTab] = useState<"new" | "printed" | "all">("new")
+  const [orderCounts, setOrderCounts] = useState<{ new: number; printed: number }>({ new: 0, printed: 0 })
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedMonth, setSelectedMonth] = useState("")
   const [page, setPage] = useState(1)
@@ -99,6 +102,9 @@ export default function AdminPage() {
     features: "",
     images: [] as string[],
     specifications: [] as {key: string, value: string}[],
+    howToUse: [] as string[],
+    suggestedProductIds: [] as number[],
+    includedProductIds: [] as number[],
     variants: [] as any[]
   })
   const [dragItemIndex, setDragItemIndex] = useState<number | null>(null)
@@ -225,17 +231,27 @@ export default function AdminPage() {
     }
   }
 
-  const fetchOrders = async (currentPage = 1, currentTab = activeTab, currentSearch = searchQuery, currentMonth = selectedMonth) => {
+  const fetchOrders = async (
+    currentPage = page, 
+    currentTab = activeTab, 
+    currentSearch = searchQuery, 
+    currentMonth = selectedMonth,
+    currentSubTab = orderSubTab
+  ) => {
     const user = JSON.parse(localStorage.getItem("user") || "{}")
     if (!user.isAdmin || !user.email) return
 
     try {
       setLoading(true)
-      const res = await fetch(`/api/orders?all=true&email=${user.email}&page=${currentPage}&limit=20&tab=${currentTab}&search=${encodeURIComponent(currentSearch)}&month=${currentMonth}`)
+      const printStatusParam = currentTab === 'orders' ? `&printStatus=${currentSubTab}` : ''
+      const res = await fetch(`/api/orders?all=true&email=${user.email}&page=${currentPage}&limit=20&tab=${currentTab}${printStatusParam}&search=${encodeURIComponent(currentSearch)}&month=${currentMonth}`)
       const data = await res.json()
       if (data.orders) {
         setOrders(data.orders)
         setTotalPages(data.totalPages || 1)
+        if (typeof data.newOrdersCount === 'number' && typeof data.printedOrdersCount === 'number') {
+          setOrderCounts({ new: data.newOrdersCount, printed: data.printedOrdersCount })
+        }
       } else if (Array.isArray(data)) {
         setOrders(data)
         setTotalPages(1)
@@ -250,14 +266,15 @@ export default function AdminPage() {
   useEffect(() => {
     if (!isAdmin) return;
     const timer = setTimeout(() => {
-      fetchOrders(page, activeTab, searchQuery, selectedMonth);
+      fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab);
     }, 500);
     return () => clearTimeout(timer);
-  }, [page, activeTab, searchQuery, selectedMonth, isAdmin]);
+  }, [page, activeTab, searchQuery, selectedMonth, isAdmin, orderSubTab]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeTab]);
+    setSelectedOrders([]);
+  }, [activeTab, orderSubTab]);
 
   useEffect(() => {
     setMounted(true)
@@ -325,6 +342,7 @@ export default function AdminPage() {
       if (res.ok) {
         setUploadSummary(data)
         fetchData()
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
         toast.success(`Successfully added tracking IDs to ${data.updatedCount} orders!`, { id: toastId })
       } else {
         toast.error(data.error || "Failed to upload file", { id: toastId })
@@ -368,21 +386,21 @@ export default function AdminPage() {
     markOrdersAsPrinted(selectedOrders)
   }
 
-  const markOrdersAsPrinted = async (ids: string[]) => {
+  const markOrdersAsPrinted = async (ids: string[], isPrinted = true) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}")
       const res = await fetch("/api/orders/mark-printed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderIds: ids, adminEmail: user.email }),
+        body: JSON.stringify({ orderIds: ids, adminEmail: user.email, isPrinted }),
       })
       if (res.ok) {
-        setOrders(orders.map(o => ids.includes(o._id) ? { ...o, isPrinted: true } : o))
         setSelectedOrders([])
-        toast.success("Orders marked as printed")
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
+        toast.success(isPrinted ? "Orders marked as printed" : "Orders marked as unprinted")
       }
     } catch (e) {
-      console.error("Failed to mark as printed", e)
+      console.error("Failed to update print status", e)
     }
   }
 
@@ -396,7 +414,7 @@ export default function AdminPage() {
       })
       if (res.ok) {
         toast.success(`Tracking ID updated`)
-        fetchData()
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
       } else {
         const data = await res.json()
         toast.error(data.error || "Failed to update tracking ID")
@@ -416,7 +434,7 @@ export default function AdminPage() {
       })
       if (res.ok) {
         toast.success(`Order status updated to ${newStatus}`)
-        fetchData()
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
       } else {
         toast.error("Failed to update status")
       }
@@ -434,7 +452,7 @@ export default function AdminPage() {
       })
       if (res.ok) {
         toast.success("Order deleted successfully")
-        fetchData()
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
       } else {
         toast.error("Failed to delete order")
       }
@@ -517,6 +535,9 @@ export default function AdminPage() {
         image: productForm.images[0] || "",
         id: editingProduct?.id,
         features: productForm.features.split(",").map(s => s.trim()).filter(Boolean),
+        howToUse: (productForm.howToUse || []).map(s => s.trim()).filter(Boolean),
+        suggestedProductIds: productForm.suggestedProductIds || [],
+        includedProductIds: productForm.suggestedProductIds || [],
         specifications: globalSpecs,
         variants: productForm.variants.map(v => {
           let parsedSpecs: Record<string, string> = {};
@@ -575,6 +596,17 @@ export default function AdminPage() {
         description: product.description || "",
         longDescription: product.longDescription || "",
         features: Array.isArray(product.features) ? product.features.join(", ") : "",
+        howToUse: Array.isArray(product.howToUse)
+          ? product.howToUse
+          : typeof product.howToUse === 'string' && product.howToUse.trim()
+          ? product.howToUse.split('\n').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        suggestedProductIds: Array.isArray(product.suggestedProductIds)
+          ? product.suggestedProductIds
+          : Array.isArray(product.includedProductIds)
+          ? product.includedProductIds
+          : [],
+        includedProductIds: Array.isArray(product.includedProductIds) ? product.includedProductIds : [],
         specifications: product.specifications 
           ? Object.entries(product.specifications).map(([k,val]) => ({ key: k, value: String(val) }))
           : [],
@@ -600,6 +632,9 @@ export default function AdminPage() {
         features: "",
         images: [],
         specifications: [],
+        howToUse: [],
+        suggestedProductIds: [],
+        includedProductIds: [],
         variants: []
       })
     }
@@ -730,11 +765,18 @@ export default function AdminPage() {
       {/* Mobile Bottom Nav */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-40 flex justify-around p-2 pb-safe">
         <button 
-          onClick={() => setActiveTab("orders")}
-          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'orders' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+          onClick={() => { setActiveTab("orders"); setOrderSubTab("new"); }}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'orders' && orderSubTab === 'new' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
         >
           <ShoppingBag className="h-5 w-5 mb-1" />
-          <span className="text-[10px] font-bold">Orders</span>
+          <span className="text-[10px] font-bold">New</span>
+        </button>
+        <button 
+          onClick={() => { setActiveTab("orders"); setOrderSubTab("printed"); }}
+          className={`flex flex-col items-center justify-center w-full py-2 rounded-xl transition-colors ${activeTab === 'orders' && orderSubTab === 'printed' ? 'text-teal-600 bg-teal-50' : 'text-slate-400 hover:bg-slate-50'}`}
+        >
+          <Printer className="h-5 w-5 mb-1" />
+          <span className="text-[10px] font-bold">Printed</span>
         </button>
         <button 
           onClick={() => setActiveTab("cancelled-orders")}
@@ -789,10 +831,30 @@ export default function AdminPage() {
 
         <nav className="space-y-1">
           <button 
-            onClick={() => setActiveTab("orders")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'orders' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+            onClick={() => { setActiveTab("orders"); setOrderSubTab("new"); }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'orders' && orderSubTab === 'new' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
-            <ShoppingBag className="h-5 w-5" /> Orders Management
+            <div className="flex items-center gap-3">
+              <ShoppingBag className="h-5 w-5" /> New Orders
+            </div>
+            {orderCounts.new > 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === 'orders' && orderSubTab === 'new' ? 'bg-white text-teal-800' : 'bg-teal-500/20 text-teal-300'}`}>
+                {orderCounts.new}
+              </span>
+            )}
+          </button>
+          <button 
+            onClick={() => { setActiveTab("orders"); setOrderSubTab("printed"); }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === 'orders' && orderSubTab === 'printed' ? 'bg-teal-600 font-bold shadow-lg shadow-teal-900/20 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+          >
+            <div className="flex items-center gap-3">
+              <Printer className="h-5 w-5" /> Printed Orders
+            </div>
+            {orderCounts.printed > 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${activeTab === 'orders' && orderSubTab === 'printed' ? 'bg-white text-teal-800' : 'bg-slate-800 text-slate-300'}`}>
+                {orderCounts.printed}
+              </span>
+            )}
           </button>
           <button 
             onClick={() => setActiveTab("cancelled-orders")}
@@ -838,12 +900,23 @@ export default function AdminPage() {
       </div>
 
       <main className="lg:ml-64 p-4 md:p-8 min-h-screen pb-24 lg:pb-8 flex-1">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'cancelled-orders' ? 'Cancelled Orders' : activeTab === 'abandoned-orders' ? 'Failed Prepaid Orders' : activeTab === 'products' ? 'Product Inventory' : 'Customer Database'}
+              {activeTab === 'orders' 
+                ? (orderSubTab === 'new' ? 'New Customer Orders' : orderSubTab === 'printed' ? 'Printed Orders' : 'All Customer Orders') 
+                : activeTab === 'cancelled-orders' ? 'Cancelled Orders' 
+                : activeTab === 'abandoned-orders' ? 'Failed Prepaid Orders' 
+                : activeTab === 'products' ? 'Product Inventory' 
+                : 'Customer Database'}
             </h1>
-            <p className="text-slate-500">Manage your business operations and data</p>
+            <p className="text-slate-500">
+              {activeTab === 'orders' && orderSubTab === 'new'
+                ? 'Orders waiting to be printed and fulfilled'
+                : activeTab === 'orders' && orderSubTab === 'printed'
+                ? 'Orders with shipping labels already printed'
+                : 'Manage your business operations and data'}
+            </p>
           </div>
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto">
              <div className="relative group flex-grow sm:flex-grow-0">
@@ -928,6 +1001,59 @@ export default function AdminPage() {
              )}
           </div>
         </header>
+
+        {activeTab === 'orders' && (
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/70 rounded-2xl shadow-inner">
+              <button
+                onClick={() => { setOrderSubTab("new"); setPage(1); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  orderSubTab === 'new'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <ShoppingBag className="h-4 w-4 text-teal-600" />
+                New Orders
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                  orderSubTab === 'new' ? 'bg-teal-100 text-teal-800' : 'bg-slate-300 text-slate-700'
+                }`}>
+                  {orderCounts.new}
+                </span>
+              </button>
+              <button
+                onClick={() => { setOrderSubTab("printed"); setPage(1); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                  orderSubTab === 'printed'
+                    ? 'bg-white text-teal-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Printer className="h-4 w-4 text-teal-600" />
+                Printed Orders
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+                  orderSubTab === 'printed' ? 'bg-teal-100 text-teal-800' : 'bg-slate-300 text-slate-700'
+                }`}>
+                  {orderCounts.printed}
+                </span>
+              </button>
+              <button
+                onClick={() => { setOrderSubTab("all"); setPage(1); }}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
+                  orderSubTab === 'all'
+                    ? 'bg-white text-teal-700 shadow-sm font-bold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                All Orders
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-500 font-medium">
+              Showing {orderSubTab === 'new' ? 'Unprinted New Orders' : orderSubTab === 'printed' ? 'Printed Orders' : 'All Orders'}
+            </div>
+          </div>
+        )}
 
         {(activeTab === 'orders' || activeTab === 'cancelled-orders' || activeTab === 'abandoned-orders') ? (() => {
           const displayedOrders = orders;
@@ -1044,15 +1170,42 @@ export default function AdminPage() {
                           <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl shadow-xl border-slate-100">
                             <DropdownMenuLabel className="text-xs font-black text-slate-400 uppercase tracking-wider px-2">Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-slate-100" />
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                window.open(`/adminklitzo789789/print?ids=${order._id}`, "_blank")
-                                markOrdersAsPrinted([order._id])
-                              }}
-                              className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-50 font-medium text-slate-600 flex items-center gap-2"
-                            >
-                              <Printer className="h-4 w-4" /> Print Label
-                            </DropdownMenuItem>
+                            {order.isPrinted ? (
+                              <>
+                                <DropdownMenuItem 
+                                  onClick={() => {
+                                    window.open(`/adminklitzo789789/print?ids=${order._id}`, "_blank")
+                                  }}
+                                  className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-50 font-medium text-slate-600 flex items-center gap-2"
+                                >
+                                  <Printer className="h-4 w-4" /> Reprint Label
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => markOrdersAsPrinted([order._id], false)}
+                                  className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-amber-50 font-medium text-amber-600 flex items-center gap-2"
+                                >
+                                  <RefreshCw className="h-4 w-4" /> Move to New Orders
+                                </DropdownMenuItem>
+                              </>
+                            ) : (
+                              <>
+                                <DropdownMenuItem 
+                                  onClick={() => {
+                                    window.open(`/adminklitzo789789/print?ids=${order._id}`, "_blank")
+                                    markOrdersAsPrinted([order._id], true)
+                                  }}
+                                  className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-50 font-medium text-slate-600 flex items-center gap-2"
+                                >
+                                  <Printer className="h-4 w-4" /> Print Label
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => markOrdersAsPrinted([order._id], true)}
+                                  className="px-3 py-2.5 rounded-lg cursor-pointer hover:bg-teal-50 font-medium text-teal-600 flex items-center gap-2"
+                                >
+                                  <CheckCircle className="h-4 w-4" /> Mark as Printed
+                                </DropdownMenuItem>
+                              </>
+                            )}
                             <DropdownMenuItem 
                               onClick={() => updateOrderStatus(order._id, "Paid")}
                               className="cursor-pointer text-teal-600 hover:text-teal-700 hover:bg-teal-50 focus:text-teal-700 focus:bg-teal-50 rounded-lg py-2 my-1"
@@ -1165,10 +1318,16 @@ export default function AdminPage() {
                   ))}
                   {displayedOrders.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-20 bg-slate-50/20">
+                      <TableCell colSpan={9} className="text-center py-20 bg-slate-50/20">
                          <div className="flex flex-col items-center gap-2">
                            <ShoppingBag className="h-10 w-10 text-slate-200" />
-                           <p className="text-slate-400 font-medium">No orders found matching criteria</p>
+                           <p className="text-slate-400 font-medium">
+                             {activeTab === 'orders' && orderSubTab === 'new'
+                               ? 'No new unprinted orders found'
+                               : activeTab === 'orders' && orderSubTab === 'printed'
+                               ? 'No printed orders found'
+                               : 'No orders found matching criteria'}
+                           </p>
                          </div>
                       </TableCell>
                     </TableRow>
@@ -1215,10 +1374,10 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-black text-slate-800 capitalize flex items-center gap-3">
                   <div className="h-8 w-2 bg-teal-500 rounded-full"></div>
                   {category.replace(/-/g, ' ')}
-                  <Badge className="ml-2 bg-slate-100 text-slate-600 border-0">{catProducts.length}</Badge>
+                  <Badge className="ml-2 bg-slate-100 text-slate-600 border-0">{(catProducts as any[]).length}</Badge>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {catProducts.map((product) => (
+                  {(catProducts as any[]).map((product: any) => (
                     <Card key={product.id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-2xl bg-white flex flex-col">
                       <div className="h-48 bg-slate-50 relative overflow-hidden group-hover:bg-slate-100 transition-colors flex items-center justify-center p-8 shrink-0">
                         <img 
@@ -1606,6 +1765,79 @@ export default function AdminPage() {
                     </div>
                   </div>
 
+                  {/* How to Use Section (Step-by-Step Points) */}
+                  <div className="col-span-1 md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">How to Use (Step-by-Step Points)</h4>
+                        <p className="text-xs text-slate-500">Add dynamic steps to display in the &quot;How to Use&quot; section on the product page</p>
+                      </div>
+                      <Button 
+                        type="button" 
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-2 border-teal-200 text-teal-700 hover:bg-teal-50"
+                        onClick={() => setProductForm({
+                          ...productForm, 
+                          howToUse: [...(productForm.howToUse || []), ""]
+                        })}
+                      >
+                        <Plus className="h-4 w-4" /> Add Step
+                      </Button>
+                    </div>
+                    
+                    {(!productForm.howToUse || productForm.howToUse.length === 0) && (
+                      <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-sm text-slate-500 mb-2">No custom steps added yet.</p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 font-bold"
+                          onClick={() => setProductForm({
+                            ...productForm,
+                            howToUse: [""]
+                          })}
+                        >
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Add First Step
+                        </Button>
+                      </div>
+                    )}
+
+                    <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2">
+                      {productForm.howToUse?.map((step, index) => (
+                        <div key={index} className="flex gap-3 items-center group">
+                          <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-lg bg-teal-50 text-teal-700 font-bold text-xs border border-teal-200">
+                            {index + 1}
+                          </span>
+                          <Input 
+                            value={step} 
+                            onChange={(e) => {
+                              const newSteps = [...productForm.howToUse];
+                              newSteps[index] = e.target.value;
+                              setProductForm({...productForm, howToUse: newSteps});
+                            }}
+                            placeholder={`Step ${index + 1} instructions (e.g. Shake the bottle well before use)`} 
+                            className="h-10 text-sm bg-slate-50 flex-1" 
+                          />
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-10 w-10 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-xl shrink-0"
+                            onClick={() => {
+                              const newSteps = [...productForm.howToUse];
+                              newSteps.splice(index, 1);
+                              setProductForm({...productForm, howToUse: newSteps});
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Variants Section */}
                   <div className="col-span-1 md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
                     <div className="flex justify-between items-center">
@@ -1820,6 +2052,98 @@ export default function AdminPage() {
                     </div>
                   </div>
 
+                  {/* Suggested Products Section (At bottom of form) */}
+                  <div className="col-span-1 md:col-span-2 space-y-4 pt-4 border-t border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-teal-600" />
+                          Suggested Products
+                        </h4>
+                        <p className="text-xs text-slate-500">
+                          Choose multiple products to show as recommendations / suggestions inside this product&apos;s page
+                        </p>
+                      </div>
+                      {(productForm.suggestedProductIds || []).length > 0 && (
+                        <Badge variant="outline" className="text-xs bg-teal-50 text-teal-700 border-teal-200 w-fit">
+                          {(productForm.suggestedProductIds || []).length} Selected
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Product Picker Dropdown */}
+                    <div className="flex gap-2">
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const selectedId = Number(e.target.value);
+                          if (selectedId && !(productForm.suggestedProductIds || []).includes(selectedId)) {
+                            setProductForm({
+                              ...productForm,
+                              suggestedProductIds: [...(productForm.suggestedProductIds || []), selectedId]
+                            });
+                          }
+                        }}
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl h-11 px-4 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+                      >
+                        <option value="">-- Choose a product to add to suggestions --</option>
+                        {products
+                          .filter(p => (!editingProduct || p.id !== editingProduct.id) && !(productForm.suggestedProductIds || []).includes(p.id))
+                          .map(p => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({String(p.price).includes('₹') ? p.price : `₹${p.price}`})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {/* Selected Suggested Products List */}
+                    {productForm.suggestedProductIds && productForm.suggestedProductIds.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
+                        {productForm.suggestedProductIds.map((id: number) => {
+                          const item = products.find(p => p.id === id);
+                          if (!item) return null;
+                          return (
+                            <div 
+                              key={id}
+                              className="flex items-center justify-between p-3 rounded-xl border border-teal-200 bg-teal-50/40 shadow-sm"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <img 
+                                  src={item.images?.[0] || item.image || "/placeholder.svg"} 
+                                  alt={item.name} 
+                                  className="w-10 h-10 object-contain rounded-lg bg-white p-1 border border-slate-200 shrink-0" 
+                                />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-slate-800 truncate">{item.name}</p>
+                                  <p className="text-[11px] text-teal-600 font-semibold">{String(item.price).includes('₹') ? item.price : `₹${item.price}`}</p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0 ml-2"
+                                onClick={() => {
+                                  setProductForm({
+                                    ...productForm,
+                                    suggestedProductIds: (productForm.suggestedProductIds || []).filter((pid: number) => pid !== id)
+                                  });
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <p className="text-xs text-slate-500">No suggested products added. Use the dropdown above to choose products.</p>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100">
                     <Button 
                       type="button" 
@@ -1930,18 +2254,35 @@ export default function AdminPage() {
 
       {/* Sticky Bulk Action Bar */}
       {selectedOrders.length > 0 && activeTab === 'orders' && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-6 z-50 animate-in slide-in-from-bottom-10 border border-slate-700">
-          <span className="font-medium text-sm">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 sm:gap-6 z-50 animate-in slide-in-from-bottom-10 border border-slate-700 max-w-[95vw] overflow-x-auto">
+          <span className="font-medium text-sm whitespace-nowrap">
             <span className="text-teal-400 font-bold">{selectedOrders.length}</span> orders selected
           </span>
-          <div className="w-px h-6 bg-slate-700" />
+          <div className="w-px h-6 bg-slate-700 shrink-0" />
           <Button 
             onClick={handlePrintSelected}
-            className="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-full h-9 px-6 flex items-center gap-2"
+            className="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-full h-9 px-5 flex items-center gap-2 shrink-0"
           >
             <Printer className="w-4 h-4" />
-            Print Selected
+            {orderSubTab === 'printed' ? 'Reprint Selected' : 'Print Selected'}
           </Button>
+          {orderSubTab === 'printed' ? (
+            <Button 
+              onClick={() => markOrdersAsPrinted(selectedOrders, false)}
+              variant="outline"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-600 rounded-full h-9 px-4 text-xs shrink-0"
+            >
+              Move to New Orders
+            </Button>
+          ) : (
+            <Button 
+              onClick={() => markOrdersAsPrinted(selectedOrders, true)}
+              variant="outline"
+              className="bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-600 rounded-full h-9 px-4 text-xs shrink-0"
+            >
+              Mark as Printed
+            </Button>
+          )}
         </div>
       )}
       </div>

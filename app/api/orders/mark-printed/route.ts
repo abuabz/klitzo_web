@@ -5,7 +5,7 @@ import User from "@/models/User";
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderIds, adminEmail } = await request.json();
+    const { orderIds, adminEmail, isPrinted = true } = await request.json();
 
     if (!adminEmail || !Array.isArray(orderIds) || orderIds.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -19,12 +19,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const printVal = Boolean(isPrinted);
     const result = await Order.updateMany(
       { _id: { $in: orderIds } },
-      { $set: { isPrinted: true } }
+      { $set: { isPrinted: printVal } }
     );
 
-    return NextResponse.json({ message: "Orders marked as printed", modifiedCount: result.modifiedCount });
+    return NextResponse.json({ 
+      message: printVal ? "Orders marked as printed" : "Orders marked as unprinted", 
+      modifiedCount: result.modifiedCount 
+    });
   } catch (error: any) {
     console.error("Error marking orders as printed:", error);
     return NextResponse.json(
