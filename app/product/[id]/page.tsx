@@ -107,7 +107,7 @@ export default function ProductPage() {
   })()
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pb-20 lg:pb-0">
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -217,62 +217,63 @@ export default function ProductPage() {
       )}
 
       {/* Product Details Section */}
-      <section className="pt-40 pb-6 px-4 bg-slate-50">
+      <section className="pt-24 sm:pt-28 lg:pt-32 pb-2 sm:pb-3 px-3 sm:px-4 bg-slate-50 border-b border-slate-100">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center space-x-2 text-sm text-slate-600">
-            <Link href="/" className="hover:text-teal-600 transition-colors">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm text-slate-600 truncate">
+            <Link href="/" className="hover:text-teal-600 transition-colors shrink-0">
               Home
             </Link>
             <span>/</span>
-            <Link href="/products" className="hover:text-teal-600 transition-colors">
+            <Link href="/products" className="hover:text-teal-600 transition-colors shrink-0">
               Products
             </Link>
             <span>/</span>
-            <span className="text-slate-800">{product.name}</span>
+            <span className="text-slate-800 font-medium truncate">{product.name}</span>
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center mt-4 text-teal-600 hover:text-teal-700 transition-colors"
+            className="inline-flex items-center mt-2 text-xs sm:text-sm text-teal-600 hover:text-teal-700 transition-colors font-semibold"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
             Back to Products
           </Link>
         </div>
       </section>
 
-      <section className="py-8 md:py-16 px-4">
+      <section className="py-3 sm:py-6 lg:py-10 px-3 sm:px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-10">
             <div
-              className={`transform transition-all duration-1000 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"}`}
+              className={`transform transition-all duration-700 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-6 opacity-0"}`}
             >
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {(() => {
                   const displayImages = selectedVariant?.images?.length > 0 ? selectedVariant.images : (product.images || []);
 
                   return (
                     <>
-                      <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden flex items-center justify-center p-4">
+                      <div className="w-full h-56 sm:h-72 lg:h-auto lg:aspect-square bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex items-center justify-center p-3 sm:p-6">
                         <img
                           src={(selectedImage === -1 ? selectedVariant?.image : (displayImages[selectedImage])) || selectedVariant?.image || product.image || "/placeholder.svg"}
                           alt={product.name}
-                          className="max-w-full max-h-full object-contain"
+                          className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+                      <div className="flex space-x-2 sm:space-x-3 overflow-x-auto pb-1 sm:pb-2 scrollbar-hide">
                         {displayImages.map((image: string, index: number) => (
                           <button
                             key={index}
+                            type="button"
                             onClick={() => setSelectedImage(index)}
-                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedImage === index
-                              ? "border-teal-500 shadow-lg"
-                              : "border-slate-200 hover:border-slate-300"
+                            className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${selectedImage === index
+                              ? "border-teal-500 shadow-md ring-2 ring-teal-500/20"
+                              : "border-slate-200 hover:border-slate-300 bg-white"
                               }`}
                           >
                             <img
                               src={image || "/placeholder.svg"}
                               alt={`${product.name} ${index + 1}`}
-                              className="w-full h-full object-contain p-2"
+                              className="w-full h-full object-contain p-1"
                             />
                           </button>
                         ))}
@@ -284,24 +285,64 @@ export default function ProductPage() {
             </div>
 
             <div
-              className={`transform transition-all duration-1000 delay-300 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-10 opacity-0"}`}
+              className={`transform transition-all duration-700 delay-150 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"}`}
             >
-              <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  {product.inStock && <Badge className="bg-green-100 text-green-800">In Stock</Badge>}
+              <div className="space-y-3.5 sm:space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {product.inStock ? (
+                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs px-2.5 py-0.5">
+                      In Stock
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive" className="text-xs px-2.5 py-0.5">
+                      Out of Stock
+                    </Badge>
+                  )}
+                  {product.freeShipping && (
+                    <Badge className="bg-teal-50 text-teal-700 border border-teal-200 font-bold text-xs px-2.5 py-0.5">
+                      All India Free Delivery
+                    </Badge>
+                  )}
+                </div>
+
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight">
+                  {product.name}
+                </h1>
+
+                <div className="flex items-baseline flex-wrap gap-2.5 sm:gap-3">
+                  <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-teal-600">
+                    ₹{Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")).toFixed(2)}
+                  </span>
+                  {(selectedVariant?.originalPrice || product.originalPrice) && (
+                    <span className="text-base sm:text-lg text-slate-400 line-through">
+                      ₹{selectedVariant?.originalPrice || product.originalPrice}
+                    </span>
+                  )}
+                  {(selectedVariant?.originalPrice || product.originalPrice) && (
+                    <Badge className="bg-red-50 text-red-600 border border-red-200 font-extrabold text-xs px-2.5 py-0.5">
+                      Save ₹
+                      {(
+                        Number.parseFloat(String(selectedVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, "")) - Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, ""))
+                      ).toFixed(0)}
+                    </Badge>
+                  )}
                 </div>
 
                 {product.variants && product.variants.length > 0 && (
-                  <div className="space-y-3 pb-2 border-b border-slate-100 mb-4">
-                    <h3 className="text-lg text-slate-800">
-                      Size: <span className="font-bold">{selectedVariant?.size || "Standard"}</span>
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
+                  <div className="space-y-2 py-2 border-y border-slate-100">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-slate-600 font-medium">
+                        Size: <span className="font-bold text-slate-900">{selectedVariant?.size || "Standard"}</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
                       {product.variants.map((variant: any, idx: number) => {
                         const isSelected = selectedVariant?.sku === variant.sku || selectedVariant?.size === variant.size
+                        const varImg = variant.images?.[0] || variant.image || product.images?.[0] || product.image;
                         return (
-                          <div
+                          <button
                             key={idx}
+                            type="button"
                             onClick={() => {
                               setSelectedVariant(variant)
                               if (variant.images && variant.images.length > 0) {
@@ -314,111 +355,70 @@ export default function ProductPage() {
                                   setSelectedImage(-1)
                                 }
                               } else {
-                                setSelectedImage(0); // Default to global cover if no variant image
+                                setSelectedImage(0);
                               }
                             }}
-                            className={`border-2 rounded-xl p-3 cursor-pointer transition-all duration-200 bg-white hover:shadow-md ${isSelected ? "border-blue-600 shadow-sm" : "border-slate-200 hover:border-slate-300"
-                              } flex flex-col min-w-[140px]`}
+                            className={`border-2 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 flex items-center gap-2.5 text-left ${
+                              isSelected
+                                ? "border-teal-500 bg-teal-50/40 shadow-sm ring-1 ring-teal-500/20"
+                                : "border-slate-200 hover:border-slate-300 bg-white"
+                            }`}
                           >
-                            <div className="h-16 w-full mb-2 flex items-center justify-center bg-transparent rounded-lg">
+                            {varImg && (
                               <img
-                                src={variant.images?.[0] || variant.image || product.images?.[0] || product.image || "/placeholder.svg"}
+                                src={varImg}
                                 alt={variant.size}
-                                className="max-h-full max-w-full object-contain"
+                                className="w-8 h-8 object-contain rounded shrink-0 bg-white"
                               />
-                            </div>
-                            <div className="text-sm font-semibold text-slate-800">
-                              {variant.size || variant.sku}
-                            </div>
-                            <div className="text-sm font-bold text-slate-800 mt-1">₹{variant.price}</div>
-                            {variant.originalPrice && (
-                              <div className="text-xs text-slate-400 line-through">₹{variant.originalPrice}</div>
                             )}
-                            {variant.stock > 0 ? (
-                              <div className="text-xs text-green-600 font-medium mt-1">In stock</div>
-                            ) : (
-                              <div className="text-xs text-red-500 font-medium mt-1">Out of stock</div>
-                            )}
-                          </div>
+                            <div>
+                              <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                                {variant.size || variant.sku}
+                              </div>
+                              <div className="text-xs font-black text-teal-600 mt-0.5">
+                                ₹{variant.price}
+                              </div>
+                            </div>
+                          </button>
                         )
                       })}
                     </div>
                   </div>
                 )}
 
-                <h1 className="text-3xl md:text-4xl font-bold text-slate-800">{product.name}</h1>
-
-                <div className="flex items-center flex-wrap gap-2 sm:gap-4">
-                  <span className="text-3xl font-bold text-teal-600">
-                    ₹{Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")).toFixed(2)}
-                  </span>
-                  {(selectedVariant?.originalPrice || product.originalPrice) && (
-                    <span className="text-xl text-slate-400 line-through">₹{selectedVariant?.originalPrice || product.originalPrice}</span>
-                  )}
-                  {(selectedVariant?.originalPrice || product.originalPrice) && (
-                    <Badge className="bg-red-100 text-red-800">
-                      Save ₹
-                      {(
-                        Number.parseFloat(String(selectedVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, "")) - Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, ""))
-                      ).toFixed(2)}
-                    </Badge>
-                  )}
-
-                </div>
-
-                <p className="text-lg text-slate-600 leading-relaxed pt-2">{product.description}</p>
-
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-slate-800">Key Features:</h3>
-                  <div className="space-y-2">
-                    {(product.features || []).slice(0, 3).map((feature: string, index: number) => (
-                      <div key={index} className="flex items-center">
-                        <Sparkles className="h-5 w-5 text-teal-500 mr-3 flex-shrink-0" />
-                        <span className="text-slate-700">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t">
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg font-semibold text-slate-800">Quantity:</span>
-                    <div className="flex items-center border border-slate-300 rounded-lg">
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shadow-sm shrink-0">
                       <button
+                        type="button"
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="p-2 hover:bg-slate-100 transition-colors"
+                        className="px-2.5 py-2 hover:bg-slate-100 transition-colors text-slate-700"
+                        aria-label="Decrease quantity"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="px-4 py-2 text-lg font-semibold">{quantity}</span>
+                      <span className="px-3 py-1 text-sm sm:text-base font-bold text-slate-800 min-w-[28px] text-center">
+                        {quantity}
+                      </span>
                       <button
+                        type="button"
                         onClick={() => setQuantity(quantity + 1)}
-                        className="p-2 hover:bg-slate-100 transition-colors"
+                        className="px-2.5 py-2 hover:bg-slate-100 transition-colors text-slate-700"
+                        aria-label="Increase quantity"
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                  </div>
 
-
-
-                  <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       onClick={handlePurchase}
                       size="lg"
-                      className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                      className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white h-11 sm:h-12 text-sm sm:text-base font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                     >
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      Buy Now - ₹
-                      {(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
+                      <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span>Buy Now &bull; ₹{(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}</span>
                     </Button>
-                    {/* <Button
-                      variant="outline"
-                      size="lg"
-                      className="border-2 border-teal-500 text-teal-600 hover:bg-teal-500 hover:text-white px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
-                    >
-                      <Heart className="h-5 w-5" />
-                    </Button> */}
+
                     <Button
                       onClick={() => {
                         if (navigator.share) {
@@ -432,26 +432,41 @@ export default function ProductPage() {
                         }
                       }}
                       variant="outline"
-                      size="lg"
-                      className="border-2 border-slate-300 text-slate-600 hover:bg-slate-100 px-6 py-4 rounded-full transition-all duration-300 bg-transparent"
+                      size="icon"
+                      className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 shrink-0"
+                      aria-label="Share product"
                     >
-                      <Share2 className="h-5 w-5" />
+                      <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </div>
 
                   {product.freeShipping && (
-                    <div className="space-y-2">
-                      <div className="flex items-center text-teal-800 bg-green-50 p-3 rounded-lg">
-                        <LucideFolderSync className="h-5 w-5 mr-2" />
-                        <span className="font-medium  text-sm ">100% Money-Back Guarantee within 5-Days</span>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center text-teal-800 bg-teal-50/80 p-2 rounded-lg">
+                        <Truck className="h-4 w-4 mr-1.5 shrink-0 text-teal-600" />
+                        <span className="font-semibold truncate">All India Free Delivery</span>
                       </div>
-                      <div className="flex items-center text-teal-800 bg-blue-50 p-3 rounded-lg">
-                        <Truck className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">All India Free Delivery</span>
+                      <div className="flex items-center text-emerald-800 bg-emerald-50/80 p-2 rounded-lg">
+                        <LucideFolderSync className="h-4 w-4 mr-1.5 shrink-0 text-emerald-600" />
+                        <span className="font-semibold truncate">5-Day Guarantee</span>
                       </div>
-                      <div className="flex items-center text-amber-800 bg-amber-50 p-3 rounded-lg">
-                        <Clock className="h-5 w-5 mr-2" />
-                        <span className="font-medium text-sm ">Delivery within 3 to 6 days</span>
+                    </div>
+                  )}
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
+                    {product.description}
+                  </p>
+
+                  {product.features && product.features.length > 0 && (
+                    <div className="space-y-1.5 pt-1">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-800">Key Features:</h4>
+                      <div className="space-y-1">
+                        {product.features.slice(0, 3).map((feature: string, index: number) => (
+                          <div key={index} className="flex items-center text-xs sm:text-sm text-slate-700">
+                            <Sparkles className="h-3.5 w-3.5 text-teal-500 mr-2 shrink-0" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -742,6 +757,34 @@ export default function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* Mobile Sticky Bottom Action Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-4 py-2.5 shadow-[0_-4px_25px_rgba(0,0,0,0.12)]">
+        <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+          <div className="flex flex-col min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">
+              {selectedVariant?.size ? `Size: ${selectedVariant.size}` : product.name}
+            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-lg font-black text-teal-600">
+                ₹{(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
+              </span>
+              {(selectedVariant?.originalPrice || product.originalPrice) && (
+                <span className="text-xs text-slate-400 line-through">
+                  ₹{selectedVariant?.originalPrice || product.originalPrice}
+                </span>
+              )}
+            </div>
+          </div>
+          <Button
+            onClick={handlePurchase}
+            className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold text-sm px-5 py-2.5 h-10 rounded-xl shadow-md flex items-center gap-2 shrink-0"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>Buy Now</span>
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
