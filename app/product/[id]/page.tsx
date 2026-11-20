@@ -100,8 +100,8 @@ export default function ProductPage() {
     const ids = Array.isArray(product.suggestedProductIds) && product.suggestedProductIds.length > 0
       ? product.suggestedProductIds
       : Array.isArray(product.includedProductIds) && product.includedProductIds.length > 0
-      ? product.includedProductIds
-      : []
+        ? product.includedProductIds
+        : []
 
     return ids.map((id: number) => allProducts.find(p => p.id === id)).filter(Boolean)
   })()
@@ -119,23 +119,23 @@ export default function ProductPage() {
 
       {/* Suggestion Preview Modal */}
       {selectedSuggestion && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99] p-4 animate-in fade-in duration-200"
           onClick={() => setSelectedSuggestion(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative bg-slate-50 p-6 flex items-center justify-center border-b">
-              <button 
+              <button
                 onClick={() => setSelectedSuggestion(null)}
                 className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-500 hover:text-slate-800 flex items-center justify-center shadow-sm transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
-              <img 
-                src={selectedSuggestion.images?.[0] || selectedSuggestion.image || "/placeholder.svg"} 
+              <img
+                src={selectedSuggestion.images?.[0] || selectedSuggestion.image || "/placeholder.svg"}
                 alt={selectedSuggestion.name}
                 className="max-h-52 max-w-full object-contain"
               />
@@ -143,7 +143,7 @@ export default function ProductPage() {
                 {isCombo ? "Included in Combo" : "Recommended Combo"}
               </Badge>
             </div>
-            
+
             <div className="p-6 overflow-y-auto">
               <h3 className="text-xl font-black text-slate-900 mb-1">
                 {selectedSuggestion.name}
@@ -151,7 +151,7 @@ export default function ProductPage() {
               <p className="text-xs text-slate-500 mb-4 line-clamp-2">
                 {selectedSuggestion.description}
               </p>
-              
+
               <div className="flex items-center gap-3 mb-6 p-3 bg-slate-50 rounded-xl">
                 <span className="text-2xl font-black text-teal-600">
                   {String(selectedSuggestion.price).includes('₹') ? selectedSuggestion.price : `₹${selectedSuggestion.price}`}
@@ -186,8 +186,8 @@ export default function ProductPage() {
                     View Full Product Details
                   </Button>
                 </Link>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setSelectedSuggestion(null)}
                   className="rounded-full border-slate-200"
                 >
@@ -246,39 +246,60 @@ export default function ProductPage() {
             <div
               className={`transform transition-all duration-700 ${isVisible ? "translate-x-0 opacity-100" : "-translate-x-6 opacity-0"}`}
             >
-              <div className="space-y-3">
+              <div className="w-full">
                 {(() => {
-                  const displayImages = selectedVariant?.images?.length > 0 ? selectedVariant.images : (product.images || []);
+                  const displayImages = (() => {
+                    if (selectedVariant?.images && selectedVariant.images.length > 0) {
+                      return selectedVariant.images;
+                    }
+                    if (product.images && product.images.length > 0) {
+                      return product.images;
+                    }
+                    const fallback = selectedVariant?.image || product.image || "/placeholder.svg";
+                    return [fallback];
+                  })();
+
+                  const activeImageSrc = (selectedImage === -1 ? selectedVariant?.image : displayImages[selectedImage]) 
+                    || displayImages[0] 
+                    || selectedVariant?.image 
+                    || product.image 
+                    || "/placeholder.svg";
 
                   return (
-                    <>
-                      <div className="w-full h-56 sm:h-72 lg:h-auto lg:aspect-square bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex items-center justify-center p-3 sm:p-6">
+                    <div className="flex flex-row gap-2.5 sm:gap-3 lg:flex-col lg:space-y-3">
+                      {/* Left: Big Main Image */}
+                      <div className="flex-1 h-56 sm:h-72 lg:h-auto lg:aspect-square bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex items-center justify-center p-2.5 sm:p-6">
                         <img
-                          src={(selectedImage === -1 ? selectedVariant?.image : (displayImages[selectedImage])) || selectedVariant?.image || product.image || "/placeholder.svg"}
+                          src={activeImageSrc}
                           alt={product.name}
                           className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                      <div className="flex space-x-2 sm:space-x-3 overflow-x-auto pb-1 sm:pb-2 scrollbar-hide">
-                        {displayImages.map((image: string, index: number) => (
-                          <button
-                            key={index}
-                            type="button"
-                            onClick={() => setSelectedImage(index)}
-                            className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 ${selectedImage === index
-                              ? "border-teal-500 shadow-md ring-2 ring-teal-500/20"
-                              : "border-slate-200 hover:border-slate-300 bg-white"
+
+                      {/* Right: List of Images (Thumbnails) - Only shown if more than one image */}
+                      {displayImages.length > 1 && (
+                        <div className="w-14 sm:w-16 lg:w-full flex flex-col lg:flex-row gap-2 lg:gap-3 overflow-y-auto lg:overflow-x-auto max-h-56 sm:max-h-72 lg:max-h-none scrollbar-hide shrink-0">
+                          {displayImages.map((image: string, index: number) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => setSelectedImage(index)}
+                              className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 p-1 bg-white flex items-center justify-center ${
+                                selectedImage === index
+                                  ? "border-teal-500 shadow-md ring-2 ring-teal-500/20"
+                                  : "border-slate-200 hover:border-slate-300"
                               }`}
-                          >
-                            <img
-                              src={image || "/placeholder.svg"}
-                              alt={`${product.name} ${index + 1}`}
-                              className="w-full h-full object-contain p-1"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </>
+                            >
+                              <img
+                                src={image || "/placeholder.svg"}
+                                alt={`${product.name} ${index + 1}`}
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   );
                 })()}
               </div>
@@ -288,22 +309,7 @@ export default function ProductPage() {
               className={`transform transition-all duration-700 delay-150 ${isVisible ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"}`}
             >
               <div className="space-y-3.5 sm:space-y-4">
-                <div className="flex items-center gap-2 flex-wrap">
-                  {product.inStock ? (
-                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-xs px-2.5 py-0.5">
-                      In Stock
-                    </Badge>
-                  ) : (
-                    <Badge variant="destructive" className="text-xs px-2.5 py-0.5">
-                      Out of Stock
-                    </Badge>
-                  )}
-                  {product.freeShipping && (
-                    <Badge className="bg-teal-50 text-teal-700 border border-teal-200 font-bold text-xs px-2.5 py-0.5">
-                      All India Free Delivery
-                    </Badge>
-                  )}
-                </div>
+
 
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight">
                   {product.name}
@@ -358,11 +364,10 @@ export default function ProductPage() {
                                 setSelectedImage(0);
                               }
                             }}
-                            className={`border-2 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 flex items-center gap-2.5 text-left ${
-                              isSelected
-                                ? "border-teal-500 bg-teal-50/40 shadow-sm ring-1 ring-teal-500/20"
-                                : "border-slate-200 hover:border-slate-300 bg-white"
-                            }`}
+                            className={`border-2 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 flex items-center gap-2.5 text-left ${isSelected
+                              ? "border-teal-500 bg-teal-50/40 shadow-sm ring-1 ring-teal-500/20"
+                              : "border-slate-200 hover:border-slate-300 bg-white"
+                              }`}
                           >
                             {varImg && (
                               <img
@@ -484,8 +489,8 @@ export default function ProductPage() {
                               {isCombo ? "Included in this Combo Pack" : "Suggested Products"}
                             </h4>
                             <p className="text-[11px] text-slate-500">
-                              {isCombo 
-                                ? "Full-size individual products included in this pack" 
+                              {isCombo
+                                ? "Full-size individual products included in this pack"
                                 : "Recommended products to go with this item"}
                             </p>
                           </div>
@@ -497,15 +502,15 @@ export default function ProductPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3">
                         {suggestedIndividualProducts.map((item: any) => (
-                          <div 
+                          <div
                             key={item.id}
                             className="bg-white p-2.5 rounded-xl border border-slate-200/80 hover:border-teal-400 hover:shadow-md transition-all flex items-center gap-3 group relative cursor-pointer"
                             onClick={() => setSelectedSuggestion(item)}
                           >
                             <div className="w-12 h-12 bg-slate-50 rounded-lg p-1 shrink-0 flex items-center justify-center">
-                              <img 
-                                src={item.images?.[0] || item.image || "/placeholder.svg"} 
-                                alt={item.name} 
+                              <img
+                                src={item.images?.[0] || item.image || "/placeholder.svg"}
+                                alt={item.name}
                                 className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform"
                               />
                             </div>
@@ -552,7 +557,7 @@ export default function ProductPage() {
                   {isCombo ? "Prefer to Buy Individually?" : "Frequently Bought Together"}
                 </h2>
                 <p className="text-sm text-slate-600 mt-1">
-                  {isCombo 
+                  {isCombo
                     ? "This combo brings together our best-selling individual care products. You can also explore and buy them individually."
                     : "Pair this product with these recommended items for the best cleaning experience."}
                 </p>
@@ -561,14 +566,14 @@ export default function ProductPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {suggestedIndividualProducts.map((item: any) => (
-                <Card 
-                  key={item.id} 
+                <Card
+                  key={item.id}
                   className="overflow-hidden border border-slate-200/80 hover:border-teal-400 hover:shadow-xl transition-all duration-300 rounded-2xl bg-white flex flex-col sm:flex-row group"
                 >
                   <div className="sm:w-48 bg-slate-50 p-6 flex items-center justify-center shrink-0 relative overflow-hidden">
-                    <img 
-                      src={item.images?.[0] || item.image || "/placeholder.svg"} 
-                      alt={item.name} 
+                    <img
+                      src={item.images?.[0] || item.image || "/placeholder.svg"}
+                      alt={item.name}
                       className="max-h-40 max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                     <Badge className="absolute top-3 left-3 bg-slate-900/80 text-white text-[10px]">
@@ -596,7 +601,7 @@ export default function ProductPage() {
                           <Badge className="bg-red-100 text-red-800 text-[10px]">
                             Save ₹
                             {(
-                              Number.parseFloat(String(item.originalPrice).replace(/[^\d.]/g, "")) - 
+                              Number.parseFloat(String(item.originalPrice).replace(/[^\d.]/g, "")) -
                               Number.parseFloat(String(item.price).replace(/[^\d.]/g, ""))
                             ).toFixed(0)}
                           </Badge>
@@ -605,14 +610,14 @@ export default function ProductPage() {
                     </div>
                     <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
                       <Link href={`/product/${item.id}`} className="flex-1">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           className="w-full rounded-xl border-teal-500 text-teal-700 hover:bg-teal-50 text-xs font-bold h-9"
                         >
                           View Product
                         </Button>
                       </Link>
-                      <Button 
+                      <Button
                         onClick={() => setSelectedSuggestion(item)}
                         className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold h-9 px-4"
                       >
