@@ -3,9 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Zap, Shield, Car, Home, Shirt, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart } from "lucide-react"
+import { Sparkles, Zap, Shield, Car, Home, Shirt, Phone, Mail, MapPin, Clock, Send, Timer, ShoppingCart, ShoppingBag } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { useCart } from "@/context/CartContext"
 import {
   Carousel,
   CarouselContent,
@@ -16,6 +17,7 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 
 export default function KlitzoLanding() {
+  const { addItem } = useCart()
   const [isVisible, setIsVisible] = useState(false)
   const heroPlugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
@@ -25,6 +27,23 @@ export default function KlitzoLanding() {
   )
   const [openFeature, setOpenFeature] = useState<number | null>(null)
   const [products, setProducts] = useState<any[]>([])
+
+  const handleAddToCart = (e: React.MouseEvent, product: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const priceNum = Number.parseFloat(String(product.price).replace(/[^\d.]/g, ""))
+    const origPriceNum = product.originalPrice
+      ? Number.parseFloat(String(product.originalPrice).replace(/[^\d.]/g, ""))
+      : undefined
+    addItem({
+      id: `${product.id}-default`,
+      productId: product.id,
+      name: product.name,
+      price: priceNum,
+      originalPrice: origPriceNum,
+      image: product.image || "/placeholder.svg",
+    })
+  }
 
   useEffect(() => {
     setIsVisible(true)
@@ -165,8 +184,21 @@ export default function KlitzoLanding() {
                                   </span>
                                 )}
                               </div>
-                              <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm text-center">
-                                Buy Now
+                              <div className="flex items-center gap-2 w-full">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={(e) => handleAddToCart(e, product)}
+                                  className="border-2 border-teal-500 text-teal-700 hover:bg-teal-50 rounded-full h-10 px-3 flex items-center justify-center shrink-0 cursor-pointer transition-all shadow-xs"
+                                  title="Add to Cart"
+                                  aria-label="Add to Cart"
+                                >
+                                  <ShoppingBag className="w-4 h-4" />
+                                  <span className="hidden xl:inline text-xs font-bold ml-1">Add</span>
+                                </Button>
+                                <div className="flex-1 bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm text-center flex items-center justify-center">
+                                  Buy Now
+                                </div>
                               </div>
                             </div>
                           </CardContent>
@@ -222,8 +254,20 @@ export default function KlitzoLanding() {
                               </span>
                             )}
                           </div>
-                          <div className="w-full bg-gradient-to-r from-teal-400 to-blue-600 text-white rounded-full py-1.5 shadow-sm font-bold text-[10px] text-center">
-                            Buy Now
+                          <div className="flex items-center gap-1.5 w-full">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={(e) => handleAddToCart(e, product)}
+                              className="border border-teal-500 text-teal-700 hover:bg-teal-50 rounded-full h-7 w-7 p-0 shrink-0 flex items-center justify-center cursor-pointer shadow-xs"
+                              title="Add to Cart"
+                              aria-label="Add to Cart"
+                            >
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                            </Button>
+                            <div className="flex-1 bg-gradient-to-r from-teal-400 to-blue-600 text-white rounded-full py-1.5 shadow-sm font-bold text-[10px] text-center">
+                              Buy Now
+                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -313,11 +357,21 @@ export default function KlitzoLanding() {
                                 <span className="text-[10px] sm:text-xs text-slate-400 line-through font-medium">{product.originalPrice ? (String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`) : ''}</span>
                               </div>
 
-                              <Link href={`/product/${product.id}`} className="w-full mt-auto block">
-                                <Button className="w-full bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2.5 h-8 sm:h-11 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                              <div className="flex gap-2 w-full mt-auto">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={(e) => handleAddToCart(e, product)}
+                                  className="border-2 border-teal-500 text-teal-700 hover:bg-teal-50 rounded-full text-xs h-8 sm:h-11 px-2.5 sm:px-3.5 shrink-0 flex items-center justify-center gap-1 cursor-pointer font-bold shadow-xs"
+                                  title="Add to Cart"
+                                >
+                                  <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                  <span className="hidden sm:inline">Add</span>
+                                </Button>
+                                <Button className="flex-1 bg-gradient-to-r cursor-pointer from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white rounded-full text-[10px] sm:text-xs md:text-sm py-1.5 sm:py-2.5 h-8 sm:h-11 font-semibold transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
                                   Buy Now
                                 </Button>
-                              </Link>
+                              </div>
                             </CardContent>
                           </Card>
                         </Link>

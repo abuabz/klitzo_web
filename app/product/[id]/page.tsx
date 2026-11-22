@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Star, Minus, Plus, ShoppingCart, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck, X } from "lucide-react"
+import { Sparkles, Star, Minus, Plus, ShoppingCart, ShoppingBag, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck, X, ChevronDown, ChevronUp } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -11,6 +11,7 @@ import PurchaseForm from "@/components/purchase-form"
 import { AuthModal } from "@/components/auth-modal"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useCart } from "@/context/CartContext"
 
 
 export default function ProductPage() {
@@ -29,6 +30,8 @@ export default function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState<any>(null)
   const [allProducts, setAllProducts] = useState<any[]>([])
   const [selectedSuggestion, setSelectedSuggestion] = useState<any>(null)
+  const [isLongDescExpanded, setIsLongDescExpanded] = useState(false)
+  const [isShortDescExpanded, setIsShortDescExpanded] = useState(false)
 
   useEffect(() => {
     fetch('/api/products')
@@ -87,8 +90,30 @@ export default function ProductPage() {
   }
 
 
+  const { addItem } = useCart()
+
   const handlePurchase = () => {
     setShowPurchaseForm(true)
+  }
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const currentPrice = Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, ""));
+    const currentOrigPrice = selectedVariant?.originalPrice || product.originalPrice 
+      ? Number.parseFloat(String(selectedVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, ""))
+      : undefined;
+    const currentImg = selectedVariant?.image || product.images?.[0] || product.image || "/placeholder.svg";
+    const variantId = selectedVariant?.sku || selectedVariant?.size || "default";
+
+    addItem({
+      id: `${product.id}-${variantId}`,
+      productId: product.id,
+      name: product.name,
+      variantSize: selectedVariant?.size || undefined,
+      price: currentPrice,
+      originalPrice: currentOrigPrice,
+      image: currentImg,
+    }, quantity);
   }
 
   const isCombo = product?.category === "combo-pack" || (product?.name || "").toLowerCase().includes("combo")
@@ -416,12 +441,23 @@ export default function ProductPage() {
                     </div>
 
                     <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddToCart}
+                      className="border-2 border-teal-600 text-teal-700 hover:bg-teal-50 h-11 sm:h-12 font-bold px-3.5 sm:px-5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                    >
+                      <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden sm:inline">Add to Cart</span>
+                      <span className="sm:hidden">Add</span>
+                    </Button>
+
+                    <Button
                       onClick={handlePurchase}
                       size="lg"
                       className="flex-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white h-11 sm:h-12 text-sm sm:text-base font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                      <span>Buy Now &bull; ₹{(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}</span>
+                      <span>Buy Now &bull; ₹{(Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(0)}</span>
                     </Button>
 
                     <Button
@@ -458,9 +494,21 @@ export default function ProductPage() {
                     </div>
                   )}
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">
-                    {product.description}
-                  </p>
+                  <div className="pt-1">
+                    <p className={`text-xs sm:text-sm text-slate-600 leading-relaxed ${!isShortDescExpanded ? "line-clamp-5" : ""}`}>
+                      {product.description}
+                    </p>
+                    {product.description && (product.description.length > 220 || product.description.split('\n').length > 5) && (
+                      <button
+                        type="button"
+                        onClick={() => setIsShortDescExpanded(!isShortDescExpanded)}
+                        className="text-xs font-semibold text-teal-600 hover:text-teal-700 mt-1 inline-flex items-center gap-0.5 cursor-pointer focus:outline-hidden"
+                      >
+                        <span>{isShortDescExpanded ? "Show Less" : "Read More"}</span>
+                        {isShortDescExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      </button>
+                    )}
+                  </div>
 
                   {product.features && product.features.length > 0 && (
                     <div className="space-y-1.5 pt-1">
@@ -637,7 +685,21 @@ export default function ProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-slate-800 mb-4">Product Description</h3>
-              <p className="text-slate-600 leading-relaxed mb-6 text-justify">{product.longDescription}</p>
+              <div className="mb-6">
+                <p className={`text-slate-600 leading-relaxed text-justify whitespace-pre-line ${!isLongDescExpanded ? "line-clamp-5" : ""}`}>
+                  {product.longDescription || product.description}
+                </p>
+                {((product.longDescription || product.description) && ((product.longDescription || product.description).length > 200 || (product.longDescription || product.description).split('\n').length > 5)) && (
+                  <button
+                    type="button"
+                    onClick={() => setIsLongDescExpanded(!isLongDescExpanded)}
+                    className="mt-2.5 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1 cursor-pointer focus:outline-hidden hover:underline"
+                  >
+                    <span>{isLongDescExpanded ? "Read Less" : "Read More"}</span>
+                    {isLongDescExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                )}
+              </div>
               <div className="space-y-3">
                 <h4 className="text-lg font-semibold text-slate-800">All Features:</h4>
                 {(product.features || []).map((feature: string, index: number) => (
@@ -781,13 +843,24 @@ export default function ProductPage() {
               )}
             </div>
           </div>
-          <Button
-            onClick={handlePurchase}
-            className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold text-sm px-5 py-2.5 h-10 rounded-xl shadow-md flex items-center gap-2 shrink-0"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            <span>Buy Now</span>
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAddToCart}
+              className="border-2 border-teal-500 text-teal-700 hover:bg-teal-50 font-bold text-xs px-3 py-2 h-10 rounded-xl flex items-center gap-1 shrink-0"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              <span>Add</span>
+            </Button>
+            <Button
+              onClick={handlePurchase}
+              className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 h-10 rounded-xl shadow-md flex items-center gap-1.5 shrink-0"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              <span>Buy Now</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

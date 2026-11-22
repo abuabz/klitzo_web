@@ -67,6 +67,8 @@ export const viewport: Viewport = {
 
 import { GoogleProvider } from '@/components/google-provider'
 import FacebookPixel from '@/components/facebook-pixel'
+import { CartProvider } from '@/context/CartContext'
+import CartSheet from '@/components/cart-sheet'
 
 export default function RootLayout({
   children,
@@ -87,15 +89,18 @@ html {
       <body>
         <GoogleProvider>
           <FacebookPixel />
-          <AdminHide>
-            <Header />
-          </AdminHide>
-          {children}
-          <Toaster position="bottom-right" expand={true} richColors />
-          <AdminHide>
-            <WhatsappButton />
-            <Footer />
-          </AdminHide>
+          <CartProvider>
+            <AdminHide>
+              <Header />
+            </AdminHide>
+            {children}
+            <CartSheet />
+            <Toaster position="bottom-right" expand={true} richColors />
+            <AdminHide>
+              <WhatsappButton />
+              <Footer />
+            </AdminHide>
+          </CartProvider>
         </GoogleProvider>
       </body>
     </html>

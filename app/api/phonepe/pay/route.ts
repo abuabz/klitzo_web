@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       userEmail: data.user?.email,
       userMobile: data.user?.mobile || data.shippingAddress?.phone,
       userName: data.user?.username || data.shippingAddress?.name,
+      items: data.items || [],
       productId: data.productId,
       productName: data.productName,
       productImage: data.productImage,

@@ -11,18 +11,49 @@ import Script from "next/script"
 import { toast } from "sonner"
 
 interface PurchaseFormProps {
-  product: {
+  product?: {
     id: number
     name: string
     price: string
     image: string
   }
-  quantity: number
+  items?: Array<{
+    id: string
+    productId: number
+    name: string
+    variantSize?: string
+    price: number
+    image: string
+    quantity: number
+  }>
+  quantity?: number
   initialCashOnDelivery?: boolean
   onClose?: () => void
+  onSuccess?: () => void
 }
 
-export default function PurchaseForm({ product, quantity, initialCashOnDelivery, onClose }: PurchaseFormProps) {
+export default function PurchaseForm({ product, items, quantity = 1, initialCashOnDelivery, onClose, onSuccess }: PurchaseFormProps) {
+  const isCart = Boolean(items && items.length > 0);
+  const effectiveQuantity = isCart
+    ? items!.reduce((acc, i) => acc + i.quantity, 0)
+    : quantity;
+  const effectiveBasePrice = isCart
+    ? items!.reduce((acc, i) => acc + i.price * i.quantity, 0)
+    : Number.parseFloat(String(product?.price || 0).replace(/[^\d.]/g, "")) * quantity;
+  const effectiveProductName = isCart
+    ? (items!.length > 1
+        ? items!.map(i => `${i.name}${i.variantSize ? ` (${i.variantSize})` : ''} x${i.quantity}`).join(", ")
+        : items![0]?.name || "Products")
+    : (product?.name || "Product");
+  const effectiveProductImage = isCart
+    ? (items![0]?.image || "/placeholder.svg")
+    : (product?.image || "/placeholder.svg");
+  const effectiveProductId = isCart
+    ? (items![0]?.productId || 0)
+    : (product?.id || 0);
+
+  const storageKey = isCart ? "purchaseFormData_cart" : `purchaseFormData_${product?.id || 'single'}`;
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -55,18 +86,18 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         }
       }
       
-      const savedForm = sessionStorage.getItem(`purchaseFormData_${product.id}`);
+      const savedForm = sessionStorage.getItem(storageKey);
       if (savedForm) {
         setFormData(prev => ({...prev, ...JSON.parse(savedForm)}));
       }
     } catch (e) {
       console.error("Failed to parse from storage", e);
     }
-  }, [product.id]);
+  }, [storageKey]);
 
   useEffect(() => {
-    sessionStorage.setItem(`purchaseFormData_${product.id}`, JSON.stringify(formData));
-  }, [formData, product.id]);
+    sessionStorage.setItem(storageKey, JSON.stringify(formData));
+  }, [formData, storageKey]);
 
   // Handle BFCache when user clicks back button from payment gateway
   useEffect(() => {
@@ -114,9 +145,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   const handlePurchase = async () => {
     setIsProcessing(true);
     try {
-      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity;
-      const discount = formData.isPrepaid ? 50 : 0;
-      const totalPrice = (basePrice - discount).toFixed(2);
+      const totalPrice = effectiveBasePrice.toFixed(2);
 
       const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -124,22 +153,41 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: product.id,
-          productName: product.name,
-          productImage: product.image,
+          items: isCart
+            ? items!.map((i) => ({
+                productId: i.productId,
+                productName: i.name,
+                productImage: i.image,
+                price: i.price,
+                quantity: i.quantity,
+                variantSize: i.variantSize || "Standard",
+              }))
+            : [
+                {
+                  productId: effectiveProductId,
+                  productName: effectiveProductName,
+                  productImage: effectiveProductImage,
+                  price: effectiveQuantity > 0 ? effectiveBasePrice / effectiveQuantity : effectiveBasePrice,
+                  quantity: effectiveQuantity,
+                  variantSize: "Standard",
+                },
+              ],
+          productId: effectiveProductId,
+          productName: effectiveProductName,
+          productImage: effectiveProductImage,
           amount: Number(totalPrice),
-          quantity: quantity,
+          quantity: effectiveQuantity,
           status: "pending",
           shippingAddress: { ...formData },
           notes: formData.notes,
-          user: user
+          user: user,
         }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to save order to database");
       }
-      
+
       const data = await response.json();
       if (data.order && data.order._id) {
         setConfirmedOrderId(data.order._id);
@@ -147,19 +195,20 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
 
       toast.success("Order placed successfully!");
       setIsSuccess(true);
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error(error);
       toast.error("Failed to process order. Please try again.");
     } finally {
       setIsProcessing(false);
     }
-  }
+  };
 
   /* --- Razorpay Integration Commented Out as requested ---
   const handleRazorpayPayment = async () => {
     setIsProcessing(true)
     try {
-      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity
+      const basePrice = Number.parseFloat(String(product?.price || 0).replace(/[^\d.]/g, "")) * quantity
       const totalPrice = basePrice // No COD fee for online payment
 
       // 1. Create order on server
@@ -181,7 +230,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         amount: order.amount,
         currency: order.currency,
         name: "KLITZO",
-        description: `Purchase of ${product.name}`,
+        description: `Purchase of ${product?.name}`,
         image: "/klitzo-logo.png",
         order_id: order.id,
         handler: async function (response: any) {
@@ -194,9 +243,9 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               orderDetails: {
-                productId: product.id,
-                productName: product.name,
-                productImage: product.image,
+                productId: product?.id,
+                productName: product?.name,
+                productImage: product?.image,
                 amount: totalPrice,
                 quantity: quantity,
                 shippingAddress: { ...formData },
@@ -243,26 +292,46 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
   const handlePhonePePayment = async () => {
     setIsProcessing(true);
     try {
-      const basePrice = Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity;
-      const totalPrice = basePrice;
+      const totalPrice = effectiveBasePrice;
 
       const response = await fetch("/api/phonepe/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          productId: product.id,
-          productName: product.name,
-          productImage: product.image,
+          items: isCart
+            ? items!.map((i) => ({
+                productId: i.productId,
+                productName: i.name,
+                productImage: i.image,
+                price: i.price,
+                quantity: i.quantity,
+                variantSize: i.variantSize || "Standard",
+              }))
+            : [
+                {
+                  productId: effectiveProductId,
+                  productName: effectiveProductName,
+                  productImage: effectiveProductImage,
+                  price: effectiveQuantity > 0 ? effectiveBasePrice / effectiveQuantity : effectiveBasePrice,
+                  quantity: effectiveQuantity,
+                  variantSize: "Standard",
+                },
+              ],
+          productId: effectiveProductId,
+          productName: effectiveProductName,
+          productImage: effectiveProductImage,
           amount: totalPrice,
-          quantity: quantity,
+          quantity: effectiveQuantity,
           shippingAddress: { ...formData },
-          user: JSON.parse(localStorage.getItem("user") || "{}")
+          notes: formData.notes,
+          user: JSON.parse(localStorage.getItem("user") || "{}"),
         }),
       });
 
       const data = await response.json();
 
       if (data.success && data.url) {
+        if (onSuccess) onSuccess();
         // Redirect to PhonePe payment page
         window.location.href = data.url;
       } else {
@@ -274,7 +343,7 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       toast.error("Something went wrong. Please try again.");
       setIsProcessing(false);
     }
-  }
+  };
 
   // All new fields are required except landmark
   const isFormValid =
@@ -300,8 +369,11 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
         <CardHeader className="text-center relative bg-gradient-to-b from-teal-50 to-white pb-8 pt-12 border-b border-teal-100">
           {onClose && (
             <Button variant="ghost" size="icon" onClick={() => {
-              sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
-              sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+              sessionStorage.removeItem(storageKey);
+              if (product?.id) {
+                sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
+                sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+              }
               onClose();
             }} className="absolute right-4 top-4 text-teal-700 hover:bg-teal-100">
               <X className="h-5 w-5" />
@@ -347,8 +419,11 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
       <CardHeader className="text-center relative">
         {onClose && (
           <Button variant="ghost" size="icon" onClick={() => {
-            sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
-            sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+            sessionStorage.removeItem(storageKey);
+            if (product?.id) {
+              sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
+              sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+            }
             onClose();
           }} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
@@ -363,20 +438,54 @@ export default function PurchaseForm({ product, quantity, initialCashOnDelivery,
 
       <CardContent className="space-y-6">
         {/* Order Summary */}
-        <div className="bg-gradient-to-r from-teal-50 to-blue-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-slate-800 mb-3">Order Summary</h3>
-          <div className="flex items-center gap-4">
-            <img
-              src={product.image || "/placeholder.svg"}
-              alt={product.name}
-              className="w-16 h-16 object-contain rounded-lg bg-white p-2 shadow-sm"
-            />
-            <div className="flex-1">
-              <h4 className="font-medium text-slate-800">{product.name}</h4>
-              <p className="text-slate-600">Quantity: {quantity}</p>
-              <p className="text-lg font-bold text-teal-600 mt-1">
-                Total: ₹{(Number.parseFloat(String(product.price).replace(/[^\d.]/g, "")) * quantity).toFixed(2)}
-              </p>
+        <div className="bg-gradient-to-r from-teal-50 to-blue-50 p-4 rounded-xl border border-teal-100/70">
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="font-bold text-slate-800 text-sm">Order Summary</h3>
+            <span className="text-xs font-semibold text-teal-800 bg-teal-100/70 px-2 py-0.5 rounded-md border border-teal-200">
+              {effectiveQuantity} {effectiveQuantity === 1 ? 'item' : 'items'}
+            </span>
+          </div>
+
+          {isCart ? (
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1 divide-y divide-teal-100/60">
+              {items!.map((it) => (
+                <div key={it.id} className="pt-2 first:pt-0 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white rounded-lg p-1 border border-slate-100 flex items-center justify-center shrink-0">
+                    <img src={it.image || "/placeholder.svg"} alt={it.name} className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-slate-800 truncate">{it.name}</p>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      {it.variantSize && <span>Size: {it.variantSize}</span>}
+                      <span>Qty: {it.quantity}</span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-black text-slate-900 shrink-0">
+                    ₹{(it.price * it.quantity).toFixed(0)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <img
+                src={effectiveProductImage}
+                alt={effectiveProductName}
+                className="w-14 h-14 object-contain rounded-lg bg-white p-1.5 shadow-xs border border-slate-100"
+              />
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-xs sm:text-sm text-slate-800 truncate">{effectiveProductName}</h4>
+                <p className="text-xs text-slate-600">Quantity: {effectiveQuantity}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-3 pt-2.5 border-t border-teal-200/50 flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-600">Total Price:</span>
+            <div className="text-right">
+              <span className="text-lg font-black text-teal-700">
+                ₹{effectiveBasePrice.toFixed(2)}
+              </span>
             </div>
           </div>
         </div>

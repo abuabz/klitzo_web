@@ -7,6 +7,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { AuthModal } from "@/components/auth-modal"
+import { useCart } from "@/context/CartContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export default function Header() {
+  const { totalCount, openCart } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const pathname = usePathname()
@@ -145,6 +147,22 @@ export default function Header() {
               )}
 
 
+              {/* Cart Button (Desktop) */}
+              <button
+                type="button"
+                onClick={openCart}
+                className="relative p-2 text-slate-700 hover:text-teal-600 transition-colors duration-300 rounded-full hover:bg-white/40 cursor-pointer"
+                title="View Cart"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {totalCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-in zoom-in-50 duration-200">
+                    {totalCount > 99 ? '99+' : totalCount}
+                  </span>
+                )}
+              </button>
+
               <Link href="/products">
                 <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                   Shop Now
@@ -207,8 +225,23 @@ export default function Header() {
               )}
             </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
+            {/* Mobile Actions: Cart & Menu */}
+            <div className="md:hidden flex items-center space-x-1.5">
+              <button
+                type="button"
+                onClick={openCart}
+                className="relative p-2 text-slate-700 hover:text-teal-600 transition-colors duration-300 rounded-full"
+                title="View Cart"
+                aria-label="View Shopping Cart"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {totalCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-in zoom-in-50 duration-200">
+                    {totalCount > 99 ? '99+' : totalCount}
+                  </span>
+                )}
+              </button>
+
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="text-slate-700 hover:text-teal-600 p-2 rounded-md transition-colors duration-300"
@@ -222,6 +255,24 @@ export default function Header() {
           {isMobileMenuOpen && (
             <div className="md:hidden backdrop-blur-md bg-white/20 border-t border-white/20 rounded-b-lg mt-2">
               <div className="px-2 pt-2 pb-3 space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openCart();
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-slate-700 hover:text-teal-600 hover:bg-white/10 rounded-md transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5 text-teal-600" />
+                    <span>Shopping Cart</span>
+                  </span>
+                  {totalCount > 0 && (
+                    <Badge className="bg-teal-600 text-white text-xs">
+                      {totalCount}
+                    </Badge>
+                  )}
+                </button>
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}

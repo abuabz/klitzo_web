@@ -10,6 +10,16 @@ const OrderSchema = new mongoose.Schema(
     userEmail: String,
     userMobile: String,
     userName: String,
+    items: [
+      {
+        productId: Number,
+        productName: String,
+        productImage: String,
+        price: Number,
+        quantity: Number,
+        variantSize: String,
+      },
+    ],
     productId: Number,
     productName: String,
     productImage: String,

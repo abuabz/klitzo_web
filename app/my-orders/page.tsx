@@ -253,25 +253,55 @@ export default function MyOrdersPage() {
                         <p className="text-sm font-semibold text-slate-800 mb-3 flex items-center">
                           <Package className="h-4 w-4 mr-2 text-teal-600" /> Product Details
                         </p>
-                        <div className="bg-slate-50 p-4 rounded-xl flex items-center gap-4">
-                           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg p-2 border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                             <img 
-                               src={order.productImage ? (order.productImage.startsWith('/') ? order.productImage : `/${order.productImage}`) : "/placeholder.svg"} 
-                               alt={order.productName}
-                               className="max-w-full max-h-full object-contain"
-                             />
-                           </div>
-                           <div className="flex-1">
-                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-1">
+                        {order.items && order.items.length > 0 ? (
+                          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                            {order.items.map((it: any, itIdx: number) => (
+                              <div key={itIdx} className="bg-slate-50 p-3 rounded-xl flex items-center gap-3">
+                                <div className="w-14 h-14 bg-white rounded-lg p-1.5 border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                  <img
+                                    src={it.productImage ? (it.productImage.startsWith('/') ? it.productImage : `/${it.productImage}`) : "/placeholder.svg"}
+                                    alt={it.productName}
+                                    className="max-w-full max-h-full object-contain"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex justify-between items-start gap-1">
+                                    <span className="text-slate-800 font-bold text-xs sm:text-sm line-clamp-1">{it.productName}</span>
+                                    <span className="text-slate-500 text-[11px] bg-white px-2 py-0.5 rounded border border-slate-100 shrink-0 font-medium">Qty: {it.quantity || 1}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {it.variantSize && <span className="text-[11px] text-teal-700 font-semibold bg-teal-50 px-1.5 py-0.5 rounded">Size: {it.variantSize}</span>}
+                                    <span className="text-xs font-bold text-teal-700">₹{it.price || ((order.amount || 0) / (order.items.length || 1)).toFixed(0)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="flex justify-between items-center p-2 bg-teal-50/50 rounded-lg text-xs font-bold text-teal-900">
+                              <span>Total Amount</span>
+                              <span className="text-sm text-teal-700">₹{order.amount}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-slate-50 p-4 rounded-xl flex items-center gap-4">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-lg p-2 border border-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                              <img 
+                                src={order.productImage ? (order.productImage.startsWith('/') ? order.productImage : `/${order.productImage}`) : "/placeholder.svg"} 
+                                alt={order.productName}
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 gap-1">
                                 <span className="text-slate-600 font-bold line-clamp-1">{order.productName}</span>
                                 <span className="text-slate-400 text-xs bg-white px-2 py-0.5 rounded border border-slate-100">Qty: {order.quantity || 1}</span>
-                             </div>
-                             <div className="flex flex-col mt-2">
-                               <span className="text-xs text-slate-400 font-medium uppercase tracking-tighter">Amount Paid</span>
-                               <span className="text-xl font-bold text-teal-700">₹{order.amount}</span>
-                             </div>
-                           </div>
-                        </div>
+                              </div>
+                              <div className="flex flex-col mt-2">
+                                <span className="text-xs text-slate-400 font-medium uppercase tracking-tighter">Amount Paid</span>
+                                <span className="text-xl font-bold text-teal-700">₹{order.amount}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-col h-full">

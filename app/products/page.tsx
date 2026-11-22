@@ -3,12 +3,14 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Search } from "lucide-react"
+import { Sparkles, Search, ShoppingBag } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useCart } from "@/context/CartContext"
 
 
 export default function ProductsPage() {
+  const { addItem } = useCart()
   const [isVisible, setIsVisible] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -154,13 +156,38 @@ export default function ProductsPage() {
                         <span className="text-slate-400 line-through text-xs font-medium">{String(product.originalPrice).includes('₹') ? product.originalPrice : `₹${product.originalPrice}`}</span>
                       )}
                     </div>
-                    <Link href={`/product/${product.id}`} className="block w-full">
+                    <div className="flex gap-2">
                       <Button
-                        className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-sm"
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const priceNum = Number.parseFloat(String(product.price).replace(/[^\d.]/g, ""));
+                          const origPriceNum = product.originalPrice ? Number.parseFloat(String(product.originalPrice).replace(/[^\d.]/g, "")) : undefined;
+                          addItem({
+                            id: `${product.id}-default`,
+                            productId: product.id,
+                            name: product.name,
+                            price: priceNum,
+                            originalPrice: origPriceNum,
+                            image: product.image || "/placeholder.svg",
+                          });
+                        }}
+                        className="rounded-full border-teal-500 text-teal-700 hover:bg-teal-50 text-xs font-bold px-3 py-2 shrink-0 flex items-center gap-1 cursor-pointer"
+                        title="Add to Cart"
                       >
-                        Buy Now
+                        <ShoppingBag className="w-4 h-4" />
+                        <span className="hidden sm:inline">Add</span>
                       </Button>
-                    </Link>
+                      <Link href={`/product/${product.id}`} className="flex-1">
+                        <Button
+                          className="w-full bg-gradient-to-r from-teal-400 to-blue-600 hover:from-teal-500 hover:to-blue-700 text-white rounded-full py-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-bold text-xs sm:text-sm"
+                        >
+                          View & Buy
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

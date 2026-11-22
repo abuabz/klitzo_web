@@ -1138,7 +1138,16 @@ export default function AdminPage() {
                            <span className="text-xs text-slate-400">{order.shippingAddress?.phone || order.userMobile}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium text-slate-600">{order.productName}</TableCell>
+                      <TableCell className="font-medium text-slate-600">
+                        {order.items && order.items.length > 1 ? (
+                          <div>
+                            <span className="font-bold text-slate-800">{order.items[0].productName}</span>
+                            <span className="text-xs text-teal-600 block font-semibold">+{order.items.length - 1} more items ({order.quantity} total)</span>
+                          </div>
+                        ) : (
+                          order.productName
+                        )}
+                      </TableCell>
                       <TableCell>
                         {order.razorpayPaymentId ? (
                           <Badge variant="outline" className="border-teal-200 text-teal-700 bg-teal-50">Prepaid</Badge>
@@ -1269,17 +1278,39 @@ export default function AdminPage() {
                             <div className="space-y-2">
                               <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider flex items-center gap-2"><ShoppingBag className="h-3 w-3" /> Order Details</h4>
                               <div className="text-sm text-slate-700 bg-white p-3 rounded-xl border border-slate-200">
-                                <div className="flex gap-3 mb-2 pb-2 border-b border-slate-100">
-                                  {order.productImage && (
-                                    <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0">
-                                      <img src={order.productImage} className="w-full h-full object-contain" alt="" />
-                                    </div>
-                                  )}
-                                  <div>
-                                    <p className="font-bold">{order.productName}</p>
-                                    <p className="text-slate-500">Qty: {order.quantity || 1}</p>
+                                {order.items && order.items.length > 0 ? (
+                                  <div className="space-y-2 mb-2 pb-2 border-b border-slate-100 divide-y divide-slate-50">
+                                    {order.items.map((it: any, i: number) => (
+                                      <div key={i} className="flex items-center gap-3 pt-2 first:pt-0">
+                                        {it.productImage && (
+                                          <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 p-1 shrink-0 flex items-center justify-center">
+                                            <img src={it.productImage} className="w-full h-full object-contain" alt="" />
+                                          </div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                          <p className="font-bold text-xs truncate">{it.productName}</p>
+                                          <div className="flex gap-2 text-[11px] text-slate-500">
+                                            {it.variantSize && <span className="text-teal-600 font-medium">Size: {it.variantSize}</span>}
+                                            <span>Qty: {it.quantity}</span>
+                                            {it.price && <span className="font-bold text-slate-800">₹{it.price * it.quantity}</span>}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
-                                </div>
+                                ) : (
+                                  <div className="flex gap-3 mb-2 pb-2 border-b border-slate-100">
+                                    {order.productImage && (
+                                      <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 p-1 flex-shrink-0">
+                                        <img src={order.productImage} className="w-full h-full object-contain" alt="" />
+                                      </div>
+                                    )}
+                                    <div>
+                                      <p className="font-bold">{order.productName}</p>
+                                      <p className="text-slate-500">Qty: {order.quantity || 1}</p>
+                                    </div>
+                                  </div>
+                                )}
                                 <p className="flex justify-between items-center text-xs mt-2"><span className="text-slate-500">Date</span> <span className="font-medium">{new Date(order.createdAt).toLocaleString()}</span></p>
                                 <p className="flex justify-between items-center text-xs mt-1"><span className="text-slate-500">Total Amount</span> <span className="font-bold text-teal-600">₹{order.amount}</span></p>
                               </div>

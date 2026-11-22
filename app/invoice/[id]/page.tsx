@@ -183,29 +183,57 @@ export default function InvoicePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 print:divide-slate-100">
-                  <tr>
-                    <td className="py-6 px-6 print:py-2 print:px-3">
-                      <div className="flex items-center gap-4 print:gap-2">
-                        <div className="w-12 h-12 bg-slate-50 rounded-lg p-2 border border-slate-100 flex items-center justify-center overflow-hidden print:w-8 print:h-8 print:p-1">
-                          <img
-                            src={order.productImage ? (order.productImage.startsWith('/') ? order.productImage : `/${order.productImage}`) : "/placeholder.svg"}
-                            alt={order.productName}
-                            className="max-w-full max-h-full object-contain"
-                          />
+                  {order.items && order.items.length > 0 ? (
+                    order.items.map((it: any, idx: number) => (
+                      <tr key={idx}>
+                        <td className="py-4 px-6 print:py-2 print:px-3">
+                          <div className="flex items-center gap-4 print:gap-2">
+                            <div className="w-12 h-12 bg-slate-50 rounded-lg p-2 border border-slate-100 flex items-center justify-center overflow-hidden print:w-8 print:h-8 print:p-1">
+                              <img
+                                src={it.productImage ? (it.productImage.startsWith('/') ? it.productImage : `/${it.productImage}`) : "/placeholder.svg"}
+                                alt={it.productName}
+                                className="max-w-full max-h-full object-contain"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-800 print:text-xs">{it.productName}</p>
+                              {it.variantSize && <p className="text-xs text-teal-600 print:text-[8px] font-semibold">Size: {it.variantSize}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-center font-bold text-slate-600 print:py-2 print:px-3 print:text-xs">
+                          {it.quantity || 1}
+                        </td>
+                        <td className="py-4 px-6 text-right font-bold text-slate-800 print:py-2 print:px-3 print:text-xs">
+                          ₹{((it.price || 0) * (it.quantity || 1)).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="py-6 px-6 print:py-2 print:px-3">
+                        <div className="flex items-center gap-4 print:gap-2">
+                          <div className="w-12 h-12 bg-slate-50 rounded-lg p-2 border border-slate-100 flex items-center justify-center overflow-hidden print:w-8 print:h-8 print:p-1">
+                            <img
+                              src={order.productImage ? (order.productImage.startsWith('/') ? order.productImage : `/${order.productImage}`) : "/placeholder.svg"}
+                              alt={order.productName}
+                              className="max-w-full max-h-full object-contain"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-800 print:text-xs">{order.productName}</p>
+                            <p className="text-xs text-slate-400 print:text-[9px]">Professional Grade Solution</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-slate-800 print:text-xs">{order.productName}</p>
-                          <p className="text-xs text-slate-400 print:text-[9px]">Professional Grade Solution</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-6 px-6 text-center font-bold text-slate-600 print:py-2 print:px-3 print:text-xs">
-                      {order.quantity || 1}
-                    </td>
-                    <td className="py-6 px-6 text-right font-bold text-slate-800 print:py-2 print:px-3 print:text-xs">
-                      ₹{order.amount}
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="py-6 px-6 text-center font-bold text-slate-600 print:py-2 print:px-3 print:text-xs">
+                        {order.quantity || 1}
+                      </td>
+                      <td className="py-6 px-6 text-right font-bold text-slate-800 print:py-2 print:px-3 print:text-xs">
+                        ₹{order.amount}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
