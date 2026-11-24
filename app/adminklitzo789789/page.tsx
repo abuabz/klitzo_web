@@ -89,6 +89,11 @@ export default function AdminPage() {
     contractId: ""
   })
   const [savingSettings, setSavingSettings] = useState(false)
+  const [showIndiaPostModal, setShowIndiaPostModal] = useState(false)
+  const [indiaPostServiceType, setIndiaPostServiceType] = useState<"SPEEDPOST" | "PARCEL">("SPEEDPOST")
+  const [indiaPostWeight, setIndiaPostWeight] = useState(250)
+  const [bookingIndiaPost, setBookingIndiaPost] = useState(false)
+  const [bookingSuccessData, setBookingSuccessData] = useState<any>(null)
 
   const [productForm, setProductForm] = useState({
     name: "",
@@ -376,6 +381,38 @@ export default function AdminPage() {
       toast.error("Error saving settings")
     } finally {
       setSavingSettings(false)
+    }
+  }
+
+  const handleBulkBookIndiaPost = async () => {
+    if (selectedOrders.length === 0) return
+    setBookingIndiaPost(true)
+    const toastId = toast.loading("Connecting to India Post CEPT API...")
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const res = await fetch("/api/shipping/indiapost/bulk-book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderIds: selectedOrders,
+          adminEmail: user.email,
+          serviceType: indiaPostServiceType,
+          weightInGrams: indiaPostWeight,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success(`Successfully generated barcodes for ${data.count} order(s)!`, { id: toastId })
+        setBookingSuccessData(data)
+        fetchOrders(page, activeTab, searchQuery, selectedMonth, orderSubTab)
+      } else {
+        toast.error(data.error || "Failed to generate barcodes with India Post", { id: toastId })
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Error calling India Post API", { id: toastId })
+    } finally {
+      setBookingIndiaPost(false)
     }
   }
 
@@ -2291,6 +2328,16 @@ export default function AdminPage() {
           </span>
           <div className="w-px h-6 bg-slate-700 shrink-0" />
           <Button 
+            onClick={() => {
+              setBookingSuccessData(null)
+              setShowIndiaPostModal(true)
+            }}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-full h-9 px-4 flex items-center gap-2 shrink-0 cursor-pointer shadow-md"
+          >
+            <Truck className="w-4 h-4" />
+            Generate Post Office Barcode
+          </Button>
+          <Button 
             onClick={handlePrintSelected}
             className="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-full h-9 px-5 flex items-center gap-2 shrink-0"
           >
@@ -2348,6 +2395,181 @@ export default function AdminPage() {
             >
               Yes, Cancel Order
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* India Post CEPT Bulk Booking Dialog */}
+      <Dialog open={showIndiaPostModal} onOpenChange={(open) => {
+        if (!open) {
+          setShowIndiaPostModal(false)
+          setBookingSuccessData(null)
+        }
+      }}>
+        <DialogContent className="sm:max-w-2xl bg-white max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-slate-900">
+                  India Post (Speed Post) Barcode Generation
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 text-xs mt-0.5">
+                  Customer ID: <strong className="text-slate-800">1683565443</strong> &bull; CEPT API Gateway
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {!bookingSuccessData ? (
+            <div className="space-y-4 py-2">
+              {/* Selected Orders Summary */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="font-bold text-sm text-slate-800">Selected Orders ({selectedOrders.length})</span>
+                  <Badge className="bg-amber-100 text-amber-800 font-bold border-amber-200">
+                    {selectedOrders.length} Ready for Booking
+                  </Badge>
+                </div>
+                
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-1 divide-y divide-slate-100">
+                  {orders
+                    .filter((o) => selectedOrders.includes(o._id))
+                    .map((o) => (
+                      <div key={o._id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                        <div className="min-w-0 pr-3">
+                          <p className="font-bold text-slate-800 truncate">{o.shippingAddress?.name || o.userName}</p>
+                          <p className="text-slate-500 truncate text-[11px]">
+                            {o.shippingAddress?.district || o.shippingAddress?.place || ""}, PIN: {o.shippingAddress?.pincode}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            o.paymentMethod === 'Prepaid' || o.razorpayPaymentId 
+                              ? 'bg-teal-50 text-teal-700 border border-teal-200' 
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
+                          }`}>
+                            {o.paymentMethod === 'Prepaid' || o.razorpayPaymentId ? 'PREPAID' : `COD ₹${o.amount}`}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Service & Weight Options */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Service Type</label>
+                  <select 
+                    value={indiaPostServiceType} 
+                    onChange={(e: any) => setIndiaPostServiceType(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none"
+                  >
+                    <option value="SPEEDPOST">Speed Post (Domestic)</option>
+                    <option value="PARCEL">Business Parcel</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Parcel Weight (Grams)</label>
+                  <Input 
+                    type="number"
+                    value={indiaPostWeight}
+                    onChange={(e) => setIndiaPostWeight(Number(e.target.value) || 250)}
+                    min={50}
+                    step={50}
+                    className="h-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-blue-50/70 border border-blue-200 p-3 rounded-xl text-xs text-blue-900 leading-relaxed">
+                <strong>API Endpoint:</strong> Calling <code>/beextcustomer/v1/access/login</code> and generating official India Post 13-digit Article Barcodes (e.g. <code>EM...IN</code>) for Speed Post booking.
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                <CheckCircle className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+                <h4 className="font-bold text-emerald-900 text-base">Barcodes Generated Successfully!</h4>
+                <p className="text-xs text-emerald-700 mt-1">
+                  Generated and linked barcodes for <strong>{bookingSuccessData.count}</strong> order(s).
+                </p>
+                {bookingSuccessData.errorNotice && (
+                  <p className="text-[11px] text-amber-700 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
+                    Notice: {bookingSuccessData.errorNotice}
+                  </p>
+                )}
+              </div>
+
+              <div className="max-h-48 overflow-y-auto space-y-1.5 divide-y divide-slate-100 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                {bookingSuccessData.results?.map((item: any, idx: number) => (
+                  <div key={idx} className="pt-1.5 first:pt-0 flex items-center justify-between text-xs">
+                    <span className="font-mono text-slate-600 text-[11px]">#{item.orderId.slice(-6).toUpperCase()}</span>
+                    <span className="font-mono font-bold text-teal-700 bg-white px-2 py-0.5 rounded border border-teal-200">
+                      {item.articleNumber}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 pt-3 border-t border-slate-100">
+            {!bookingSuccessData ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowIndiaPostModal(false)}
+                  disabled={bookingIndiaPost}
+                  className="rounded-full"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleBulkBookIndiaPost}
+                  disabled={bookingIndiaPost}
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-full gap-2"
+                >
+                  {bookingIndiaPost ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Connecting to CEPT...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate Barcodes
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowIndiaPostModal(false)
+                    setBookingSuccessData(null)
+                  }}
+                  className="rounded-full"
+                >
+                  Done
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowIndiaPostModal(false)
+                    handlePrintSelected()
+                  }}
+                  className="bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-full gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print Labels with Barcodes
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

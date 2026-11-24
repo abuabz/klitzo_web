@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { generateBarcodeSvg } from "@/lib/barcode"
 
 function PrintContent() {
   const searchParams = useSearchParams()
@@ -133,6 +134,16 @@ function PrintContent() {
               <div className="text-[14px] leading-tight mb-1">
                 CONTRACT ID:- <span className="font-bold">{settings?.contractId || 'N/A'}</span>
               </div>
+
+              {/* India Post Speed Post Barcode */}
+              {order.trackingId && (
+                <div className="my-1.5 flex flex-col items-center justify-center bg-white">
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: generateBarcodeSvg(order.trackingId, 28, 1.5) }}
+                    className="flex justify-center"
+                  />
+                </div>
+              )}
 
               {/* Product */}
               <div className="text-[13px] leading-tight mb-4 uppercase flex flex-col">
