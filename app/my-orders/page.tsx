@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2, Copy, XCircle } from "lucide-react"
+import { ShoppingBag, ArrowLeft, Package, Calendar, CreditCard, ChevronRight, Loader2, Truck, CheckCircle2, Copy, XCircle, MapPin } from "lucide-react"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -20,7 +21,29 @@ export default function MyOrdersPage() {
   const [guestMobile, setGuestMobile] = useState("")
   const [hasSearched, setHasSearched] = useState(false)
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null)
+  const [trackingModalOrder, setTrackingModalOrder] = useState<any | null>(null)
+  const [postalTrackingData, setPostalTrackingData] = useState<any | null>(null)
+  const [loadingTracking, setLoadingTracking] = useState(false)
   const router = useRouter()
+
+  const handleOpenPostalTracking = async (order: any) => {
+    setTrackingModalOrder(order)
+    setLoadingTracking(true)
+    setPostalTrackingData(null)
+    try {
+      const res = await fetch(`/api/shipping/indiapost/track?orderId=${order._id}&articleNumber=${order.trackingId}`)
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setPostalTrackingData(data.tracking)
+      } else {
+        toast.error(data.error || "Unable to fetch live tracking details")
+      }
+    } catch (err) {
+      toast.error("Failed to connect to tracking service")
+    } finally {
+      setLoadingTracking(false)
+    }
+  }
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
@@ -398,30 +421,41 @@ export default function MyOrdersPage() {
                   </div>
 
                   {order.trackingId && (
-                    <div className="mx-6 mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center justify-between gap-4">
+                    <div className="mx-6 mb-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 shrink-0">
                           <Truck className="h-5 w-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-teal-800 uppercase tracking-wider mb-0.5">India Post Tracking ID</p>
-                          <p className="text-sm font-medium text-slate-700">{order.trackingId}</p>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-xs font-bold text-teal-800 uppercase tracking-wider">India Post Tracking ID</p>
+                            <span className="text-[10px] bg-teal-200/60 text-teal-900 font-extrabold px-1.5 py-0.2 rounded">SPEED POST</span>
+                          </div>
+                          <p className="text-sm font-mono font-bold text-slate-800">{order.trackingId}</p>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="border-teal-200 text-teal-700 hover:bg-teal-100 shrink-0"
-                        onClick={() => {
-                          navigator.clipboard.writeText(order.trackingId);
-                          toast.success("Tracking ID copied! Redirecting to India Post...");
-                          setTimeout(() => {
-                            window.open("https://www.indiapost.gov.in/#trackandtrace", "_blank");
-                          }, 1000);
-                        }}
-                      >
-                        <Copy className="h-4 w-4 mr-2" /> Copy & Track
-                      </Button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button 
+                          size="sm" 
+                          className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs h-9 px-4 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          onClick={() => handleOpenPostalTracking(order)}
+                        >
+                          <MapPin className="h-3.5 w-3.5" />
+                          <span>Track Live Status</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-teal-200 text-teal-700 hover:bg-teal-100 h-9 px-3 rounded-xl shrink-0"
+                          onClick={() => {
+                            navigator.clipboard.writeText(order.trackingId);
+                            toast.success("Tracking ID copied to clipboard!");
+                          }}
+                          title="Copy tracking number"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   )}
                   
@@ -440,6 +474,172 @@ export default function MyOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* Post Office Level Live Tracking Modal */}
+      <Dialog open={!!trackingModalOrder} onOpenChange={(open) => !open && setTrackingModalOrder(null)}>
+        <DialogContent className="sm:max-w-2xl bg-white max-h-[90vh] overflow-y-auto p-0 border-0 rounded-2xl shadow-2xl">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-600 to-amber-600 p-6 text-white rounded-t-2xl relative overflow-hidden">
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[10px] font-black tracking-widest uppercase bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-xs">
+                    DEPARTMENT OF POSTS &bull; INDIA
+                  </span>
+                  <span className="bg-amber-300 text-slate-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
+                    SPEED POST
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight">Post Office Live Tracking</h3>
+                <p className="text-white/80 text-xs mt-0.5">
+                  Real-time consignment milestones from booking to doorstep delivery
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {loadingTracking ? (
+              <div className="py-16 text-center space-y-3">
+                <Loader2 className="w-8 h-8 text-teal-600 animate-spin mx-auto" />
+                <p className="text-sm font-semibold text-slate-600">Connecting to Post Office tracking gateway...</p>
+              </div>
+            ) : postalTrackingData ? (
+              <>
+                {/* Consignment Overview Card */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Consignment Number</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-lg sm:text-xl font-mono font-black text-slate-900">
+                          {postalTrackingData.articleNumber}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(postalTrackingData.articleNumber);
+                            toast.success("Tracking number copied!");
+                          }}
+                          className="p-1 text-slate-400 hover:text-teal-600 hover:bg-white rounded transition-colors"
+                          title="Copy Consignment Number"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="sm:text-right">
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Current Status</p>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        {postalTrackingData.currentStatus}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 text-xs">
+                    <div>
+                      <span className="text-slate-400 block font-medium">Booked At</span>
+                      <span className="font-bold text-slate-800">{postalTrackingData.bookedAt}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-medium">Destination Office</span>
+                      <span className="font-bold text-slate-800">{postalTrackingData.destinationOffice}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block font-medium">Destination PIN</span>
+                      <span className="font-bold text-slate-800">{postalTrackingData.destinationPin}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vertical Postal Journey Timeline */}
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-teal-600" />
+                    Postal Transit History
+                  </h4>
+
+                  <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-2.5 sm:before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+                    {postalTrackingData.events?.map((ev: any, idx: number) => {
+                      const isCompleted = ev.status === "completed";
+                      const isCurrent = ev.status === "current";
+                      return (
+                        <div key={idx} className="relative group">
+                          {/* Dot / Icon */}
+                          <div
+                            className={`absolute -left-6 sm:-left-8 top-0.5 w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isCompleted
+                                ? "bg-teal-600 border-teal-600 text-white shadow-sm"
+                                : isCurrent
+                                ? "bg-amber-500 border-amber-500 text-white ring-4 ring-amber-100"
+                                : "bg-white border-slate-300 text-slate-300"
+                            }`}
+                          >
+                            {isCompleted ? (
+                              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                            ) : (
+                              <div className="w-2 h-2 rounded-full bg-current" />
+                            )}
+                          </div>
+
+                          {/* Event Content */}
+                          <div
+                            className={`p-3.5 rounded-xl border transition-all ${
+                              isCurrent
+                                ? "bg-amber-50/60 border-amber-200 shadow-xs"
+                                : "bg-white border-slate-100 hover:border-slate-200"
+                            }`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                              <span className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                                {ev.event}
+                                {isCurrent && (
+                                  <Badge className="bg-amber-200 text-amber-900 text-[10px] px-1.5 py-0 border-0">
+                                    Latest Event
+                                  </Badge>
+                                )}
+                              </span>
+                              <span className="text-[11px] font-mono text-slate-400">
+                                {ev.date} &bull; {ev.time}
+                              </span>
+                            </div>
+
+                            <p className="text-xs font-semibold text-teal-800 mt-0.5">
+                              📍 {ev.office}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                              {ev.description}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Footer fallback button */}
+                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+                  <span>Data verified via India Post tracking gateway</span>
+                  <a
+                    href="https://www.indiapost.gov.in/#trackandtrace"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-600 hover:underline font-semibold flex items-center gap-1"
+                  >
+                    Open on indiapost.gov.in →
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10 text-slate-500 text-sm">
+                No tracking events found for this consignment.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
