@@ -86,20 +86,14 @@ function PrintContent() {
           box-sizing: border-box;
         }
         .label-cell {
-          border-right: 1px dashed rgba(0, 0, 0, 0.2);
-          border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
-          padding: 6mm 10mm;
+          padding: 3mm 4mm;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          font-family: Arial, sans-serif;
+          font-family: Arial, Helvetica, sans-serif;
           color: black;
-        }
-        .label-cell:nth-child(2n) {
-          border-right: none;
-        }
-        .label-cell:nth-child(n+3) {
-          border-bottom: none;
+          height: 148.5mm;
+          overflow: hidden;
         }
       `}} />
 
@@ -116,68 +110,177 @@ function PrintContent() {
         <div key={pageIndex} className={`a4-page ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
           {pageOrders.map((order, index) => (
             <div key={order._id} className="label-cell">
-
-              {/* Header */}
-              <div className="flex items-center justify-center mb-2 leading-none">
-                <img src="/klitzo-logo.png" alt="Klitzo" className="h-10 w-auto object-contain grayscale" />
-              </div>
-
-              {/* COD / Amount */}
-              <div className="text-center font-black text-[16px] text-black mb-4 uppercase leading-none">
-                {(order.paymentMethod === 'Prepaid' || order.razorpayPaymentId) ? 'PREPAID' : `CASH ON DELIVERY :- RS ${order.amount}`}
-              </div>
-
-              {/* IDs */}
-              <div className="text-[14px] leading-tight mb-1">
-                CUSTOMER ID :- <span className="font-bold">{settings?.customerId || 'N/A'}</span>
-              </div>
-              <div className="text-[14px] leading-tight mb-1">
-                CONTRACT ID:- <span className="font-bold">{settings?.contractId || 'N/A'}</span>
-              </div>
-
-              {/* India Post Speed Post Barcode */}
-              {order.trackingId && (
-                <div className="my-1.5 flex flex-col items-center justify-center bg-white">
-                  <div 
-                    dangerouslySetInnerHTML={{ __html: generateBarcodeSvg(order.trackingId, 28, 1.5) }}
-                    className="flex justify-center"
-                  />
-                </div>
-              )}
-
-              {/* Product */}
-              <div className="text-[13px] leading-tight mb-4 uppercase flex flex-col">
-                <span>PRODUCT NAME:-</span>
-                <span className="font-bold text-[11px] italic mt-1 text-slate-700 leading-[1.3] line-clamp-2 pr-4">{order.productName}</span>
-              </div>
-
-              <div className="flex flex-col gap-3 flex-grow pl-2">
-                {/* From Block */}
-                <div className="flex gap-3">
-                  <div className="font-bold text-[13px] w-10">From</div>
-                  <div className="flex-1 text-[13px] leading-[1.3] text-slate-900">
-                    <div>{settings?.fromName || 'Klitzo'}</div>
-                    <div className="whitespace-pre-line">{settings?.fromAddress?.replace(/, /g, ',\n')}</div>
-                    <div>Mob: {settings?.fromMobile}</div>
+              <div className="border-2 border-black w-full h-full flex flex-col justify-between bg-white text-black font-sans box-border overflow-hidden">
+                {/* 1. Header: Logo & Barcode */}
+                <div className="flex items-center justify-between p-2 min-h-[72px]">
+                  <div className="flex items-center pl-1 shrink-0 mr-2">
+                    <img src="/klitzo-logo.png" alt="KLITZO" className="h-8 w-auto max-w-[110px] object-contain" />
                   </div>
-                </div>
-
-                {/* To Block */}
-                <div className="flex gap-3 mt-1">
-                  <div className="font-bold text-[13px] w-10">To</div>
-                  <div className="flex-1 text-[13px] leading-[1.3] text-slate-900">
-                    <div>{order.shippingAddress?.name || order.userName}</div>
-                    <div className="whitespace-pre-wrap pr-4">{order.shippingAddress?.address}</div>
-                    <div>
-                      {order.shippingAddress?.place} {order.shippingAddress?.post}
+                  {order.trackingId ? (
+                    <div className="flex items-center justify-end overflow-hidden">
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: generateBarcodeSvg(order.trackingId, 50, 1.6) }}
+                        className="flex justify-end"
+                      />
                     </div>
-                    <div>{order.shippingAddress?.district}</div>
-                    <div>{order.shippingAddress?.pincode}</div>
-                    <div>Phone: {order.shippingAddress?.phone || order.userMobile}</div>
+                  ) : (
+                    <div className="text-[11px] font-bold text-black border border-black px-2 py-1 mr-1 uppercase">
+                      India Post
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Customer ID, Contract ID & Payment Status */}
+                <div className="border-t-2 border-black px-2.5 py-2 flex items-center justify-between">
+                  <div className="shrink-0">
+                    <div className="font-extrabold text-[12.5px] text-black leading-tight">
+                      Customer ID: <span className="font-black">{settings?.customerId || '1683565443'}</span>
+                    </div>
+                    <div className="font-bold text-[10.5px] text-black leading-tight mt-0.5">
+                      CONTRACT ID:{settings?.contractId || '41132043'}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end justify-center text-right pl-2">
+                    {(order.paymentMethod === 'Prepaid' || order.razorpayPaymentId) ? (
+                      <span className="font-black text-[17px] text-black uppercase tracking-wider">
+                        PRE PAID
+                      </span>
+                    ) : (
+                      <>
+                        <span className="font-black text-[14.5px] text-black uppercase tracking-wider leading-tight whitespace-nowrap">
+                          CASH ON DELIVERY
+                        </span>
+                        <span className="font-black text-[21px] text-black uppercase tracking-tight leading-none mt-1 whitespace-nowrap">
+                          RS. {order.amount}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
-              </div>
 
+                {/* 3. Ship To Section */}
+                <div className="border-t-2 border-black p-2.5 text-[11.5px] leading-[1.35] text-black">
+                  <div className="font-extrabold text-[12px] mb-0.5 text-black">
+                    Ship To:
+                  </div>
+                  <div className="font-black text-[13px] text-black">
+                    {order.shippingAddress?.name || order.userName}
+                  </div>
+                  <div className="text-black font-medium">
+                    {order.shippingAddress?.address}
+                  </div>
+                  {(order.shippingAddress?.place || order.shippingAddress?.post) && (
+                    <div className="text-black font-medium">
+                      {order.shippingAddress?.place} {order.shippingAddress?.post ? `PO: ${order.shippingAddress.post}` : ''}
+                    </div>
+                  )}
+                  {order.shippingAddress?.district && (
+                    <div className="text-black font-medium">
+                      {order.shippingAddress?.district}, {order.shippingAddress?.state || "Kerala"}
+                    </div>
+                  )}
+                  <div className="font-black text-black mt-0.5">
+                    {order.shippingAddress?.pincode}, India, Mobile: {order.shippingAddress?.phone || order.userMobile}
+                  </div>
+                </div>
+
+                {/* 4. From/ Return Address Section */}
+                <div className="border-t-2 border-black p-2.5 text-[11px] leading-[1.3] text-black">
+                  <div className="font-extrabold text-[12px] mb-0.5 text-black">
+                    From/ Return Address
+                  </div>
+                  <div className="font-black text-black">
+                    {settings?.fromName || 'Klitzo'}
+                  </div>
+                  <div className="font-bold text-black">
+                    Klitzo
+                  </div>
+                  <div className="text-black font-medium whitespace-pre-line">
+                    {settings?.fromAddress || 'Al jaseera trade city\nInkel city, Melmuri\nMALAPPURAM, Kerala, 676519, India'}
+                  </div>
+                  <div className="text-black font-bold">
+                    Ph: {settings?.fromMobile || '+91 81118 13853'}
+                  </div>
+                </div>
+
+                {/* 5. Product Items Table */}
+                <div className="border-t-2 border-black mt-auto">
+                  {(() => {
+                    const formatFullProductName = (name: string, variant?: string) => {
+                      let n = (name || "").trim();
+                      if (variant && variant !== "Standard") {
+                        if (!n.toLowerCase().includes(variant.toLowerCase())) {
+                          n = `${n} (${variant})`;
+                        }
+                      }
+                      return n;
+                    };
+
+                    const getPrintItems = (ord: any) => {
+                      if (ord.items && Array.isArray(ord.items) && ord.items.length > 0) {
+                        return ord.items.map((it: any) => ({
+                          name: formatFullProductName(it.productName || it.name, it.variantSize),
+                          quantity: it.quantity || 1,
+                          price: it.price || (ord.amount ? Math.round(ord.amount / ord.items.length) : undefined),
+                          weight: it.weight || 220,
+                        }));
+                      }
+                      if ((ord.productName || "").includes(",")) {
+                        const parts = ord.productName.split(",");
+                        return parts.map((pStr: string) => {
+                          const match = pStr.trim().match(/^(.*?)(?:\s*(?:x|×|QTY:?)\s*(\d+))?$/i);
+                          return {
+                            name: formatFullProductName(match ? match[1].trim() : pStr.trim()),
+                            quantity: match && match[2] ? parseInt(match[2], 10) : 1,
+                            price: ord.amount ? Math.round(ord.amount / parts.length) : undefined,
+                            weight: 220,
+                          };
+                        });
+                      }
+                      const match = (ord.productName || "").trim().match(/^(.*?)(?:\s*(?:x|×|QTY:?)\s*(\d+))?$/i);
+                      return [{
+                        name: formatFullProductName(match && match[2] ? match[1].trim() : (ord.productName || "Product")),
+                        quantity: match && match[2] ? parseInt(match[2], 10) : (ord.quantity || 1),
+                        price: ord.amount || undefined,
+                        weight: 220,
+                      }];
+                    };
+
+                    const itemsList = getPrintItems(order);
+
+                    return (
+                      <table className="w-full border-collapse text-left text-[10px]">
+                        <thead>
+                          <tr className="border-b border-black bg-slate-50">
+                            <th className="font-bold text-black py-1 px-2 text-left">Product name</th>
+                            <th className="font-bold text-black py-1 px-1 text-center w-10">Qty</th>
+                            <th className="font-bold text-black py-1 px-1 text-center w-16">Weight (g)</th>
+                            <th className="font-bold text-black py-1 px-2 text-right w-20">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {itemsList.map((it: any, itIdx: number) => (
+                            <tr key={itIdx} className="border-b border-slate-200 last:border-b-0">
+                              <td className="py-1 px-2 font-medium text-black uppercase break-words leading-tight">
+                                {it.name}
+                              </td>
+                              <td className="py-1 px-1 text-center font-bold text-black align-top">
+                                {it.quantity || 1}
+                              </td>
+                              <td className="py-1 px-1 text-center font-medium text-black align-top">
+                                {it.weight ? `${it.weight}g` : '220g'}
+                              </td>
+                              <td className="py-1 px-2 text-right font-bold text-black align-top whitespace-nowrap">
+                                Rs. {it.price ? (it.price * (it.quantity || 1)).toFixed(2) : ((order.amount || 0) / (itemsList.length || 1)).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
           ))}
           {/* Fill empty cells if page has less than 4 orders */}

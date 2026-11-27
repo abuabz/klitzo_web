@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ShoppingCart, User, MapPin, MessageCircle, CreditCard, Loader2, ShoppingBag, X } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Script from "next/script"
 import { toast } from "sonner"
+import { useCart } from "@/context/CartContext"
 
 interface PurchaseFormProps {
   product?: {
@@ -16,6 +18,7 @@ interface PurchaseFormProps {
     name: string
     price: string
     image: string
+    variantSize?: string
   }
   items?: Array<{
     id: string
@@ -33,6 +36,8 @@ interface PurchaseFormProps {
 }
 
 export default function PurchaseForm({ product, items, quantity = 1, initialCashOnDelivery, onClose, onSuccess }: PurchaseFormProps) {
+  const router = useRouter();
+  const { clearCart } = useCart();
   const isCart = Boolean(items && items.length > 0);
   const effectiveQuantity = isCart
     ? items!.reduce((acc, i) => acc + i.quantity, 0)
@@ -40,11 +45,15 @@ export default function PurchaseForm({ product, items, quantity = 1, initialCash
   const effectiveBasePrice = isCart
     ? items!.reduce((acc, i) => acc + i.price * i.quantity, 0)
     : Number.parseFloat(String(product?.price || 0).replace(/[^\d.]/g, "")) * quantity;
+  const formatItemString = (name: string, variant?: string, qty?: number) => {
+    const sizePart = variant && variant !== "Standard" ? ` (${variant})` : "";
+    const qtyPart = qty && qty > 0 ? ` x${qty}` : "";
+    return `${name}${sizePart}${qtyPart}`;
+  };
+
   const effectiveProductName = isCart
-    ? (items!.length > 1
-        ? items!.map(i => `${i.name}${i.variantSize ? ` (${i.variantSize})` : ''} x${i.quantity}`).join(", ")
-        : items![0]?.name || "Products")
-    : (product?.name || "Product");
+    ? items!.map(i => formatItemString(i.name, i.variantSize, i.quantity)).join(", ")
+    : formatItemString(product?.name || "Product", product?.variantSize, quantity);
   const effectiveProductImage = isCart
     ? (items![0]?.image || "/placeholder.svg")
     : (product?.image || "/placeholder.svg");
@@ -169,7 +178,7 @@ export default function PurchaseForm({ product, items, quantity = 1, initialCash
                   productImage: effectiveProductImage,
                   price: effectiveQuantity > 0 ? effectiveBasePrice / effectiveQuantity : effectiveBasePrice,
                   quantity: effectiveQuantity,
-                  variantSize: "Standard",
+                  variantSize: product?.variantSize || "Standard",
                 },
               ],
           productId: effectiveProductId,
@@ -194,8 +203,18 @@ export default function PurchaseForm({ product, items, quantity = 1, initialCash
       }
 
       toast.success("Order placed successfully!");
+      if (isCart && clearCart) {
+        clearCart();
+      }
+      sessionStorage.removeItem(storageKey);
+      if (product?.id) {
+        sessionStorage.removeItem(`purchaseFormOpen_${product.id}`);
+        sessionStorage.removeItem(`purchaseFormData_${product.id}`);
+      }
       setIsSuccess(true);
       if (onSuccess) onSuccess();
+      if (onClose) onClose();
+      router.push("/my-orders");
     } catch (error) {
       console.error(error);
       toast.error("Failed to process order. Please try again.");
@@ -314,7 +333,7 @@ export default function PurchaseForm({ product, items, quantity = 1, initialCash
                   productImage: effectiveProductImage,
                   price: effectiveQuantity > 0 ? effectiveBasePrice / effectiveQuantity : effectiveBasePrice,
                   quantity: effectiveQuantity,
-                  variantSize: "Standard",
+                  variantSize: product?.variantSize || "Standard",
                 },
               ],
           productId: effectiveProductId,
@@ -402,8 +421,8 @@ export default function PurchaseForm({ product, items, quantity = 1, initialCash
           <Button
             className="w-full bg-slate-900 hover:bg-slate-800 text-white py-7 rounded-2xl font-bold text-lg shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
             onClick={() => {
-              window.open("/my-orders", "_blank");
               if (onClose) onClose();
+              router.push("/my-orders");
             }}
           >
             Track My Order

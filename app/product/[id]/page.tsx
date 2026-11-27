@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Star, Minus, Plus, ShoppingCart, ShoppingBag, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck, X, ChevronDown, ChevronUp } from "lucide-react"
+import { Sparkles, Star, Minus, Plus, ShoppingCart, ShoppingBag, Heart, Share2, ArrowLeft, Clock, LucideFolderSync, Truck, X, ChevronDown, ChevronUp, LucideTimer } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -98,18 +98,19 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    const currentPrice = Number.parseFloat(String(selectedVariant?.price || product.price).replace(/[^\d.]/g, ""));
-    const currentOrigPrice = selectedVariant?.originalPrice || product.originalPrice 
-      ? Number.parseFloat(String(selectedVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, ""))
+    const effectiveVariant = selectedVariant || (product.variants && product.variants.length > 0 ? product.variants[0] : null);
+    const currentPrice = Number.parseFloat(String(effectiveVariant?.price || product.price).replace(/[^\d.]/g, ""));
+    const currentOrigPrice = (effectiveVariant?.originalPrice || product.originalPrice)
+      ? Number.parseFloat(String(effectiveVariant?.originalPrice || product.originalPrice).replace(/[^\d.]/g, ""))
       : undefined;
-    const currentImg = selectedVariant?.image || product.images?.[0] || product.image || "/placeholder.svg";
-    const variantId = selectedVariant?.sku || selectedVariant?.size || "default";
+    const currentImg = effectiveVariant?.images?.[0] || effectiveVariant?.image || product.images?.[0] || product.image || "/placeholder.svg";
+    const variantId = effectiveVariant?.sku || effectiveVariant?.size || "default";
 
     addItem({
       id: `${product.id}-${variantId}`,
       productId: product.id,
       name: product.name,
-      variantSize: selectedVariant?.size || undefined,
+      variantSize: effectiveVariant?.size || undefined,
       price: currentPrice,
       originalPrice: currentOrigPrice,
       image: currentImg,
@@ -230,9 +231,10 @@ export default function ProductPage() {
             <PurchaseForm
               product={{
                 id: product.id,
-                name: product.name + (selectedVariant ? ` - ${selectedVariant.size}` : ''),
+                name: product.name,
+                variantSize: selectedVariant?.size,
                 price: selectedVariant?.price || product.price,
-                image: selectedVariant?.image || product.images?.[0] || product.image || "/placeholder.svg",
+                image: selectedVariant?.images?.[0] || selectedVariant?.image || product.images?.[0] || product.image || "/placeholder.svg",
               }}
               quantity={quantity}
               onClose={() => setShowPurchaseForm(false)}
@@ -284,10 +286,10 @@ export default function ProductPage() {
                     return [fallback];
                   })();
 
-                  const activeImageSrc = (selectedImage === -1 ? selectedVariant?.image : displayImages[selectedImage]) 
-                    || displayImages[0] 
-                    || selectedVariant?.image 
-                    || product.image 
+                  const activeImageSrc = (selectedImage === -1 ? selectedVariant?.image : displayImages[selectedImage])
+                    || displayImages[0]
+                    || selectedVariant?.image
+                    || product.image
                     || "/placeholder.svg";
 
                   return (
@@ -309,11 +311,10 @@ export default function ProductPage() {
                               key={index}
                               type="button"
                               onClick={() => setSelectedImage(index)}
-                              className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 p-1 bg-white flex items-center justify-center ${
-                                selectedImage === index
-                                  ? "border-teal-500 shadow-md ring-2 ring-teal-500/20"
-                                  : "border-slate-200 hover:border-slate-300"
-                              }`}
+                              className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all duration-200 p-1 bg-white flex items-center justify-center ${selectedImage === index
+                                ? "border-teal-500 shadow-md ring-2 ring-teal-500/20"
+                                : "border-slate-200 hover:border-slate-300"
+                                }`}
                             >
                               <img
                                 src={image || "/placeholder.svg"}
@@ -488,8 +489,8 @@ export default function ProductPage() {
                         <span className="font-semibold truncate">All India Free Delivery</span>
                       </div>
                       <div className="flex items-center text-emerald-800 bg-emerald-50/80 p-2 rounded-lg">
-                        <LucideFolderSync className="h-4 w-4 mr-1.5 shrink-0 text-emerald-600" />
-                        <span className="font-semibold truncate">5-Day Guarantee</span>
+                        <LucideTimer className="h-4 w-4 mr-1.5 shrink-0 text-emerald-600" />
+                        <span className="font-semibold truncate">3-5 Days Delivery</span>
                       </div>
                     </div>
                   )}

@@ -58,9 +58,9 @@ export function generateBarcodeSvg(text: string, height: number = 44, barWidth: 
   }
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${height + 16}" width="${totalWidth}" height="${height + 16}">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${height + 17}" width="${totalWidth}" height="${height + 17}">
       ${rects}
-      <text x="${totalWidth / 2}" y="${height + 13}" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle" fill="#000" letter-spacing="2">
+      <text x="${totalWidth / 2}" y="${height + 14}" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="900" text-anchor="middle" fill="#000" letter-spacing="3">
         ${text}
       </text>
     </svg>

@@ -1175,14 +1175,34 @@ export default function AdminPage() {
                            <span className="text-xs text-slate-400">{order.shippingAddress?.phone || order.userMobile}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium text-slate-600">
-                        {order.items && order.items.length > 1 ? (
-                          <div>
-                            <span className="font-bold text-slate-800">{order.items[0].productName}</span>
-                            <span className="text-xs text-teal-600 block font-semibold">+{order.items.length - 1} more items ({order.quantity} total)</span>
+                      <TableCell className="font-medium text-slate-600 max-w-[280px]">
+                        {order.items && order.items.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {order.items.map((it: any, itIdx: number) => (
+                              <div key={itIdx} className="flex items-center justify-between text-xs gap-1.5 bg-slate-50 border border-slate-200/80 rounded px-1.5 py-0.5">
+                                <span className="font-semibold text-slate-800 truncate" title={it.productName}>
+                                  {it.productName} {it.variantSize && it.variantSize !== "Standard" ? `(${it.variantSize})` : ""}
+                                </span>
+                                <span className="font-bold text-[11px] bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded shrink-0">
+                                  &times; {it.quantity || 1}
+                                </span>
+                              </div>
+                            ))}
+                            {order.items.length > 1 && (
+                              <span className="text-[10px] text-slate-400 font-semibold self-end">
+                                Total: {order.quantity || order.items.reduce((s: number, i: any) => s + (i.quantity || 1), 0)} items
+                              </span>
+                            )}
                           </div>
                         ) : (
-                          order.productName
+                          <div className="text-xs font-semibold text-slate-800">
+                            {order.productName}
+                            {order.quantity && order.quantity > 1 && !order.productName?.toLowerCase().includes(`x${order.quantity}`) && (
+                              <span className="ml-1.5 font-bold text-[11px] bg-teal-100 text-teal-800 px-1.5 py-0.2 rounded">
+                                &times; {order.quantity}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </TableCell>
                       <TableCell>
@@ -2438,12 +2458,25 @@ export default function AdminPage() {
                   {orders
                     .filter((o) => selectedOrders.includes(o._id))
                     .map((o) => (
-                      <div key={o._id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
-                        <div className="min-w-0 pr-3">
+                      <div key={o._id} className="pt-2 first:pt-0 flex items-start justify-between text-xs gap-2">
+                        <div className="min-w-0 flex-1">
                           <p className="font-bold text-slate-800 truncate">{o.shippingAddress?.name || o.userName}</p>
                           <p className="text-slate-500 truncate text-[11px]">
                             {o.shippingAddress?.district || o.shippingAddress?.place || ""}, PIN: {o.shippingAddress?.pincode}
                           </p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {o.items && o.items.length > 0 ? (
+                              o.items.map((it: any, idx: number) => (
+                                <span key={idx} className="bg-slate-100 text-slate-700 border border-slate-200 rounded px-1.5 py-0.2 text-[10px] font-medium">
+                                  {it.productName} <strong className="text-teal-700 font-bold">&times;{it.quantity || 1}</strong>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="bg-slate-100 text-slate-700 border border-slate-200 rounded px-1.5 py-0.2 text-[10px] font-medium truncate max-w-[240px]">
+                                {o.productName}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="text-right shrink-0">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${

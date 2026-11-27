@@ -15,6 +15,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
+import ProductVariantModal from "@/components/product-variant-modal"
+import PurchaseForm from "@/components/purchase-form"
 
 export default function KlitzoLanding() {
   const { addItem } = useCart()
@@ -27,21 +29,41 @@ export default function KlitzoLanding() {
   )
   const [openFeature, setOpenFeature] = useState<number | null>(null)
   const [products, setProducts] = useState<any[]>([])
+  const [variantModalProduct, setVariantModalProduct] = useState<any | null>(null)
+  const [variantModalOpen, setVariantModalOpen] = useState(false)
+  const [directBuyProduct, setDirectBuyProduct] = useState<any | null>(null)
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
-    const priceNum = Number.parseFloat(String(product.price).replace(/[^\d.]/g, ""))
-    const origPriceNum = product.originalPrice
-      ? Number.parseFloat(String(product.originalPrice).replace(/[^\d.]/g, ""))
+
+    // If product has multiple variants, open variant modal to choose size/attribute
+    if (product.variants && Array.isArray(product.variants) && product.variants.length > 1) {
+      setVariantModalProduct(product)
+      setVariantModalOpen(true)
+      return
+    }
+
+    // If 1 variant or no variants, add directly with variant size if present
+    const singleVar = product.variants && product.variants.length === 1 ? product.variants[0] : null
+    const priceNum = singleVar
+      ? Number.parseFloat(String(singleVar.price).replace(/[^\d.]/g, ""))
+      : Number.parseFloat(String(product.price).replace(/[^\d.]/g, ""))
+    const origPriceNum = (singleVar?.originalPrice || product.originalPrice)
+      ? Number.parseFloat(String(singleVar?.originalPrice || product.originalPrice).replace(/[^\d.]/g, ""))
       : undefined
+    const img = singleVar?.images?.[0] || singleVar?.image || product.image || product.images?.[0] || "/placeholder.svg"
+    const varSize = singleVar?.size || undefined
+    const varKey = singleVar?.sku || singleVar?.size || "default"
+
     addItem({
-      id: `${product.id}-default`,
+      id: `${product.id}-${varKey}`,
       productId: product.id,
       name: product.name,
+      variantSize: varSize,
       price: priceNum,
       originalPrice: origPriceNum,
-      image: product.image || "/placeholder.svg",
+      image: img,
     })
   }
 
@@ -645,6 +667,50 @@ export default function KlitzoLanding() {
         </div>
       </section >
 
+      <ProductVariantModal
+        product={variantModalProduct}
+        isOpen={variantModalOpen}
+        onClose={() => {
+          setVariantModalOpen(false)
+          setVariantModalProduct(null)
+        }}
+        onBuyNow={(prod, variant, qty) => {
+          setVariantModalOpen(false)
+          setVariantModalProduct(null)
+          setDirectBuyProduct({
+            id: prod.id,
+            name: prod.name,
+            variantSize: variant?.size,
+            price: variant?.price || prod.price,
+            image: variant?.images?.[0] || variant?.image || prod.images?.[0] || prod.image || "/placeholder.svg",
+            quantity: qty,
+          })
+        }}
+      />
+
+      {directBuyProduct && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[99] p-4"
+          onClick={() => setDirectBuyProduct(null)}
+        >
+          <div
+            className="max-h-[90vh] overflow-y-auto w-full max-w-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PurchaseForm
+              product={{
+                id: directBuyProduct.id,
+                name: directBuyProduct.name,
+                variantSize: directBuyProduct.variantSize,
+                price: directBuyProduct.price,
+                image: directBuyProduct.image,
+              }}
+              quantity={directBuyProduct.quantity || 1}
+              onClose={() => setDirectBuyProduct(null)}
+            />
+          </div>
+        </div>
+      )}
 
     </div >
   )
